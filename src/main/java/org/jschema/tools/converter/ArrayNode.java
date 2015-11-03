@@ -39,7 +39,7 @@ public class ArrayNode<T> extends ConverterNode<List<T>>
       T t = iterator.next();
       maybeNewLine( indent, stringBuilder );
       maybeIndent( newOffset, stringBuilder );
-      _component.prettyPrint( offset, indent, stringBuilder, t );
+      _component.prettyPrint( newOffset, indent, stringBuilder, t );
       if(iterator.hasNext())
       {
         stringBuilder.append( ", " );
