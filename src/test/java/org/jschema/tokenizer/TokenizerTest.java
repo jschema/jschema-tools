@@ -84,7 +84,7 @@ public class TokenizerTest
     //multiple fractions
     tokens = tokenize( ".23 .56" );
     assertTokensAre( tokens, token(NUMBER,".23"),token(NUMBER,".56"));
-    
+
 
   }
 
