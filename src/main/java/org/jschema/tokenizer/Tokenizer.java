@@ -2,6 +2,8 @@ package org.jschema.tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.jschema.tokenizer.Token.TokenType.*;
 
@@ -78,19 +80,34 @@ public class Tokenizer
 
   private Token consumeString()
   {
-    //TODO - implement
+    String value = matchRegex("(\"[^\"]+\")");
+    if (value != null) {
+      Token t = newToken(STRING, value);
+      bumpOffset(value.length());
+      return t;
+    }
     return null;
   }
 
   private Token consumeNumber()
   {
-    //TOOD - implement
+    String value = matchRegex("(\\d+)");
+    if (value != null) {
+      Token t = newToken(NUMBER, value);
+      bumpOffset(value.length());
+      return t;
+    }
     return null;
   }
 
   private Token consumePunctuation()
   {
-    //TOOD - implement
+    String value = matchRegex("(\\[|\\]|\\{|\\}|:|,)");
+    if (value != null) {
+      Token t = newToken(PUNCTUATION, value);
+      bumpOffset(1);
+      return t;
+    }
     return null;
   }
 
@@ -143,6 +160,15 @@ public class Tokenizer
     return true;
   }
 
+  private boolean matchString(String string) {
+    for( int i = 0; i < string.length(); i++ )  {
+      if( !peekAndMatch( i, string.charAt(i) ))  {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private boolean peekAndMatch( int i, char toMatch )
   {
     if( _offset + i < _chars.length )
@@ -150,6 +176,27 @@ public class Tokenizer
       return _chars[_offset + i] == toMatch;
     } else {
       return false;
+    }
+  }
+
+  private String matchRegex(String patternString) {
+    Pattern pattern = Pattern.compile(patternString);
+
+    // Build string to match from current position
+    StringBuffer remainingCharsBuffer = new StringBuffer(_chars.length);
+    for (int i = _offset; i < _chars.length; i++){
+      remainingCharsBuffer.append(_chars[i]);
+    }
+    String remainingCharsString =  remainingCharsBuffer.toString();
+
+    // Get matches and ensure first match exists at beginning of string
+    Matcher matcher = pattern.matcher(remainingCharsString);
+    if (matcher.find()) {
+      boolean didMatch = matchString(matcher.group(0));
+      return didMatch ? matcher.group(0) : null;
+    } else {
+      // No match
+      return null;
     }
   }
 

@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.jschema.tokenizer.Token.TokenType.CONSTANT;
+import static org.jschema.tokenizer.Token.TokenType.*;
 
 public class TokenizerTest
 {
@@ -13,7 +13,7 @@ public class TokenizerTest
   @Test
   public void bootstrapTest()
   {
-    //basic constant
+    // basic constant
     List<Token> tokens = tokenize( "true" );
     assertTokensAre( tokens, token( CONSTANT, "true" ) );
 
@@ -32,6 +32,77 @@ public class TokenizerTest
     // two tokens whitespace
     tokens = tokenize( "true   false" );
     assertTokensAre( tokens, token( CONSTANT, "true" ), token( CONSTANT, "false" ) );
+  }
+
+  @Test
+  public void testNumbers()
+  {
+    // basic number
+    List<Token> tokens = tokenize( "123" );
+    assertTokensAre( tokens, token( NUMBER, "123" ) );
+
+    // leading whitespace
+    tokens = tokenize( "   123" );
+    assertTokensAre( tokens, token( NUMBER, "123" ) );
+
+    // trailing whitespace
+    tokens = tokenize( "123   " );
+    assertTokensAre( tokens, token( NUMBER, "123" ) );
+
+    // trailing whitespace
+    tokens = tokenize( "123   " );
+    assertTokensAre( tokens, token( NUMBER, "123" ) );
+
+    // two tokens whitespace
+    tokens = tokenize( "123   456" );
+    assertTokensAre( tokens, token( NUMBER, "123" ), token( NUMBER, "456" ) );
+  }
+
+  @Test
+  public void testPunctuation()
+  {
+    // basic punctuation
+    List<Token> tokens = tokenize( "{" );
+    assertTokensAre( tokens, token( PUNCTUATION, "{" ) );
+
+    // curly braces
+    tokens = tokenize( "{ }" );
+    assertTokensAre( tokens, token( PUNCTUATION, "{" ), token( PUNCTUATION, "}" ) );
+
+    // square brackets
+    tokens = tokenize( "[ ]" );
+    assertTokensAre( tokens, token( PUNCTUATION, "[" ), token( PUNCTUATION, "]" ) );
+
+    // colons
+    tokens = tokenize( ": " );
+    assertTokensAre( tokens, token( PUNCTUATION, ":" ) );
+
+    // comma
+    tokens = tokenize( ", " );
+    assertTokensAre( tokens, token( PUNCTUATION, "," ) );
+  }
+
+  @Test
+  public void testString() {
+    // basic string
+    List<Token> tokens = tokenize( "\"hello world\"" );
+    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+
+    // leading whitespace
+    tokens = tokenize( "   \"hello world\"" );
+    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+
+    // trailing whitespace
+    tokens = tokenize( "\"hello world\"   " );
+    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+
+    // trailing whitespace
+    tokens = tokenize( "\"hello world\"   " );
+    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+
+    // two tokens whitespace
+    tokens = tokenize( "\"hello world\"   \"guidewire\"" );
+    assertTokensAre( tokens, token( STRING, "\"hello world\"" ), token( STRING, "\"guidewire\"" ) );
   }
 
   //========================================================================================
