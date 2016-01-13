@@ -24,7 +24,7 @@ public class Tokenizer
 
   public List<Token> tokenize()
   {
-    ArrayList<Token> tokens = new ArrayList<>();
+    ArrayList<Token> tokens = new ArrayList<Token>();
 
     _chars = _string.toCharArray();
     _offset = 0;
