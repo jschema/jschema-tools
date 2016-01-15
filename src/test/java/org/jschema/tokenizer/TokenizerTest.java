@@ -42,12 +42,12 @@ public class TokenizerTest
     assertTokensAre( tokens, token( NUMBER, "123" ) );
 
     // leading whitespace
-    tokens = tokenize( "   123" );
-    assertTokensAre( tokens, token( NUMBER, "123" ) );
+    tokens = tokenize( "   123.45" );
+    assertTokensAre( tokens, token( NUMBER, "123.45" ) );
 
     // trailing whitespace
-    tokens = tokenize( "123   " );
-    assertTokensAre( tokens, token( NUMBER, "123" ) );
+    tokens = tokenize( "123.56   " );
+    assertTokensAre( tokens, token( NUMBER, "123.56" ) );
 
     // trailing whitespace
     tokens = tokenize( "123   " );
