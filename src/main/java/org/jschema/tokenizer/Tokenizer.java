@@ -81,12 +81,27 @@ public class Tokenizer
   private Token consumeString()
   {
     //TODO - implement
-   /* if( match()){
 
-    }*/
+    String inputstring = _string;
+    while(moreChars()){
+      for(int i = 0; i < _string.length(); i++){
+        if(inputstring.charAt( i+1 ) == ' '){
+          break;
+        }else{
+          //form input string here if not blank space
+        }
+        Token n = newToken(STRING, inputstring);
+        int slength = inputstring.length();
+        bumpOffset(slength);
+        return n;
 
+      }
+
+
+    }
     return null;
   }
+
 
   private Token consumeNumber()
   {
@@ -97,65 +112,19 @@ public class Tokenizer
       bumpOffset(1);
       return n;
     }
-    if( match('2')){
-      Token n = newToken(NUMBER, "2");
-      bumpOffset(1);
-      return n;
-    }
-    if( match('3')){
-      Token n = newToken(NUMBER, "3");
-      bumpOffset(1);
-      return n;
-    }
-    if( match('4')){
-      Token n = newToken(NUMBER, "4");
-      bumpOffset(1);
-      return n;
-    }
-    if( match('5')){
-      Token n = newToken(NUMBER, "5");
-      bumpOffset(1);
-      return n;
-    }
-    if( match('6')){
-      Token n = newToken(NUMBER, "6");
-      bumpOffset(1);
-      return n;
-    }
-    if( match('7')){
-      Token n = newToken(NUMBER, "7");
-      bumpOffset(1);
-      return n;
-    }
-    if( match('8')){
-      Token n = newToken(NUMBER, "8");
-      bumpOffset(1);
-      return n;
-    }
-    if( match('9')){
-      Token n = newToken(NUMBER, "9");
-      bumpOffset(1);
-      return n;
-    }
-    if( match('0')){
-      Token n = newToken(NUMBER, "0");
-      bumpOffset(1);
-      return n;
-    }*/
+    */
 
+    int i = 0;
+    int inputnum = _chars[i];
 
-    //Scanner scan = new Scanner();
-
-    int inputnum = _chars;
-
-    while(moreChars()){
-      //if( match(inputnum)){
-      for(int i = 0 ; i < _chars.length; i++){
-        if(_chars[i] == " "){
+    while(moreChars()){                //as long as there's more to read
+      for(int j = 0 ; j < _chars.length; j++){
+        if(_chars[j] == ' '){
           break;
         }
-        if(Character.isDigit(_chars[i])){
+        if(Character.isDigit(_chars[j])){ //if what is read is an integer
           //collect info to form inputnum
+
 
 
         }
