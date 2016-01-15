@@ -70,13 +70,23 @@ public class TokenizerTest
     tokens = tokenize("-40");
     assertTokensAre(tokens, token( NUMBER, "-40"));
 
-    // two numbers
-    tokens = tokenize("12 -40");
-    assertTokensAre(tokens, token( NUMBER, "12"), token( NUMBER, "-40"));
+    // decimal
+    tokens = tokenize("4.2");
+    assertTokensAre(tokens, token( NUMBER, "4.2"));
+
+    // three numbers
+    tokens = tokenize("12 -4.0");
+    assertTokensAre(tokens, token( NUMBER, "12"), token( NUMBER, "-4.0"));
 
     // negative sign
     tokens = tokenize("-");
-    assertTokensAre(tokens, token( ERROR, "-"));
+    assertTokensAre(tokens, token( ERROR, ">> BAD TOKEN : -"));
+  }
+  @Test
+  public void stringTest(){
+    // basic string
+    //List<Token> tokens = tokenize("\"Hello world\"");
+    //assertTokensAre(tokens, token( STRING, "\"Hello world\""));
   }
 
   //========================================================================================

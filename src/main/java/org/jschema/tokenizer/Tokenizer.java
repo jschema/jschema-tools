@@ -141,7 +141,7 @@ public class Tokenizer
   }
 
   private boolean matchNumber(String n){
-    return n.matches("(^-?\\d+)");
+    return n.matches("(^-?\\d+(?:\\.\\d*)?|\\.\\d+)");
   }
 
   private boolean matchPunctuation (String p){
