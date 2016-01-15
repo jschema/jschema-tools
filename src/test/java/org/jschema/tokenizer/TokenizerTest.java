@@ -6,6 +6,8 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.jschema.tokenizer.Token.TokenType.CONSTANT;
+import static org.jschema.tokenizer.Token.TokenType.NUMBER;
+import static org.jschema.tokenizer.Token.TokenType.PUNCTUATION;
 
 public class TokenizerTest
 {
@@ -32,8 +34,11 @@ public class TokenizerTest
     // two tokens whitespace
     tokens = tokenize( "true   false" );
     assertTokensAre( tokens, token( CONSTANT, "true" ), token( CONSTANT, "false" ) );
-  }
 
+    //number
+    tokens = tokenize("1326: false");
+    assertTokensAre(tokens, token( NUMBER, "1326"), token(PUNCTUATION, ":"), token(CONSTANT, "false"));
+  }
   //========================================================================================
   // Test Helpers
   //========================================================================================

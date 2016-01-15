@@ -24,7 +24,7 @@ public class Tokenizer
 
   public List<Token> tokenize()
   {
-    ArrayList<Token> tokens = new ArrayList<>();
+    ArrayList<Token> tokens = new ArrayList<Token>();
 
     _chars = _string.toCharArray();
     _offset = 0;
@@ -84,13 +84,59 @@ public class Tokenizer
 
   private Token consumeNumber()
   {
-    //TOOD - implement
+    //TODO - implement
+    Token t = newToken(NUMBER, "");
+    while(isNumber(currentChar())){
+      if(!moreChars()) {
+        break;
+      }
+      t = appendToken(t, NUMBER, t.getTokenValue(), "" + currentChar());
+      bumpOffset(1);
+    }
+    if(!t.getTokenValue().equals("")) {
+      return t;
+    }
     return null;
   }
 
   private Token consumePunctuation()
   {
-    //TOOD - implement
+    if(match('['))
+    {
+      Token t = newToken(PUNCTUATION, "[");
+      bumpOffset(1);
+      return t;
+    }
+    if(match(']'))
+    {
+      Token t = newToken(PUNCTUATION, "]");
+      bumpOffset(1);
+      return t;
+    }
+    if(match('{'))
+    {
+      Token t = newToken(PUNCTUATION, "{");
+      bumpOffset(1);
+      return t;
+    }
+    if(match('}'))
+    {
+      Token t = newToken(PUNCTUATION, "}");
+      bumpOffset(1);
+      return t;
+    }
+    if(match(':'))
+    {
+      Token t = newToken(PUNCTUATION, ":");
+      bumpOffset(1);
+      return t;
+    }
+    if(match(','))
+    {
+      Token t = newToken(PUNCTUATION, ",");
+      bumpOffset(1);
+      return t;
+    }
     return null;
   }
 
@@ -153,6 +199,14 @@ public class Tokenizer
     }
   }
 
+  private boolean isNumber(char c){
+    if(Character.isDigit(c)){
+      return true;
+    }
+    return false;
+  }
+
+
   private void eatWhiteSpace()
   {
     while( moreChars() && Character.isWhitespace( currentChar() ) )
@@ -167,6 +221,13 @@ public class Tokenizer
       _column = _column + 1; // bump column
     }
   }
+
+  private Token appendToken(Token token, Token.TokenType type,String tokenValue,  String newValue)
+  {
+    token = newToken(type, tokenValue + newValue );
+    return token;
+  }
+
 
   private char currentChar()
   {
