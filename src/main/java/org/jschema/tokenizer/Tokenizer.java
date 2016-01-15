@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.jschema.tokenizer.Token.TokenType.*;
+import java.util.*;
+
 
 public class Tokenizer
 {
@@ -24,7 +26,7 @@ public class Tokenizer
 
   public List<Token> tokenize()
   {
-    ArrayList<Token> tokens = new ArrayList<>();
+    ArrayList<Token> tokens = new ArrayList<Token>();
 
     _chars = _string.toCharArray();
     _offset = 0;
@@ -79,18 +81,130 @@ public class Tokenizer
   private Token consumeString()
   {
     //TODO - implement
+   /* if( match()){
+
+    }*/
+
     return null;
   }
 
   private Token consumeNumber()
   {
     //TOOD - implement
+    /*
+    if( match('1')){
+      Token n = newToken(NUMBER, "1");
+      bumpOffset(1);
+      return n;
+    }
+    if( match('2')){
+      Token n = newToken(NUMBER, "2");
+      bumpOffset(1);
+      return n;
+    }
+    if( match('3')){
+      Token n = newToken(NUMBER, "3");
+      bumpOffset(1);
+      return n;
+    }
+    if( match('4')){
+      Token n = newToken(NUMBER, "4");
+      bumpOffset(1);
+      return n;
+    }
+    if( match('5')){
+      Token n = newToken(NUMBER, "5");
+      bumpOffset(1);
+      return n;
+    }
+    if( match('6')){
+      Token n = newToken(NUMBER, "6");
+      bumpOffset(1);
+      return n;
+    }
+    if( match('7')){
+      Token n = newToken(NUMBER, "7");
+      bumpOffset(1);
+      return n;
+    }
+    if( match('8')){
+      Token n = newToken(NUMBER, "8");
+      bumpOffset(1);
+      return n;
+    }
+    if( match('9')){
+      Token n = newToken(NUMBER, "9");
+      bumpOffset(1);
+      return n;
+    }
+    if( match('0')){
+      Token n = newToken(NUMBER, "0");
+      bumpOffset(1);
+      return n;
+    }*/
+
+
+    //Scanner scan = new Scanner();
+
+    int inputnum = _chars;
+
+    while(moreChars()){
+      //if( match(inputnum)){
+      for(int i = 0 ; i < _chars.length; i++){
+        if(_chars[i] == " "){
+          break;
+        }
+        if(Character.isDigit(_chars[i])){
+          //collect info to form inputnum
+
+
+        }
+        Token n = newToken(NUMBER, Integer.toString(inputnum));
+        int length = String.valueOf(inputnum).length();
+        bumpOffset(length);
+        return n;
+      }
+    }
+    //scan.close();
     return null;
   }
+
 
   private Token consumePunctuation()
   {
     //TOOD - implement
+
+    if( match('[')){
+        Token t = newToken(PUNCTUATION, "[");
+        bumpOffset(1);
+        return t;
+    }
+    if( match(']')){
+        Token t = newToken(PUNCTUATION, "]");
+        bumpOffset(1);
+        return t;
+    }
+    if( match('{')){
+        Token t = newToken(PUNCTUATION, "{");
+        bumpOffset(1);
+        return t;
+    }
+    if( match('}')){
+        Token t = newToken(PUNCTUATION, "}");
+        bumpOffset(1);
+        return t;
+    }
+    if( match(':')){
+        Token t = newToken(PUNCTUATION, ":");
+        bumpOffset(1);
+        return t;
+    }
+    if( match(',')){
+        Token t = newToken(PUNCTUATION, ",");
+        bumpOffset(1);
+        return t;
+    }
+
     return null;
   }
 
@@ -142,6 +256,20 @@ public class Tokenizer
     }
     return true;
   }
+
+/*
+  //function for string matching
+  private boolean matchString( String charArray){
+    for( int i = 0; i < charArray.length; i++){
+      if( !peekAndMatch( i, charArray[i] )){
+        return false;
+      }
+    }
+    return true;
+  }
+
+*/
+
 
   private boolean peekAndMatch( int i, char toMatch )
   {
