@@ -91,7 +91,7 @@ public class Tokenizer
 
   private Token consumeNumber()
   {
-    String value = matchRegex("(\\d+.?\\d+)");
+    String value = matchRegex("(-?\\d+.?\\d+)");
     if (value != null) {
       Token t = newToken(NUMBER, value);
       bumpOffset(value.length());
