@@ -5,33 +5,78 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.jschema.tokenizer.Token.TokenType.CONSTANT;
+import static org.jschema.tokenizer.Token.TokenType.*;
 
 public class TokenizerTest
 {
 
   @Test
-  public void bootstrapTest()
-  {
-    //basic constant
-    List<Token> tokens = tokenize( "true" );
-    assertTokensAre( tokens, token( CONSTANT, "true" ) );
+  public void bootstrapTest() {
+    // basic constant
+    List<Token> tokens = tokenize("true");
+    assertTokensAre(tokens, token(CONSTANT, "true"));
 
     // leading whitespace
-    tokens = tokenize( "   true" );
-    assertTokensAre( tokens, token( CONSTANT, "true" ) );
+    tokens = tokenize("   true");
+    assertTokensAre(tokens, token(CONSTANT, "true"));
 
     // trailing whitespace
-    tokens = tokenize( "true   " );
-    assertTokensAre( tokens, token( CONSTANT, "true" ) );
-
-    // trailing whitespace
-    tokens = tokenize( "true   " );
-    assertTokensAre( tokens, token( CONSTANT, "true" ) );
+    tokens = tokenize("true   ");
+    assertTokensAre(tokens, token(CONSTANT, "true"));
 
     // two tokens whitespace
-    tokens = tokenize( "true   false" );
-    assertTokensAre( tokens, token( CONSTANT, "true" ), token( CONSTANT, "false" ) );
+    tokens = tokenize("true   false");
+    assertTokensAre(tokens, token(CONSTANT, "true"), token(CONSTANT, "false"));
+  }
+
+  @Test
+  public void punctuationTest() {
+    // basic symbol
+    List<Token> tokens = tokenize(":");
+    assertTokensAre(tokens, token(PUNCTUATION, ":"));
+
+    // leading whitespace
+    tokens = tokenize("   :");
+    assertTokensAre(tokens, token(PUNCTUATION, ":"));
+
+    // trailing whitespace
+    tokens = tokenize(":    ");
+    assertTokensAre(tokens, token(PUNCTUATION, ":"));
+
+    // two tokens
+    tokens = tokenize("[ ]");
+    assertTokensAre(tokens, token(PUNCTUATION, "["), token(PUNCTUATION, "]"));
+  }
+
+  @Test
+  public void numberTest(){
+    // one-digit number
+    List<Token> tokens = tokenize("5");
+    assertTokensAre(tokens, token( NUMBER, "5"));
+
+    // two-digit number
+    tokens = tokenize("12");
+    assertTokensAre(tokens, token( NUMBER, "12"));
+
+    // leading whitespace
+    tokens = tokenize("   12");
+    assertTokensAre(tokens, token( NUMBER, "12"));
+
+    // trailing whitespace
+    tokens = tokenize("12    ");
+    assertTokensAre(tokens, token( NUMBER, "12"));
+
+    // negative number
+    tokens = tokenize("-40");
+    assertTokensAre(tokens, token( NUMBER, "-40"));
+
+    // two numbers
+    tokens = tokenize("12 -40");
+    assertTokensAre(tokens, token( NUMBER, "12"), token( NUMBER, "-40"));
+
+    // negative sign
+    tokens = tokenize("-");
+    assertTokensAre(tokens, token( ERROR, "-"));
   }
 
   //========================================================================================
@@ -61,9 +106,9 @@ public class TokenizerTest
     {
       Assert.assertEquals( match.getLineNumber(), token.getLineNumber() );
     }
-    if( match.getOffest() > 0 )
+    if( match.getOffset() > 0 )
     {
-      Assert.assertEquals( match.getOffest(), token.getOffest() );
+      Assert.assertEquals( match.getOffset(), token.getOffset() );
     }
     if( match.getColumn() > 0 )
     {

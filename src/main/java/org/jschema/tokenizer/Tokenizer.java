@@ -24,7 +24,7 @@ public class Tokenizer
 
   public List<Token> tokenize()
   {
-    ArrayList<Token> tokens = new ArrayList<>();
+    ArrayList<Token> tokens = new ArrayList<Token>();
 
     _chars = _string.toCharArray();
     _offset = 0;
@@ -78,19 +78,28 @@ public class Tokenizer
 
   private Token consumeString()
   {
-    //TODO - implement
+    // TODO - implement
     return null;
   }
 
   private Token consumeNumber()
   {
-    //TOOD - implement
+    String[] num = _string.substring(_offset, _string.length()).split(" ");
+    if ( matchNumber(num[0])){
+      Token t = newToken( NUMBER, num[0]);
+      bumpOffset(num[0].length());
+      return t;
+    }
     return null;
   }
 
   private Token consumePunctuation()
   {
-    //TOOD - implement
+    if ( _chars.length > _offset && matchPunctuation(String.valueOf(_chars[_offset]))) {
+      Token t = newToken( PUNCTUATION, String.valueOf(_chars[_offset]));
+      bumpOffset(1);
+      return t;
+    }
     return null;
   }
 
@@ -129,6 +138,14 @@ public class Tokenizer
   private Token newToken( Token.TokenType type, String tokenValue )
   {
     return new Token( type, tokenValue, _line, _column, _offset + 1 );
+  }
+
+  private boolean matchNumber(String n){
+    return n.matches("(^-?\\d+)");
+  }
+
+  private boolean matchPunctuation (String p){
+    return p.matches("([\\[\\]{}:,])");
   }
 
   private boolean match( char... charArray)
