@@ -78,7 +78,24 @@ public class Tokenizer
 
   private Token consumeString()
   {
-    // TODO - implement
+    if (_chars[_offset] == '\"') {
+      StringBuilder str = new StringBuilder();
+      str.append(_chars[_offset]);
+      bumpOffset(1);
+      while(true){
+        if(_offset == _chars.length) return null;
+        str.append(_chars[_offset]);
+        if (_chars[_offset] == '\"') break;
+        bumpOffset(1);
+      }
+      bumpOffset(1);
+      if (matchString(str.toString())){
+        Token t = newToken(STRING, str.toString());
+        return t;
+      }
+      return null;
+    }
+
     return null;
   }
 
@@ -138,6 +155,10 @@ public class Tokenizer
   private Token newToken( Token.TokenType type, String tokenValue )
   {
     return new Token( type, tokenValue, _line, _column, _offset + 1 );
+  }
+
+  private boolean matchString(String n){
+    return n.matches("(\".+\")");
   }
 
   private boolean matchNumber(String n){
