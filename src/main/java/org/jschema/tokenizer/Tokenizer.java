@@ -79,6 +79,28 @@ public class Tokenizer
   private Token consumeString()
   {
     //TODO - implement
+    if( match( 't', 'r', 'u', 'e' ) )
+    {
+      return null;
+    }
+    if( match( 'f', 'a', 'l', 's', 'e' ) )
+    {
+      return null;
+    }
+    if( match( 'n', 'u', 'l', 'l' ) )
+    {
+      return null;
+    }
+    Token t = newToken(STRING, "");
+    while (isLetter(currentChar())) {
+      t = appendToken(t, STRING, t.getTokenValue(), "" + currentChar());
+      bumpOffset(1);
+      if(!moreChars()) break;
+    }
+
+    if(!t.getTokenValue().equals("")) {
+      return t;
+    }
     return null;
   }
 
@@ -86,13 +108,12 @@ public class Tokenizer
   {
     //TODO - implement
     Token t = newToken(NUMBER, "");
-    while(isNumber(currentChar())){
-      if(!moreChars()) {
-        break;
+      while (isNumber(currentChar())) {
+        t = appendToken(t, NUMBER, t.getTokenValue(), "" + currentChar());
+        bumpOffset(1);
+        if(!moreChars()) break;
       }
-      t = appendToken(t, NUMBER, t.getTokenValue(), "" + currentChar());
-      bumpOffset(1);
-    }
+
     if(!t.getTokenValue().equals("")) {
       return t;
     }
@@ -201,6 +222,12 @@ public class Tokenizer
 
   private boolean isNumber(char c){
     if(Character.isDigit(c)){
+      return true;
+    }
+    return false;
+  }
+  private boolean isLetter(char c){
+    if(Character.isLetter(c)){
       return true;
     }
     return false;

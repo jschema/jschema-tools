@@ -5,9 +5,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.jschema.tokenizer.Token.TokenType.CONSTANT;
-import static org.jschema.tokenizer.Token.TokenType.NUMBER;
-import static org.jschema.tokenizer.Token.TokenType.PUNCTUATION;
+import static org.jschema.tokenizer.Token.TokenType.*;
 
 public class TokenizerTest
 {
@@ -38,6 +36,22 @@ public class TokenizerTest
     //number
     tokens = tokenize("1326: false");
     assertTokensAre(tokens, token( NUMBER, "1326"), token(PUNCTUATION, ":"), token(CONSTANT, "false"));
+
+    tokens = tokenize("null, 5867");
+    assertTokensAre(tokens, token(CONSTANT, "null"), token(PUNCTUATION, ","), token(NUMBER, "5867"));
+
+    tokens = tokenize("1234 : 5678");
+    assertTokensAre(tokens, token(NUMBER, "1234"), token(PUNCTUATION, ":"), token(NUMBER, "5678"));
+
+    //strings
+    tokens = tokenize("Hello, world 543");
+    assertTokensAre(tokens, token(STRING, "Hello"), token(PUNCTUATION, ","), token(STRING, "world"), token(NUMBER, "543"));
+
+    //all together now!
+    tokens = tokenize("true: 564, false is 1 right");
+    assertTokensAre(tokens, token(CONSTANT, "true"), token(PUNCTUATION, ":"), token(NUMBER, "564"), token(PUNCTUATION, ","), token(CONSTANT, "false"), token(STRING, "is"), token(NUMBER, "1"), token(STRING, "right") );
+
+
   }
   //========================================================================================
   // Test Helpers
