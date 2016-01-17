@@ -38,36 +38,18 @@ public class TokenizerTest
     tokens = tokenize( "true   false" );
     assertTokensAre( tokens, token( CONSTANT, "true" ), token( CONSTANT, "false" ) );
 
-    //test cases for NUMBERS
-    tokens = tokenize("1");
-    assertTokensAre( tokens, token(NUMBER, "1"));
 
-    tokens = tokenize("2");
-    assertTokensAre( tokens, token(NUMBER, "2"));
+    //test cases for work done to PUNCTUATION, NUMBER, STRING
 
-    tokens = tokenize("3");
-    assertTokensAre( tokens, token(NUMBER, "3"));
+    tokens = tokenize("123, true");
+    assertTokensAre( tokens, token(NUMBER, "123"), token(PUNCTUATION, ","), token(CONSTANT, "true"));
 
-    tokens = tokenize("4");
-    assertTokensAre( tokens, token(NUMBER, "4"));
+    tokens = tokenize("12387, hello");
+    assertTokensAre( tokens, token(NUMBER, "12387"), token(PUNCTUATION, ","), token(STRING, "hello"));
 
-    tokens = tokenize("5");
-    assertTokensAre( tokens, token(NUMBER, "5"));
+    tokens = tokenize("hi: 435[");
+    assertTokensAre( tokens, token(STRING, "hi"), token(PUNCTUATION, ":"), token(NUMBER, "435"), token(PUNCTUATION, "["));
 
-    tokens = tokenize("6");
-    assertTokensAre( tokens, token(NUMBER, "6"));
-
-    tokens = tokenize("7");
-    assertTokensAre( tokens, token(NUMBER, "7"));
-
-    tokens = tokenize("8");
-    assertTokensAre( tokens, token(NUMBER, "8"));
-
-    tokens = tokenize("9");
-    assertTokensAre( tokens, token(NUMBER, "9"));
-
-    tokens = tokenize("0");
-    assertTokensAre( tokens, token(NUMBER, "0"));
 
 
     //tests for PUNCTUATION

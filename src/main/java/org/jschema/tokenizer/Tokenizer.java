@@ -80,25 +80,24 @@ public class Tokenizer
 
   private Token consumeString()
   {
-    //TODO - implement
 
-    String inputstring = _string;
-    while(moreChars()){
-      for(int i = 0; i < _string.length(); i++){
-        if(inputstring.charAt( i+1 ) == ' '){
-          break;
-        }else{
-          //form input string here if not blank space
-        }
-        Token n = newToken(STRING, inputstring);
-        int slength = inputstring.length();
-        bumpOffset(slength);
-        return n;
-
-      }
-
-
+    //prevent consumerString from identifying possible STRINGS to be CONSTANTS
+    if( match('t','r','u','e') || match('f','a','l','s','e') || match('n','u','l','l')){
+      return null;
     }
+
+    Token s = newToken(STRING, "");
+
+      while(Character.isLetter(currentChar())){                      //if what we're reading currently is a letter...
+        s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+        bumpOffset(1);
+        if(!moreChars()){
+          break;
+        }
+      }
+      if(!s.getTokenValue().equals("")) {
+        return s;
+      }
     return null;
   }
 
@@ -106,36 +105,25 @@ public class Tokenizer
   private Token consumeNumber()
   {
     //TOOD - implement
-    /*
-    if( match('1')){
-      Token n = newToken(NUMBER, "1");
-      bumpOffset(1);
-      return n;
-    }
-    */
+    Token t = newToken(NUMBER, "");
 
-    int i = 0;
-    int inputnum = _chars[i];
-
-    while(moreChars()){                //as long as there's more to read
-      for(int j = 0 ; j < _chars.length; j++){
-        if(_chars[j] == ' '){
-          break;
+        while(Character.isDigit(currentChar())){ //if what is read is an integer
+          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar()); // "" + "1" = "1" ...
+          bumpOffset(1);
+          if(!moreChars()){  //if there's nothing more to read
+            break;
+          }
         }
-        if(Character.isDigit(_chars[j])){ //if what is read is an integer
-          //collect info to form inputnum
-
-
-
-        }
-        Token n = newToken(NUMBER, Integer.toString(inputnum));
-        int length = String.valueOf(inputnum).length();
-        bumpOffset(length);
-        return n;
-      }
+    if(!t.getTokenValue().equals("")) {
+      return t;
     }
-    //scan.close();
     return null;
+  }
+
+  //appendT method for tokens used in NUMBER and STRING
+  private Token appendT(Token.TokenType type, String curVal, String newVal){
+    Token t = newToken(type, curVal + newVal); //string 1 + string 2
+    return t;
   }
 
 
