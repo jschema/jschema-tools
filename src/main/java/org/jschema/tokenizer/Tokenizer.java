@@ -81,31 +81,32 @@ public class Tokenizer
     if (_chars[_offset] == '\"') {
       StringBuilder str = new StringBuilder();
       str.append(_chars[_offset]);
-      bumpOffset(1);
+      int i = _offset + 1;
       while(true){
-        if(_offset == _chars.length) return null;
-        str.append(_chars[_offset]);
-        if (_chars[_offset] == '\"') break;
-        bumpOffset(1);
+        if(i == _chars.length) return null;
+        str.append(_chars[i]);
+        if (_chars[i++] == '\"') break;
       }
-      bumpOffset(1);
-      if (matchString(str.toString())){
-        Token t = newToken(STRING, str.toString());
-        return t;
-      }
-      return null;
+      Token t = newToken(STRING, str.toString());
+      bumpOffset(i);
+      return t;
     }
-
     return null;
   }
 
   private Token consumeNumber()
   {
-    String[] num = _string.substring(_offset, _string.length()).split(" ");
-    if ( matchNumber(num[0])){
-      Token t = newToken( NUMBER, num[0]);
-      bumpOffset(num[0].length());
-      return t;
+    if (_chars[_offset] == '-' || _chars[_offset] == '.' || Character.isDigit(_chars[_offset])) {
+      StringBuilder num = new StringBuilder();
+      int i = _offset;
+      while (i < _chars.length && _chars[i] != ' ') {
+        num.append(_chars[i++]);
+      }
+      if (matchNumber(num.toString())) {
+        Token t = newToken(NUMBER, num.toString());
+        bumpOffset(i);
+        return t;
+      }
     }
     return null;
   }
@@ -157,11 +158,8 @@ public class Tokenizer
     return new Token( type, tokenValue, _line, _column, _offset + 1 );
   }
 
-  private boolean matchString(String n){
-    return n.matches("(\".+\")");
-  }
-
   private boolean matchNumber(String n){
+
     return n.matches("(^-?\\d+(?:\\.\\d*)?|\\.\\d+)");
   }
 
