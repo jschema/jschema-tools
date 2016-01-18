@@ -12,7 +12,8 @@ public class Token
     PUNCTUATION,
     STRING,
     NUMBER,
-    CONSTANT
+    CONSTANT,
+    ERROR,
   }
 
   public Token( TokenType tokenType, String value, int lineNumber, int column, int offset )
@@ -40,7 +41,13 @@ public class Token
     return _column;
   }
 
-  public int getOffest() {
+  public int getOffset() {
     return _offset;
+  }
+
+  @Override
+  public String toString()
+  {
+    return   "[" + _tokenType + "]" + _value + ":" + _offset;
   }
 }

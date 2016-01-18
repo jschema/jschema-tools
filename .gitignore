@@ -2,3 +2,5 @@
 
 .idea
 jschema-tools.iml
+*.class
+.DS_Store
