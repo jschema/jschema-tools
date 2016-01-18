@@ -41,6 +41,10 @@ public class TokenizerTest
     tokens = tokenize( "truel" );
     assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : truel"));
 
+      // invalid constant (constant with typo)
+      tokens = tokenize( "truel false" );
+      assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : truel"),token(CONSTANT,"false"));
+
     //braces
     tokens = tokenize( "[]" );
     assertTokensAre( tokens, token( PUNCTUATION, "[" ), token( PUNCTUATION, "]" ) );
@@ -85,8 +89,75 @@ public class TokenizerTest
     tokens = tokenize( ".23 .56" );
     assertTokensAre( tokens, token(NUMBER,".23"),token(NUMBER,".56"));
 
+      //exponents lowercase e
+      tokens = tokenize( "2e1" );
+      assertTokensAre( tokens, token(NUMBER,"2e1"));
 
+      //exponents uppercase e
+      tokens = tokenize( "3E4" );
+      assertTokensAre( tokens, token(NUMBER,"3E4"));
+
+      //negative number
+      tokens = tokenize( "-2" );
+      assertTokensAre( tokens, token(NUMBER,"-2"));
+
+      //negative decimal
+      tokens = tokenize( "-4.2" );
+      assertTokensAre( tokens, token(NUMBER,"-4.2"));
+
+      //negative exp
+      tokens = tokenize( "-3E4" );
+      assertTokensAre( tokens, token(NUMBER,"-3E4"));
+
+      //negative exp
+      tokens = tokenize( "3E-4" );
+      assertTokensAre( tokens, token(NUMBER,"3E-4"));
+
+      //double negative exp
+      tokens = tokenize( "-3E-4" );
+      assertTokensAre( tokens, token(NUMBER,"-3E-4"));
+
+      //double negative exp two
+      tokens = tokenize( "-3E-4 -5e1" );
+      assertTokensAre( tokens, token(NUMBER,"-3E-4"),token(NUMBER,"-5e1"));
+
+      //exp and neg num
+      tokens = tokenize( "3E4," );
+      assertTokensAre( tokens, token(NUMBER,"3E4"),token(PUNCTUATION,","));
+
+      //invalid input exp and decimal
+      tokens = tokenize( "3E-4.0" );
+      assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 3E-4.0"));
+
+      //invalid input exp
+      tokens = tokenize( "3E-4a" );
+      assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 3E-4a"));
+
+      //invalid input decimal
+      tokens = tokenize( "3.4a" );
+      assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 3.4a"));
+
+      //Test basic string
+      tokens = tokenize( "\"test\"" );
+      assertTokensAre( tokens, token(STRING,"\"test\""));
+
+      //string not ending in quote
+      tokens = tokenize( "\"test" );
+      assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : \"test"));
+
+      //string not beginning in quote
+      tokens = tokenize( "test\"" );
+      assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : e"),token(ERROR,">> BAD TOKEN : s"),token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : \""));
+
+      //string with quote in it
+      tokens = tokenize( "\"\"test\"\"" );
+      assertTokensAre( tokens, token(STRING,"\"\"test\"\""));
+
+      //assortment
+      tokens=tokenize("\"type\": \"array\":");
+      assertTokensAre(tokens,token(STRING,"\"type\""), token(PUNCTUATION,":"), token(STRING,"\"array\""), token(PUNCTUATION,":"));
   }
+
 
   //========================================================================================
   // Test Helpers
