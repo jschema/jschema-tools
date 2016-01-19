@@ -11,82 +11,105 @@ public class TokenizerTest
 {
 
   @Test
-  public void bootstrapTest() {
+  public void parseTest() {
+    Parser parser = new Parser();
+    String json = "{ \"glossary\": { \"title\": \"example glossary\", \"GlossDiv\": { \"title\": \"S\", \"GlossList\": { \"GlossEntry\": { \"ID\": \"SGML\", \"SortAs\": \"SGML\", \"GlossTerm\": \"Standard Generalized Markup Language\", \"Acronym\": \"SGML\", \"Abbrev\": \"ISO 8879:1986\", \"GlossDef\": { \"para\": \"A meta-markup language, used to create markup languages such as DocBook.\", \"GlossSeeAlso\": [\"GML\", \"XML\"] }, \"GlossSee\": \"markup\" } } } } }";
+    parser.parse(json);
+  }
+
+  @Test
+  public void bootstrapTest()
+  {
     // basic constant
-    List<Token> tokens = tokenize("true");
-    assertTokensAre(tokens, token(CONSTANT, "true"));
+    List<Token> tokens = tokenize( "true" );
+    assertTokensAre( tokens, token( CONSTANT, "true" ) );
 
     // leading whitespace
-    tokens = tokenize("   true");
-    assertTokensAre(tokens, token(CONSTANT, "true"));
+    tokens = tokenize( "   true" );
+    assertTokensAre( tokens, token( CONSTANT, "true" ) );
 
     // trailing whitespace
-    tokens = tokenize("true   ");
-    assertTokensAre(tokens, token(CONSTANT, "true"));
+    tokens = tokenize( "true   " );
+    assertTokensAre( tokens, token( CONSTANT, "true" ) );
+
+    // trailing whitespace
+    tokens = tokenize( "true   " );
+    assertTokensAre( tokens, token( CONSTANT, "true" ) );
 
     // two tokens whitespace
-    tokens = tokenize("true   false");
-    assertTokensAre(tokens, token(CONSTANT, "true"), token(CONSTANT, "false"));
+    tokens = tokenize( "true   false" );
+    assertTokensAre( tokens, token( CONSTANT, "true" ), token( CONSTANT, "false" ) );
   }
 
   @Test
-  public void punctuationTest() {
-    // basic symbol
-    List<Token> tokens = tokenize(":");
-    assertTokensAre(tokens, token(PUNCTUATION, ":"));
+  public void testNumbers()
+  {
+    // basic number
+    List<Token> tokens = tokenize( "-123" );
+    assertTokensAre( tokens, token( NUMBER, "-123" ) );
 
     // leading whitespace
-    tokens = tokenize("   :");
-    assertTokensAre(tokens, token(PUNCTUATION, ":"));
+    tokens = tokenize( "   123.45" );
+    assertTokensAre( tokens, token( NUMBER, "123.45" ) );
 
     // trailing whitespace
-    tokens = tokenize(":    ");
-    assertTokensAre(tokens, token(PUNCTUATION, ":"));
+    tokens = tokenize( "-123.56   " );
+    assertTokensAre( tokens, token( NUMBER, "-123.56" ) );
 
-    // two tokens
-    tokens = tokenize("[ ]");
-    assertTokensAre(tokens, token(PUNCTUATION, "["), token(PUNCTUATION, "]"));
+    // trailing whitespace
+    tokens = tokenize( "123   " );
+    assertTokensAre( tokens, token( NUMBER, "123" ) );
+
+    // two tokens whitespace
+    tokens = tokenize( "123   456" );
+    assertTokensAre( tokens, token( NUMBER, "123" ), token( NUMBER, "456" ) );
   }
 
   @Test
-  public void numberTest(){
-    // one-digit number
-    List<Token> tokens = tokenize("5");
-    assertTokensAre(tokens, token( NUMBER, "5"));
+  public void testPunctuation()
+  {
+    // basic punctuation
+    List<Token> tokens = tokenize( "{" );
+    assertTokensAre( tokens, token( PUNCTUATION, "{" ) );
 
-    // two-digit number
-    tokens = tokenize("12");
-    assertTokensAre(tokens, token( NUMBER, "12"));
+    // curly braces
+    tokens = tokenize( "{ }" );
+    assertTokensAre( tokens, token( PUNCTUATION, "{" ), token( PUNCTUATION, "}" ) );
 
-    // leading whitespace
-    tokens = tokenize("   12");
-    assertTokensAre(tokens, token( NUMBER, "12"));
+    // square brackets
+    tokens = tokenize( "[ ]" );
+    assertTokensAre( tokens, token( PUNCTUATION, "[" ), token( PUNCTUATION, "]" ) );
 
-    // trailing whitespace
-    tokens = tokenize("12    ");
-    assertTokensAre(tokens, token( NUMBER, "12"));
+    // colons
+    tokens = tokenize( ": " );
+    assertTokensAre( tokens, token( PUNCTUATION, ":" ) );
 
-    // negative number
-    tokens = tokenize("-40");
-    assertTokensAre(tokens, token( NUMBER, "-40"));
-
-    // decimal
-    tokens = tokenize("4.2");
-    assertTokensAre(tokens, token( NUMBER, "4.2"));
-
-    // three numbers
-    tokens = tokenize("12 -4.0");
-    assertTokensAre(tokens, token( NUMBER, "12"), token( NUMBER, "-4.0"));
-
-    // negative sign
-    tokens = tokenize("-");
-    assertTokensAre(tokens, token( ERROR, ">> BAD TOKEN : -"));
+    // comma
+    tokens = tokenize( ", " );
+    assertTokensAre( tokens, token( PUNCTUATION, "," ) );
   }
+
   @Test
-  public void stringTest(){
+  public void testString() {
     // basic string
-    List<Token> tokens = tokenize("\"Hello world\"");
-    assertTokensAre(tokens, token( STRING, "\"Hello world\""));
+    List<Token> tokens = tokenize( "\"hello world\"" );
+    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+
+    // leading whitespace
+    tokens = tokenize( "   \"hello world\"" );
+    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+
+    // trailing whitespace
+    tokens = tokenize( "\"hello world\"   " );
+    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+
+    // trailing whitespace
+    tokens = tokenize( "\"hello world\"   " );
+    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+
+    // two tokens whitespace
+    tokens = tokenize( "\"hello world\"   \"guidewire\"" );
+    assertTokensAre( tokens, token( STRING, "\"hello world\"" ), token( STRING, "\"guidewire\"" ) );
   }
 
   //========================================================================================

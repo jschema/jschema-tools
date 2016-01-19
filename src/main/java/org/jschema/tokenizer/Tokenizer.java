@@ -2,6 +2,8 @@ package org.jschema.tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.jschema.tokenizer.Token.TokenType.*;
 
@@ -78,17 +80,10 @@ public class Tokenizer
 
   private Token consumeString()
   {
-    if (_chars[_offset] == '\"') {
-      StringBuilder str = new StringBuilder();
-      str.append(_chars[_offset]);
-      int i = _offset + 1;
-      while(true){
-        if(i == _chars.length) return null;
-        str.append(_chars[i]);
-        if (_chars[i++] == '\"') break;
-      }
-      Token t = newToken(STRING, str.toString());
-      bumpOffset(i);
+    String value = matchRegex("(\"[^\"]+\")");
+    if (value != null) {
+      Token t = newToken(STRING, value);
+      bumpOffset(value.length());
       return t;
     }
     return null;
@@ -96,25 +91,20 @@ public class Tokenizer
 
   private Token consumeNumber()
   {
-    if (_chars[_offset] == '-' || _chars[_offset] == '.' || Character.isDigit(_chars[_offset])) {
-      StringBuilder num = new StringBuilder();
-      int i = _offset;
-      while (i < _chars.length && _chars[i] != ' ') {
-        num.append(_chars[i++]);
-      }
-      if (matchNumber(num.toString())) {
-        Token t = newToken(NUMBER, num.toString());
-        bumpOffset(i);
-        return t;
-      }
+    String value = matchRegex("(-?\\d+.?\\d+)");
+    if (value != null) {
+      Token t = newToken(NUMBER, value);
+      bumpOffset(value.length());
+      return t;
     }
     return null;
   }
 
   private Token consumePunctuation()
   {
-    if ( _chars.length > _offset && matchPunctuation(String.valueOf(_chars[_offset]))) {
-      Token t = newToken( PUNCTUATION, String.valueOf(_chars[_offset]));
+    String value = matchRegex("(\\[|\\]|\\{|\\}|:|,)");
+    if (value != null) {
+      Token t = newToken(PUNCTUATION, value);
       bumpOffset(1);
       return t;
     }
@@ -158,21 +148,21 @@ public class Tokenizer
     return new Token( type, tokenValue, _line, _column, _offset + 1 );
   }
 
-  private boolean matchNumber(String n){
-
-    return n.matches("(^-?\\d+(?:\\.\\d*)?|\\.\\d+)");
-  }
-
-  private boolean matchPunctuation (String p){
-    return p.matches("([\\[\\]{}:,])");
-  }
-
   private boolean match( char... charArray)
   {
     for( int i = 0; i < charArray.length; i++ )
     {
       if( !peekAndMatch( i, charArray[i] ))
       {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean matchString(String string) {
+    for( int i = 0; i < string.length(); i++ )  {
+      if( !peekAndMatch( i, string.charAt(i) ))  {
         return false;
       }
     }
@@ -186,6 +176,27 @@ public class Tokenizer
       return _chars[_offset + i] == toMatch;
     } else {
       return false;
+    }
+  }
+
+  private String matchRegex(String patternString) {
+    Pattern pattern = Pattern.compile(patternString);
+
+    // Build string to match from current position
+    StringBuffer remainingCharsBuffer = new StringBuffer(_chars.length);
+    for (int i = _offset; i < _chars.length; i++){
+      remainingCharsBuffer.append(_chars[i]);
+    }
+    String remainingCharsString =  remainingCharsBuffer.toString();
+
+    // Get matches and ensure first match exists at beginning of string
+    Matcher matcher = pattern.matcher(remainingCharsString);
+    if (matcher.find()) {
+      boolean didMatch = matchString(matcher.group(0));
+      return didMatch ? matcher.group(0) : null;
+    } else {
+      // No match
+      return null;
     }
   }
 

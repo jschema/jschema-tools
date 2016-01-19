@@ -2,4 +2,6 @@
 
 .idea
 jschema-tools.iml
-target/
+target
+*.class
+.DS_Store
