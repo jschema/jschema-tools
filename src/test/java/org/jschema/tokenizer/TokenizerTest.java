@@ -41,8 +41,8 @@ public class TokenizerTest
     tokens = tokenize( "truel" );
     assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : truel"));
 
-      // invalid constant (constant with typo)
-      tokens = tokenize( "truel false" );
+    // invalid constant (constant with typo)
+    tokens = tokenize( "truel false" );
       assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : truel"),token(CONSTANT,"false"));
 
     //braces
