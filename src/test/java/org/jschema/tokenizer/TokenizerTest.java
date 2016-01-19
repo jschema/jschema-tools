@@ -5,7 +5,12 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.jschema.tokenizer.Token.TokenType.*;
+import static org.jschema.tokenizer.Token.TokenType.CONSTANT;
+import static org.jschema.tokenizer.Token.TokenType.PUNCTUATION;
+import static org.jschema.tokenizer.Token.TokenType.NUMBER;
+import static org.jschema.tokenizer.Token.TokenType.STRING;
+
+
 
 public class TokenizerTest
 {
@@ -33,26 +38,41 @@ public class TokenizerTest
     tokens = tokenize( "true   false" );
     assertTokensAre( tokens, token( CONSTANT, "true" ), token( CONSTANT, "false" ) );
 
-    //number
-    tokens = tokenize("1326: false");
-    assertTokensAre(tokens, token( NUMBER, "1326"), token(PUNCTUATION, ":"), token(CONSTANT, "false"));
 
-    tokens = tokenize("null, 5867");
-    assertTokensAre(tokens, token(CONSTANT, "null"), token(PUNCTUATION, ","), token(NUMBER, "5867"));
+    //test cases for work done to PUNCTUATION, NUMBER, STRING
 
-    tokens = tokenize("1234 : 5678");
-    assertTokensAre(tokens, token(NUMBER, "1234"), token(PUNCTUATION, ":"), token(NUMBER, "5678"));
+    tokens = tokenize("123, true");
+    assertTokensAre( tokens, token(NUMBER, "123"), token(PUNCTUATION, ","), token(CONSTANT, "true"));
 
-    //strings
-    tokens = tokenize("Hello, world 543");
-    assertTokensAre(tokens, token(STRING, "Hello"), token(PUNCTUATION, ","), token(STRING, "world"), token(NUMBER, "543"));
+    tokens = tokenize("12387, hello");
+    assertTokensAre( tokens, token(NUMBER, "12387"), token(PUNCTUATION, ","), token(STRING, "hello"));
 
-    //all together now!
-    tokens = tokenize("true: 564, false is 1 right");
-    assertTokensAre(tokens, token(CONSTANT, "true"), token(PUNCTUATION, ":"), token(NUMBER, "564"), token(PUNCTUATION, ","), token(CONSTANT, "false"), token(STRING, "is"), token(NUMBER, "1"), token(STRING, "right") );
+    tokens = tokenize("hi: 435[");
+    assertTokensAre( tokens, token(STRING, "hi"), token(PUNCTUATION, ":"), token(NUMBER, "435"), token(PUNCTUATION, "["));
 
+
+
+    //tests for PUNCTUATION
+    tokens = tokenize("[");
+    assertTokensAre( tokens, token(PUNCTUATION, "["));
+
+    tokens = tokenize("]");
+    assertTokensAre( tokens, token(PUNCTUATION, "]"));
+
+    tokens = tokenize("{");
+    assertTokensAre( tokens, token(PUNCTUATION, "{"));
+
+    tokens = tokenize("}");
+    assertTokensAre( tokens, token(PUNCTUATION, "}"));
+
+    tokens = tokenize(":");
+    assertTokensAre( tokens, token(PUNCTUATION, ":"));
+
+    tokens = tokenize(",");
+    assertTokensAre( tokens, token(PUNCTUATION, ","));
 
   }
+
   //========================================================================================
   // Test Helpers
   //========================================================================================

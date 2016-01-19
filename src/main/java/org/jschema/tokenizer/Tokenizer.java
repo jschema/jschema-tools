@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.jschema.tokenizer.Token.TokenType.*;
+import java.util.*;
+
 
 public class Tokenizer
 {
@@ -78,86 +80,88 @@ public class Tokenizer
 
   private Token consumeString()
   {
-    //TODO - implement
-    if( match( 't', 'r', 'u', 'e' ) )
-    {
+
+    //prevent consumerString from identifying possible STRINGS to be CONSTANTS
+    if( match('t','r','u','e') || match('f','a','l','s','e') || match('n','u','l','l')){
       return null;
-    }
-    if( match( 'f', 'a', 'l', 's', 'e' ) )
-    {
-      return null;
-    }
-    if( match( 'n', 'u', 'l', 'l' ) )
-    {
-      return null;
-    }
-    Token t = newToken(STRING, "");
-    while (isLetter(currentChar())) {
-      t = appendToken(t, STRING, t.getTokenValue(), "" + currentChar());
-      bumpOffset(1);
-      if(!moreChars()) break;
     }
 
-    if(!t.getTokenValue().equals("")) {
-      return t;
-    }
+    Token s = newToken(STRING, "");
+
+      while(Character.isLetter(currentChar())){                      //if what we're reading currently is a letter...
+        s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+        bumpOffset(1);
+        if(!moreChars()){
+          break;
+        }
+      }
+      if(!s.getTokenValue().equals("")) {
+        return s;
+      }
     return null;
   }
+
 
   private Token consumeNumber()
   {
-    //TODO - implement
+    //TOOD - implement
     Token t = newToken(NUMBER, "");
-      while (isNumber(currentChar())) {
-        t = appendToken(t, NUMBER, t.getTokenValue(), "" + currentChar());
-        bumpOffset(1);
-        if(!moreChars()) break;
-      }
 
+        while(Character.isDigit(currentChar())){ //if what is read is an integer
+          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar()); // "" + "1" = "1" ...
+          bumpOffset(1);
+          if(!moreChars()){  //if there's nothing more to read
+            break;
+          }
+        }
     if(!t.getTokenValue().equals("")) {
       return t;
     }
     return null;
   }
 
+  //appendT method for tokens used in NUMBER and STRING
+  private Token appendT(Token.TokenType type, String curVal, String newVal){
+    Token t = newToken(type, curVal + newVal); //string 1 + string 2
+    return t;
+  }
+
+
   private Token consumePunctuation()
   {
-    if(match('['))
-    {
-      Token t = newToken(PUNCTUATION, "[");
-      bumpOffset(1);
-      return t;
+    //TOOD - implement
+
+    if( match('[')){
+        Token t = newToken(PUNCTUATION, "[");
+        bumpOffset(1);
+        return t;
     }
-    if(match(']'))
-    {
-      Token t = newToken(PUNCTUATION, "]");
-      bumpOffset(1);
-      return t;
+    if( match(']')){
+        Token t = newToken(PUNCTUATION, "]");
+        bumpOffset(1);
+        return t;
     }
-    if(match('{'))
-    {
-      Token t = newToken(PUNCTUATION, "{");
-      bumpOffset(1);
-      return t;
+    if( match('{')){
+        Token t = newToken(PUNCTUATION, "{");
+        bumpOffset(1);
+        return t;
     }
-    if(match('}'))
-    {
-      Token t = newToken(PUNCTUATION, "}");
-      bumpOffset(1);
-      return t;
+    if( match('}')){
+        Token t = newToken(PUNCTUATION, "}");
+        bumpOffset(1);
+        return t;
     }
-    if(match(':'))
-    {
-      Token t = newToken(PUNCTUATION, ":");
-      bumpOffset(1);
-      return t;
+    if( match(':')){
+        Token t = newToken(PUNCTUATION, ":");
+        bumpOffset(1);
+        return t;
     }
-    if(match(','))
-    {
-      Token t = newToken(PUNCTUATION, ",");
-      bumpOffset(1);
-      return t;
+    if( match(',')){
+        Token t = newToken(PUNCTUATION, ",");
+        bumpOffset(1);
+        return t;
     }
+
     return null;
   }
 
@@ -210,6 +214,20 @@ public class Tokenizer
     return true;
   }
 
+/*
+  //function for string matching
+  private boolean matchString( String charArray){
+    for( int i = 0; i < charArray.length; i++){
+      if( !peekAndMatch( i, charArray[i] )){
+        return false;
+      }
+    }
+    return true;
+  }
+
+*/
+
+
   private boolean peekAndMatch( int i, char toMatch )
   {
     if( _offset + i < _chars.length )
@@ -219,20 +237,6 @@ public class Tokenizer
       return false;
     }
   }
-
-  private boolean isNumber(char c){
-    if(Character.isDigit(c)){
-      return true;
-    }
-    return false;
-  }
-  private boolean isLetter(char c){
-    if(Character.isLetter(c)){
-      return true;
-    }
-    return false;
-  }
-
 
   private void eatWhiteSpace()
   {
@@ -248,13 +252,6 @@ public class Tokenizer
       _column = _column + 1; // bump column
     }
   }
-
-  private Token appendToken(Token token, Token.TokenType type,String tokenValue,  String newValue)
-  {
-    token = newToken(type, tokenValue + newValue );
-    return token;
-  }
-
 
   private char currentChar()
   {
