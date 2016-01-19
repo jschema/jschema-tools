@@ -186,9 +186,9 @@ public class TokenizerTest
     {
       Assert.assertEquals( match.getLineNumber(), token.getLineNumber() );
     }
-    if( match.getOffest() > 0 )
+    if( match.getOffset() > 0 )
     {
-      Assert.assertEquals( match.getOffest(), token.getOffest() );
+      Assert.assertEquals( match.getOffset(), token.getOffset() );
     }
     if( match.getColumn() > 0 )
     {
