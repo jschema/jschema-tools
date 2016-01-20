@@ -117,7 +117,7 @@ public class TokenizerTest
 
   private List<Token> tokenize( String str )
   {
-    return new Tokenizer( str ).tokenize();
+    return new MyTokenizer( str ).tokenize();
   }
 
 }

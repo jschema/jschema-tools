@@ -5,7 +5,7 @@ import java.util.List;
 
 import static org.jschema.tokenizer.Token.TokenType.*;
 
-public class Tokenizer
+public class MyTokenizer
 {
   private String _string;
   private char[] _chars;
@@ -13,7 +13,7 @@ public class Tokenizer
   private int _line;
   private int _column;
 
-  public Tokenizer( String string )
+  public MyTokenizer(String string )
   {
     _string = string;
   }
@@ -78,7 +78,6 @@ public class Tokenizer
 
   private Token consumeString()
   {
-    //TODO - implement
     if( match( 't', 'r', 'u', 'e' ) )
     {
       return null;
@@ -93,7 +92,7 @@ public class Tokenizer
     }
     Token t = newToken(STRING, "");
     while (isLetter(currentChar())) {
-      t = appendToken(t, STRING, t.getTokenValue(), "" + currentChar());
+      t = appendToken( STRING, t.getTokenValue(), "" + currentChar());
       bumpOffset(1);
       if(!moreChars()) break;
     }
@@ -106,10 +105,9 @@ public class Tokenizer
 
   private Token consumeNumber()
   {
-    //TODO - implement
     Token t = newToken(NUMBER, "");
       while (isNumber(currentChar())) {
-        t = appendToken(t, NUMBER, t.getTokenValue(), "" + currentChar());
+        t = appendToken(NUMBER, t.getTokenValue(), "" + currentChar());
         bumpOffset(1);
         if(!moreChars()) break;
       }
@@ -249,9 +247,9 @@ public class Tokenizer
     }
   }
 
-  private Token appendToken(Token token, Token.TokenType type,String tokenValue,  String newValue)
+  private Token appendToken(Token.TokenType type, String tokenValue,  String newValue)
   {
-    token = newToken(type, tokenValue + newValue );
+    Token token = newToken(type, tokenValue + newValue );
     return token;
   }
 
