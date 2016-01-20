@@ -5,22 +5,19 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.jschema.tokenizer.Token.TokenType.*;
+import static org.jschema.tokenizer.Token.TokenType.CONSTANT;
+import static org.jschema.tokenizer.Token.TokenType.PUNCTUATION;
+import static org.jschema.tokenizer.Token.TokenType.NUMBER;
+import static org.jschema.tokenizer.Token.TokenType.STRING;
+import static org.jschema.tokenizer.Token.TokenType.ERROR;
 
 public class TokenizerTest
 {
 
   @Test
-  public void parseTest() {
-    Parser parser = new Parser();
-    String json = "{ \"glossary\": { \"title\": \"example glossary\", \"GlossDiv\": { \"title\": \"S\", \"GlossList\": { \"GlossEntry\": { \"ID\": \"SGML\", \"SortAs\": \"SGML\", \"GlossTerm\": \"Standard Generalized Markup Language\", \"Acronym\": \"SGML\", \"Abbrev\": \"ISO 8879:1986\", \"GlossDef\": { \"para\": \"A meta-markup language, used to create markup languages such as DocBook.\", \"GlossSeeAlso\": [\"GML\", \"XML\"] }, \"GlossSee\": \"markup\" } } } } }";
-    parser.parse(json);
-  }
-
-  @Test
   public void bootstrapTest()
   {
-    // basic constant
+    //basic constant
     List<Token> tokens = tokenize( "true" );
     assertTokensAre( tokens, token( CONSTANT, "true" ) );
 
@@ -42,75 +39,231 @@ public class TokenizerTest
   }
 
   @Test
-  public void testNumbers()
-  {
-    // basic number
-    List<Token> tokens = tokenize( "-123" );
-    assertTokensAre( tokens, token( NUMBER, "-123" ) );
+  public void testPunctuation() {
+    List<Token> tokens;
 
-    // leading whitespace
-    tokens = tokenize( "   123.45" );
-    assertTokensAre( tokens, token( NUMBER, "123.45" ) );
-
-    // trailing whitespace
-    tokens = tokenize( "-123.56   " );
-    assertTokensAre( tokens, token( NUMBER, "-123.56" ) );
-
-    // trailing whitespace
-    tokens = tokenize( "123   " );
-    assertTokensAre( tokens, token( NUMBER, "123" ) );
-
-    // two tokens whitespace
-    tokens = tokenize( "123   456" );
-    assertTokensAre( tokens, token( NUMBER, "123" ), token( NUMBER, "456" ) );
-  }
-
-  @Test
-  public void testPunctuation()
-  {
-    // basic punctuation
-    List<Token> tokens = tokenize( "{" );
-    assertTokensAre( tokens, token( PUNCTUATION, "{" ) );
-
-    // curly braces
-    tokens = tokenize( "{ }" );
-    assertTokensAre( tokens, token( PUNCTUATION, "{" ), token( PUNCTUATION, "}" ) );
-
-    // square brackets
-    tokens = tokenize( "[ ]" );
+    //braces
+    tokens = tokenize( "[]" );
     assertTokensAre( tokens, token( PUNCTUATION, "[" ), token( PUNCTUATION, "]" ) );
 
-    // colons
-    tokens = tokenize( ": " );
-    assertTokensAre( tokens, token( PUNCTUATION, ":" ) );
+    //single curly brace
+    tokens = tokenize( "{" );
+    assertTokensAre(tokens,token(PUNCTUATION,"{"));
 
-    // comma
-    tokens = tokenize( ", " );
-    assertTokensAre( tokens, token( PUNCTUATION, "," ) );
+    //curly braces with white space
+    tokens = tokenize( "{   }" );
+    assertTokensAre( tokens, token( PUNCTUATION, "{" ), token( PUNCTUATION, "}" ) );
+
+    //comma
+    tokens = tokenize( "," );
+    assertTokensAre( tokens, token( PUNCTUATION, "," ));
+
+    //colon
+    tokens = tokenize( ":" );
+    assertTokensAre( tokens, token( PUNCTUATION, ":" ));
+
+
+    //tests for PUNCTUATION
+    tokens = tokenize("[");
+    assertTokensAre( tokens, token(PUNCTUATION, "["));
+
+    tokens = tokenize("]");
+    assertTokensAre( tokens, token(PUNCTUATION, "]"));
+
+    tokens = tokenize("{");
+    assertTokensAre( tokens, token(PUNCTUATION, "{"));
+
+    tokens = tokenize("}");
+    assertTokensAre( tokens, token(PUNCTUATION, "}"));
+
+    tokens = tokenize(":");
+    assertTokensAre( tokens, token(PUNCTUATION, ":"));
+
+    tokens = tokenize(",");
+    assertTokensAre( tokens, token(PUNCTUATION, ","));
   }
 
   @Test
-  public void testString() {
-    // basic string
-    List<Token> tokens = tokenize( "\"hello world\"" );
-    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+  public void testStrings() {
+    List<Token> tokens;
 
-    // leading whitespace
-    tokens = tokenize( "   \"hello world\"" );
-    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+    //Test basic string
+    tokens = tokenize( "\"test\"" );
+    assertTokensAre( tokens, token(STRING, "test"));
 
-    // trailing whitespace
-    tokens = tokenize( "\"hello world\"   " );
-    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+    //string not ending in quote
+    tokens = tokenize( "\"test" );
+    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : \"test"));
 
-    // trailing whitespace
-    tokens = tokenize( "\"hello world\"   " );
-    assertTokensAre( tokens, token( STRING, "\"hello world\"" ) );
+    //string not beginning in quote
+    tokens = tokenize( "test\"" );
+    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : e"),token(ERROR,">> BAD TOKEN : s"),token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : \""));
 
-    // two tokens whitespace
-    tokens = tokenize( "\"hello world\"   \"guidewire\"" );
-    assertTokensAre( tokens, token( STRING, "\"hello world\"" ), token( STRING, "\"guidewire\"" ) );
+    //escaped quote in string
+    tokens = tokenize( '"' + backSlash( '"' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "\""));
+
+    //escaped backslash in string
+    tokens = tokenize( '"' + backSlash( '\\' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "\\"));
+
+    //escaped frontslash in string
+    tokens = tokenize( '"' + backSlash( '/' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "/"));
+
+    //escaped backspace in string
+    tokens = tokenize( '"' + backSlash( 'b' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "\b"));
+
+    //escaped form feed in string
+    tokens = tokenize( '"' + backSlash( 'f' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "\f"));
+
+    //escaped new line in string
+    tokens = tokenize( '"' + backSlash( 'n' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "\n"));
+
+    //escaped carriage return in string
+    tokens = tokenize( '"' + backSlash( 'r' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "\r"));
+
+    //Escaped unicode
+    tokens = tokenize( '"' + backSlash( "u263A" ) + '"' );
+    assertTokensAre( tokens, token(STRING, "\u263A"));
+    assertTokensAre( tokens, token(STRING, "☺"));
   }
+
+  @Test
+  public void unicodeSanityCheck(){
+    Assert.assertEquals( "\u263A", "☺" );
+  }
+
+  @Test
+  public void testNumbers() {
+    List<Token> tokens;
+
+
+    //number by itself
+    tokens = tokenize( "1234" );
+    assertTokensAre( tokens, token( NUMBER, "1234" ));
+
+    //multiple numbers
+    tokens = tokenize( "1 2 3" );
+    assertTokensAre( tokens, token(NUMBER,"1"),token( NUMBER, "2" ), token(NUMBER,"3"));
+
+    //decimal number
+    tokens = tokenize( "1.23" );
+    assertTokensAre( tokens, token(NUMBER,"1.23"));
+
+    //invalid decimal number
+    tokens = tokenize( "1..23" );
+    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 1..23"));
+
+    //decimal number
+    tokens = tokenize( ".23" );
+    assertTokensAre( tokens, token(NUMBER,".23"));
+
+    //multiple fractions
+    tokens = tokenize( ".23 .56" );
+    assertTokensAre( tokens, token(NUMBER,".23"),token(NUMBER,".56"));
+
+    //exponents lowercase e
+    tokens = tokenize( "2e1" );
+    assertTokensAre( tokens, token(NUMBER,"2e1"));
+
+    //exponents uppercase e
+    tokens = tokenize( "3E4" );
+    assertTokensAre( tokens, token(NUMBER,"3E4"));
+
+    //negative number
+    tokens = tokenize( "-2" );
+    assertTokensAre( tokens, token(NUMBER,"-2"));
+
+    //negative decimal
+    tokens = tokenize( "-4.2" );
+    assertTokensAre( tokens, token(NUMBER,"-4.2"));
+
+    //negative exp
+    tokens = tokenize( "-3E4" );
+    assertTokensAre( tokens, token(NUMBER,"-3E4"));
+
+    //negative exp
+    tokens = tokenize( "3E-4" );
+    assertTokensAre( tokens, token(NUMBER,"3E-4"));
+
+    //double negative exp
+    tokens = tokenize( "-3E-4" );
+    assertTokensAre( tokens, token(NUMBER,"-3E-4"));
+
+    //double negative exp two
+    tokens = tokenize( "-3E-4 -5e1" );
+    assertTokensAre( tokens, token(NUMBER,"-3E-4"),token(NUMBER,"-5e1"));
+
+    //exp and neg num
+    tokens = tokenize( "3E4," );
+    assertTokensAre( tokens, token(NUMBER,"3E4"),token(PUNCTUATION,","));
+
+    //invalid input exp and decimal
+    tokens = tokenize( "3E-4.0" );
+    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 3E-4.0"));
+
+    //invalid input exp
+    tokens = tokenize( "3E-4a" );
+    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 3E-4a"));
+
+    //invalid input decimal
+    tokens = tokenize( "3.4a" );
+    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 3.4a"));
+
+  }
+
+  @Test
+  public void testLiterals() {
+    List<Token> tokens;
+
+    tokens = tokenize( "true" );
+    assertTokensAre( tokens, token( CONSTANT, "true" ) );
+
+    tokens = tokenize( "false" );
+    assertTokensAre( tokens, token( CONSTANT, "false" ) );
+
+    tokens = tokenize( "null" );
+    assertTokensAre( tokens, token( CONSTANT, "null" ) );
+
+  }
+
+  @Test
+  public void testCombos() {
+    List<Token> tokens;
+
+    //assortment
+    tokens=tokenize("\"type\": \"array\":");
+    assertTokensAre(tokens,token(STRING,"\"type\""), token(PUNCTUATION,":"), token(STRING,"\"array\""), token(PUNCTUATION,":"));
+
+
+    tokens = tokenize("123, true");
+    assertTokensAre( tokens, token(NUMBER, "123"), token(PUNCTUATION, ","), token(CONSTANT, "true"));
+
+  }
+
+  @Test
+  public void testErrors() {
+    List<Token> tokens;
+
+    // unclosed string
+    tokens = tokenize( "\"foo" );
+    assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : \"foo"));
+
+    // invalid constant (constant with typo)
+    tokens = tokenize( "truel" );
+    assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : truel"));
+
+    // invalid constant (constant with typo)
+    tokens = tokenize( "truel false" );
+    assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : truel"),token(CONSTANT,"false"));
+
+  }
+
 
   //========================================================================================
   // Test Helpers
@@ -177,6 +330,16 @@ public class TokenizerTest
   private List<Token> tokenize( String str )
   {
     return new MyTokenizer( str ).tokenize();
+  }
+
+  private String backSlash( char s )
+  {
+    return "\\" + s;
+  }
+
+  private String backSlash( String s )
+  {
+    return "\\" + s;
   }
 
 }
