@@ -1,6 +1,5 @@
 package org.jschema.tokenizer;
 
-import java.util.ArrayList;
 import java.util.List;
 import static org.jschema.tokenizer.Token.TokenType.*;
 
@@ -14,7 +13,7 @@ public class Parser {
     }
 
     public Tree parse(String json) {
-        List<Token> tokens = new Tokenizer(json).tokenize();
+        List<Token> tokens = new MyTokenizer(json).tokenize();
 
         Node root = new Node();
         root.value = new Token(STRING, "ROOT", 0, 0, 0);
