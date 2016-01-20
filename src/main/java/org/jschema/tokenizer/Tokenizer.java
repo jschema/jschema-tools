@@ -36,8 +36,7 @@ public class Tokenizer
       eatWhiteSpace(); // eat leading whitespace
 
       if(!moreChars()) break; // if we got to the end of the string, exit
-
-        Token string = consumeString();
+      Token string = consumeString();
       if(string != null)
       {
         tokens.add( string );
@@ -102,6 +101,13 @@ public class Tokenizer
                 newOffset++;
                 break;
             }
+        //go until a space is found
+        //should cover case with escaped quotes inside string
+        /*while(_offset+newOffset<_chars.length &&!Character.toString(_chars[_offset+newOffset]).equals(" ")
+                &&_chars[_offset+newOffset]!=':' &&_chars[_offset+newOffset]!=','){
+            tok+=_chars[_offset+newOffset];
+            newOffset++;
+*/
         }
 
         //check to make sure ends in quote and is not a single quote
@@ -306,6 +312,7 @@ public class Tokenizer
             int offsetNew = offset;
             while (_offset + offsetNew < _chars.length && _chars[_offset + offsetNew]!=','
                     &&!(Character.toString(_chars[_offset + offsetNew]).equals(" "))) {
+
                 token += _chars[_offset + offsetNew];
                 offsetNew++;
             }

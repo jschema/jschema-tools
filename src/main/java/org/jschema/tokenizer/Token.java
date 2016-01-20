@@ -41,7 +41,7 @@ public class Token
     return _column;
   }
 
-  public int getOffest() {
+  public int getOffset() {
     return _offset;
   }
 
