@@ -5,7 +5,7 @@ import java.util.List;
 
 import static org.jschema.tokenizer.Token.TokenType.*;
 
-public class Tokenizer
+public class MyTokenizer
 {
   private String _string;
   private char[] _chars;
@@ -13,7 +13,7 @@ public class Tokenizer
   private int _line;
   private int _column;
 
-  public Tokenizer( String string )
+  public MyTokenizer( String string )
   {
     _string = string;
   }
