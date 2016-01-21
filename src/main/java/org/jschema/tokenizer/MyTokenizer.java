@@ -91,7 +91,7 @@ public class MyTokenizer
 
     private Token consumeNumber()
     {
-        String value = matchRegex("(-?\\d+.?\\d+)");
+        String value = matchRegex("(-?(?:0|[1-9](?:\\d+)?+)(?:\\.[\\d]+)?(?:[E|e][+|-]?[\\d]+)?)");
         if (value != null) {
             Token t = newToken(NUMBER, value);
             bumpOffset(value.length());
