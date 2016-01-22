@@ -80,11 +80,41 @@ public class MyTokenizer
 
     private Token consumeString()
     {
-        String value = matchRegex("(\"[^\"]+\")");
-        if (value != null) {
-            Token t = newToken(STRING, value);
-            bumpOffset(value.length());
-            return t;
+        String innerRegex = "((?:[^\\\\]|\\\\\"|\\\\\\\\|\\\\\\/|\\\\[b|f|n|r|t]|\\\\u(?:[0-9A-Fa-f]{4}))*)";
+        String startingInQuoteRegex = matchRegex("\"" + innerRegex);
+        String endingInQuoteRegex = matchRegex(innerRegex + "\"");
+        String validRegex = matchRegex("\"" + innerRegex + "\"");
+
+        if (validRegex != null) {
+            int originalValueLength = validRegex.length();
+
+            validRegex = validRegex.substring(1, validRegex.length() - 1);
+
+            // Escaped quote
+            validRegex = validRegex.replace("\\\"", "\"");
+
+            // Escaped front slash
+            validRegex = validRegex.replace("\\/", "/");
+
+            // Escaped back slash
+            validRegex = validRegex.replace("\\\\", "\\");
+
+            // Special characters
+            validRegex = validRegex.replace("\\b", "\b");
+            validRegex = validRegex.replace("\\f", "\f");
+            validRegex = validRegex.replace("\\n", "\n");
+            validRegex = validRegex.replace("\\r", "\r");
+
+            validRegex = replaceUnicode(validRegex);
+
+            bumpOffset(originalValueLength);
+            return newToken(STRING, validRegex);
+
+        } else if (startingInQuoteRegex != null) {
+            bumpOffset(startingInQuoteRegex.length());
+            return newToken(ERROR, ">> BAD TOKEN : " + startingInQuoteRegex);
+        } else if (endingInQuoteRegex != null) {
+            return null;
         }
         return null;
     }
@@ -198,6 +228,18 @@ public class MyTokenizer
             // No match
             return null;
         }
+    }
+
+    private String replaceUnicode(String input) {
+        Pattern pattern = Pattern.compile("\\\\u(\\p{XDigit}{4})");
+        Matcher matcher = pattern.matcher(input);
+        StringBuffer buffer = new StringBuffer(input.length());
+        while (matcher.find()) {
+            String character = String.valueOf((char)Integer.parseInt(matcher.group(1), 16));
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(character));
+        }
+        matcher.appendTail(buffer);
+        return buffer.toString();
     }
 
     private void eatWhiteSpace()
