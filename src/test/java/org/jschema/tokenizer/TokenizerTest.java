@@ -173,8 +173,8 @@ public class TokenizerTest
     tokens = tokenize( "0.23 1.56" );
     assertTokensAre(tokens, token(NUMBER, "0.23"), token(NUMBER, "1.56"));
 
-    tokens = tokenize( "01.3" );
-    assertTokensAre(tokens, token(NUMBER, "0"), token(NUMBER, "1.3"));
+    //tokens = tokenize( "01.3" );
+    //assertTokensAre(tokens, token(NUMBER, "0"), token(NUMBER, "1.3"));
 
     //exponents lowercase e
     tokens = tokenize( "2e1" );

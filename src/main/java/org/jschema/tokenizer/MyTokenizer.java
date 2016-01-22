@@ -96,7 +96,7 @@ public class MyTokenizer
 
   private Token consumeNumber()
   {
-    if (_chars[_offset] == '-' || _chars[_offset] == '.' || Character.isDigit(_chars[_offset])) {
+    if (_chars[_offset] == '-' || Character.isDigit(_chars[_offset])) {
       StringBuilder num = new StringBuilder();
       int i = _offset;
       while (i < _chars.length && _chars[i] != ' ') {
@@ -104,7 +104,12 @@ public class MyTokenizer
       }
       if (matchNumber(num.toString())) {
         Token t = newToken(NUMBER, num.toString());
-        bumpOffset(i);
+        bumpOffset(i-_offset);
+        return t;
+      }
+      else{
+        Token t = newToken(ERROR, ">> BAD TOKEN : " +  num.toString());
+        bumpOffset(i-_offset);
         return t;
       }
     }
