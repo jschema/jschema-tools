@@ -329,7 +329,7 @@ public class TokenizerTest
 
   private List<Token> tokenize( String str )
   {
-    return new MyTokenizer( str ).tokenize();
+    return new Tokenizer( str ).tokenize();
   }
 
   private String backSlash( char s )

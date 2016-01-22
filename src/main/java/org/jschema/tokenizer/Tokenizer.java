@@ -81,7 +81,6 @@ public class Tokenizer
   {
     String tok="";
 
-
     int newOffset=0;
     //check if starts with quote
     if(_chars[_offset]=='"'){
@@ -89,6 +88,10 @@ public class Tokenizer
       //should cover case with escaped quotes inside string
       while(_offset+newOffset<_chars.length &&!Character.toString(_chars[_offset+newOffset]).equals(" ")
               &&_chars[_offset+newOffset]!=':' &&_chars[_offset+newOffset]!=','){
+        if(_chars[_offset + newOffset] == '\"'){
+          newOffset++;
+          continue;
+        }
         tok+=_chars[_offset+newOffset];
         newOffset++;
 
