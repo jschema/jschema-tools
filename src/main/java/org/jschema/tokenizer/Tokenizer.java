@@ -63,9 +63,17 @@ public class Tokenizer
         tokens.add( constant );
         continue;
       }
-      // unrecognized token, add error token
-      tokens.add( newToken( ERROR, ">> BAD TOKEN : " + currentChar() ) );
-      bumpOffset( 1 );
+      // unrecognized token, add error token (complete string)
+        if(_offset+1<_chars.length) {
+            int offset=0;
+            String tok="";
+            while(_offset+offset<_chars.length && !Character.toString(_chars[_offset+offset]).equals(" ")) {
+               tok+=_chars[_offset+offset];
+                offset++;
+            }
+            tokens.add(newToken(ERROR, ">> BAD TOKEN : " + tok));
+            bumpOffset(offset);
+        }
     }
 
     return tokens;
@@ -100,13 +108,8 @@ public class Tokenizer
                 newOffset++;
                 break;
             }
-        //go until a space is found
-        //should cover case with escaped quotes inside string
-        /*while(_offset+newOffset<_chars.length &&!Character.toString(_chars[_offset+newOffset]).equals(" ")
-                &&_chars[_offset+newOffset]!=':' &&_chars[_offset+newOffset]!=','){
-            tok+=_chars[_offset+newOffset];
-            newOffset++;
-*/
+
+
         }
 
         //check to make sure ends in quote and is not a single quote
@@ -128,56 +131,22 @@ public class Tokenizer
   private Token consumeNumber()
   {
       String token="";
-      //whether there is a decimal or not
-      int isDecimal=0;
-      int decOffset=0;
-      //whether there is an exponent or not
-      int isExp=0;
-      int expOffset=0;
+      String regex="(^[\\-]?((0\\.[1-9]+)|([1-9]+\\.[0-9]+)|([1-9]\\d*))([eE][+-]?[0-9]+)?$)";
       int offset=0;
-      //for negative numbers;
-      if(_chars[_offset+offset]=='-') {
-          token +=_chars[_offset+offset];
-          offset++;
-      }
-      while( _offset+offset < _chars.length && (Character.isDigit(_chars[_offset+offset])||_chars[_offset+offset]=='.'
-              ||((_chars[_offset+offset]=='e'||_chars[_offset+offset]=='E')&& offset!=0))){
-          token +=_chars[_offset+offset];
-          //don't need to check if number after decimal->valid to have 20. in javascript
-          if(_chars[_offset+offset]=='.'){
-              isDecimal++;
-              decOffset=offset;
-              //
-          }else if (_chars[_offset+offset]=='E'||_chars[_offset+offset]=='e'){
-              isExp++;
-              expOffset=offset;
-              //for negative exponents
-              if(_offset+offset+1 < _chars.length &&_chars[_offset+offset+1]=='-'){
-                  token +=_chars[_offset+offset+1];
-                  offset++;
-              }
+      //if it looks like it wants to be a number
+      if(Character.isDigit(_chars[_offset+offset])||_chars[_offset]=='.'||_chars[_offset]=='-') {
+          //Add chars to token until " " or ',' or last character
+          while (_offset + offset < _chars.length && _chars[_offset+offset]!=',' && !Character.toString(_chars[_offset+offset]).equals(" ")) {
+              token += _chars[_offset + offset];
+              offset++;
           }
-          offset++;
-      }
-      if(!token.equals("")) {
-          //System.out.println(token);
-          //in case multiple decimals appear from invalid input
-          Token t;
-          //invalid number token, more than one '.', 'e', or a '.e'
-          if (isDecimal > 1 || isExp > 1 || (isDecimal == 1 && isExp == 1)) {
-               t = newToken(ERROR, ">> BAD TOKEN : " + token);
-          }else if (isExp==1){
-               t=checkValidExp(expOffset, token,false);
-          }else if(isDecimal==1) {
-              //System.out.println(token+" "+decOffset);
-
-              t = checkValidExp(decOffset, token,true);
-          }else{
-              t=newToken(NUMBER,token);
-          }
-
+          //bump offset regardless of whether token is valid or not
           bumpOffset(offset);
-          return t;
+          if(token.matches(regex)){
+              return newToken(NUMBER,token);
+          }else{
+              return newToken(ERROR,">> BAD TOKEN : " + token);
+          }
       }
     return null;
   }
