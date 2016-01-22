@@ -63,7 +63,6 @@ public class Tokenizer
         tokens.add( constant );
         continue;
       }
-        //System.out.println(currentChar());
       // unrecognized token, add error token
       tokens.add( newToken( ERROR, ">> BAD TOKEN : " + currentChar() ) );
       bumpOffset( 1 );
