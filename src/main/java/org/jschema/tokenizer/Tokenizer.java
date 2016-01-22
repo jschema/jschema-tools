@@ -34,9 +34,8 @@ public class Tokenizer
 
     while(moreChars()) {
       eatWhiteSpace(); // eat leading whitespace
-
       if(!moreChars()) break; // if we got to the end of the string, exit
-      Token string = consumeString();
+        Token string = consumeString();
       if(string != null)
       {
         tokens.add( string );
@@ -86,46 +85,66 @@ public class Tokenizer
   private Token consumeString()
   {
       String tok="";
-
-
-      int newOffset=0;
-      //check if starts with quote
-    if(_chars[_offset]=='"'){
-        tok+=_chars[_offset+newOffset];
-        newOffset++;
-        //go until a space is found
-        //should cover case with escaped quotes inside string
-        while(_offset+newOffset<_chars.length
-                &&_chars[_offset+newOffset]!=':' &&_chars[_offset+newOffset]!=','){
-            tok+=_chars[_offset+newOffset];
-            //escaped " case
-            if(_chars[_offset+newOffset]=='\\' && _offset+newOffset+1<_chars.length &&_chars[_offset+newOffset]=='"'){
-                newOffset++;
-            }
-            newOffset++;
-            //break if last " is found and next letter is space
-            if(_chars[_offset+newOffset-1]=='"' &&_offset+newOffset<_chars.length && !Character.toString(_chars[_offset+newOffset]).equals(" ")) {
-                newOffset++;
-                break;
-            }
-
-
-        }
-
-        //check to make sure ends in quote and is not a single quote
-        if(!tok.substring(tok.length()-1).equals("\"") || tok.length()==1){
-            bumpOffset(newOffset);
-            return newToken(ERROR,">> BAD TOKEN : " + tok);
-        }else{
-            bumpOffset(newOffset);
-
-            return newToken(STRING,tok);
-        }
-    }
+      int offset=0;
+    //first make sure that string starts with quote
+      //loop through characters until ',',':', ']','}',or ' '
+      //if escaped character is found, go to helper function, handle token, return valid character
+      //add character to token that will be returned
+      //then check entire token for validity before returning
+      //make sure it starts with a quote
+      if(_chars[_offset+offset]=='"') {
+          offset++;
+          //look at following chars that aren't end of string and not at end of string
+          while (_offset+offset<_chars.length &&!isEndOfString(_chars[_offset + offset])&&_chars[_offset+offset]!='"') {
+                  tok+=_chars[_offset+offset];
+              //if backslash, handle special case
+              /*if(_chars[_offset+offset]=='\\'){
+                  //if u, handle unicode
+                  if(_offset+offset<_chars.length && _chars[_offset+offset]=='u'){
+                      unicode(offset);
+                  }else {
+                      unescapeChar(offset);
+                  }
+              }*/
+              offset++;
+          }
+          System.out.println(tok);
+          bumpOffset(offset+1);
+          return newToken(STRING,tok);
+      }
 
       return null;
 
   }
+    //convert unicode to character
+    private void unicode(int offset){
+
+    }
+    private boolean isEndOfString(char endOfString){
+        if (endOfString==','||endOfString==':'||endOfString==']'||endOfString=='}'|| endOfString==' '){
+            return true;
+        }
+        return false;
+    }
+
+    private String unescapeChar(int curr_offset){
+        int newOffset=_offset+curr_offset+1;
+        //check to see if next character is " \ / b f n r t
+        if(newOffset<_chars.length){
+            /*switch(_chars[newOffset]){
+                case '"': return "\"";
+                case '\\': return "\\";
+                case '/': return "/";
+                case 'b': return "/b";
+                case 'f': return 'f';
+                case 'n': return 'n';
+                case 'r': return
+            }*/
+
+        }
+
+    return null;
+    }
 
     //needs to work for integers and decimals
   private Token consumeNumber()
