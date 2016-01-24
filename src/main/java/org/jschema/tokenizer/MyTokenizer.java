@@ -162,10 +162,9 @@ public class MyTokenizer
   {
     return new Token( type, tokenValue, _line, _column, _offset + 1 );
   }
-
   private boolean matchNumber(String n){
 
-    return n.matches("(^-?\\d+(?:\\.\\d*)?|\\.\\d+)");
+    return n.matches("(-?((\\d+\\.\\d+)|([1-9]\\d*))([eE]{1}[-+]?\\d+)?)");
   }
 
   private boolean matchPunctuation (String p){
