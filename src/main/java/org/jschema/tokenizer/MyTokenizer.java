@@ -149,18 +149,23 @@ public class MyTokenizer
     Token t = newToken(NUMBER, "");
     Token e = newToken(ERROR, "");
 
-    if(currentChar() == '.'){
+    if( currentChar() == '.'){
       //if the first thing read is a '.' , return error token, then continue reading. Do below.
       e = appendE(ERROR, e.getTokenValue(), ">> BAD TOKEN : " + currentChar() );
 
       bumpOffset(1);
     }
-    if(currentChar() == '-'){
+    if( currentChar() == '-'){
       //negative number, continue
       bumpOffset(1);
     }
+    if( Character.isLetter(currentChar()) ){
+      //if it's a letter, return error token.
+      e = appendE(ERROR, e.getTokenValue(), ">> BAD TOKEN : " + currentChar() );
+      bumpOffset(1);
+    }
 
-       while( Character.isDigit(currentChar()) || !Character.isLetter(currentChar()) ){ //if what is read is an integer and not a char
+       while( Character.isDigit(currentChar())){ //if what is read is an integer and not a char
          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar()); // "" + "1" = "1" ...
           bumpOffset(1);
 
@@ -169,10 +174,10 @@ public class MyTokenizer
           }
         }
 
-        if(!t.getTokenValue().equals("")) {
+        if( !t.getTokenValue().equals("") ) {
           return t;
         }
-        if(!e.getTokenValue().equals("")){
+        if( !e.getTokenValue().equals("") ){
           return e;
         }
     return null;
