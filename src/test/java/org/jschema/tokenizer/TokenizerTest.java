@@ -162,7 +162,7 @@ public class TokenizerTest
     assertTokensAre( tokens, token(NUMBER,"1.23"));
 
     //invalid decimal number
-    tokens = tokenize( "1..23" );
+    tokens = tokenize( "1..23" );                                   //if curr is dot but next is not dot
     assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 1..23"));
 
     //decimal number
@@ -173,8 +173,6 @@ public class TokenizerTest
     tokens = tokenize( "0.23 1.56" );
     assertTokensAre(tokens, token(NUMBER, "0.23"), token(NUMBER, "1.56"));
 
-    tokens = tokenize( "01.3" );
-    assertTokensAre(tokens, token(NUMBER, "0"), token(NUMBER, "1.3"));
 
     //exponents lowercase e
     tokens = tokenize( "2e1" );

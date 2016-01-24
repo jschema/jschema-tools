@@ -14,8 +14,7 @@ public class MyTokenizer
   private int _line;
   private int _column;
 
-  private char[] _checkSlash;             //added char array to check for '\"'
-  private int _cs = 0;
+
 
   public MyTokenizer(String string )
   {
@@ -31,7 +30,6 @@ public class MyTokenizer
     ArrayList<Token> tokens = new ArrayList<Token>();
 
     _chars = _string.toCharArray();
-    _checkSlash = _string.toCharArray();
     _offset = 0;
     _line = 1;
     _column = 0;
@@ -76,6 +74,7 @@ public class MyTokenizer
         // unrecognized token, add error token
         tokens.add( newToken( ERROR, ">> BAD TOKEN : " + currentChar() ) );
         bumpOffset( 1 );
+        continue;
       }
 
     }
@@ -97,10 +96,11 @@ public class MyTokenizer
 
     Token s = newToken(STRING, "");
 
+
       while(Character.isLetter(currentChar())){                      //if what we're reading currently is a letter...
 
-        _checkSlash[_cs] = currentChar();   //array to add each char to, later check if char at that position is '\*', increment i.
-        _cs++;
+        _chars[_offset] = currentChar();   //array to add each char to, later check if char at that position is '\*', increment i.
+        _offset++;
 
         s = appendT(STRING, s.getTokenValue(), "" + currentChar());
         bumpOffset(1);
@@ -111,6 +111,17 @@ public class MyTokenizer
 
       }
 
+      if(_chars[0] == '\"' && _chars[_offset - 1] == '\"'){
+        //if both the starting position and ending position is '\"', basic string test should pass
+        //return the token
+        s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+      }
+
+      /*if((_checkString[0] == '"' && _checkString[_cs-1] != ' ')
+            || (_checkString[0] != ' ' && _checkString[_cs-1] == '"')){
+        e = appendT( ERROR, e.getTokenValue(), ">> BAD TOKEN : " + currentChar());
+      }*/
+
       if(!s.getTokenValue().equals("")) {
         return s;
       }
@@ -119,20 +130,8 @@ public class MyTokenizer
 
 
   private Token consumeError(){
-
     Token e = newToken(ERROR, "");
 
-    if(_checkSlash[0] == '"' && _checkSlash[_cs - 1] == '"'){
-      //if both the starting position and ending position is '\"', basic string test should pass
-      //return the token
-      e = appendT( ERROR, e.getTokenValue(), ">> BAD TOKEN : " + currentChar());
-    }
-/*
-    if((_checkSlash[0] == '"' && _checkSlash[_cs-1] != '')
-        || (_checkSlash[0] != '' && _checkSlash[_cs-1] == '"')){
-      e = appendT( ERROR, e.getTokenValue(), ">> BAD TOKEN : " + currentChar());
-    }
-*/
     if(!e.getTokenValue().equals("")){
       return e;
     }
@@ -146,18 +145,36 @@ public class MyTokenizer
   private Token consumeNumber()
   {
     //TOOD - implement
-    Token t = newToken(NUMBER, "");
 
-        while(Character.isDigit(currentChar())){ //if what is read is an integer
-          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar()); // "" + "1" = "1" ...
+    Token t = newToken(NUMBER, "");
+    Token e = newToken(ERROR, "");
+
+    if(currentChar() == '.'){
+      //if the first thing read is a '.' , return error token, then continue reading. Do below.
+      e = appendE(ERROR, e.getTokenValue(), ">> BAD TOKEN : " + currentChar() );
+
+      bumpOffset(1);
+    }
+    if(currentChar() == '-'){
+      //negative number, continue
+      bumpOffset(1);
+    }
+
+       while( Character.isDigit(currentChar()) || !Character.isLetter(currentChar()) ){ //if what is read is an integer and not a char
+         t = appendT(NUMBER, t.getTokenValue(), "" + currentChar()); // "" + "1" = "1" ...
           bumpOffset(1);
-          if(!moreChars()){  //if there's nothing more to read
+
+          if(!moreChars()){
             break;
           }
         }
-    if(!t.getTokenValue().equals("")) {
-      return t;
-    }
+
+        if(!t.getTokenValue().equals("")) {
+          return t;
+        }
+        if(!e.getTokenValue().equals("")){
+          return e;
+        }
     return null;
   }
 
@@ -169,6 +186,11 @@ public class MyTokenizer
     return t;
   }
 
+  //appendE method for error tokens....not sure if this is necessary
+  private Token appendE(Token.TokenType type, String curVal, String newVal){
+    Token e = newToken(type, curVal + newVal); //string 1 + string 2
+    return e;
+  }
 
 
   private Token consumePunctuation()
@@ -262,19 +284,6 @@ public class MyTokenizer
     }
     return true;
   }
-
-/*
-  //function for string matching
-  private boolean matchString( String charArray){
-    for( int i = 0; i < charArray.length; i++){
-      if( !peekAndMatch( i, charArray[i] )){
-        return false;
-      }
-    }
-    return true;
-  }
-
-*/
 
 
   private boolean peekAndMatch( int i, char toMatch )
