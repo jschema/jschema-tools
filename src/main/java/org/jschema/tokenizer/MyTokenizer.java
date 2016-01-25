@@ -121,9 +121,23 @@ public class MyTokenizer
 
     private Token consumeNumber()
     {
-        String value = matchRegex("(-?(?:0|[1-9](?:\\d+)?+)(?:\\.[\\d]+)?(?:[E|e][+|-]?[\\d]+)?)");
+        String value = matchRegex("(-?(?:0|[1-9](?:\\d+)?+)(?:\\.+[\\d]+)?(?:[E|e][+|-]?[\\d]+)?)");
         if (value != null) {
+            int originalValueLength = value.length();
+
+            // Check invalid decimal
+            int dotCount = 0;
+            for (int i = 0; i < value.length(); i++) {
+                if (value.charAt(i) == '.') {
+                    dotCount++;
+                }
+            }
+
             Token t = newToken(NUMBER, value);
+            if (dotCount > 1) {
+                t = newToken(ERROR, ">> BAD TOKEN : " + value);
+            }
+
             bumpOffset(value.length());
             return t;
         }

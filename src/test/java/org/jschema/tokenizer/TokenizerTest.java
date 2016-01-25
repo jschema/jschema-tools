@@ -148,7 +148,6 @@ public class TokenizerTest
   public void testNumbers() {
     List<Token> tokens;
 
-
     //number by itself
     tokens = tokenize( "1234" );
     assertTokensAre( tokens, token( NUMBER, "1234" ));
