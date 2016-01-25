@@ -116,6 +116,7 @@ public class MyTokenizer
         } else if (endingInQuoteRegex != null) {
             return null;
         }
+        
         return null;
     }
 
@@ -157,7 +158,7 @@ public class MyTokenizer
 
     private Token consumeConstant()
     {
-        String constant = matchRegex("\\w+");
+        String constant = matchRegex("\\w+(?!\\w)(?!\")");
         if (constant == null) {
             return null;
         }
