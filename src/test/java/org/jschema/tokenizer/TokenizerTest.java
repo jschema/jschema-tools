@@ -139,6 +139,24 @@ public class TokenizerTest
     assertTokensAre( tokens, token(STRING, "\u263A"));
     assertTokensAre( tokens, token(STRING, "☺"));
 
+      //Escaped unicode with text
+      tokens = tokenize( '"' + backSlash( "u263Ahello" ) + '"' );
+      assertTokensAre( tokens, token(STRING, "\u263Ahello"));
+      assertTokensAre( tokens, token(STRING, "☺hello"));
+
+      //text with spaces
+      tokens = tokenize( "\"how are you?\"");
+      assertTokensAre( tokens, token(STRING, "how are you?"));
+
+      //text with spaces and nested quotes
+      tokens = tokenize( "\"how " +backSlash('"')+"are"+ backSlash('"')+" you?\"");
+      assertTokensAre( tokens, token(STRING, "how \"are\" you?"));
+
+      //escape unicode with spaces
+      tokens = tokenize( '"'+backSlash("u263A") +" "+backSlash("u263A") +'"');
+      assertTokensAre( tokens, token(STRING, "\u263A \u263A"));
+      assertTokensAre( tokens, token(STRING, "☺ ☺"));
+
     tokens = tokenize( '"' + backSlash( "u263G" ) + '"' );
     assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : \\u263G"));
 
@@ -286,9 +304,25 @@ public class TokenizerTest
   public void testErrors() {
     List<Token> tokens;
 
-    // unclosed string
-    tokens = tokenize( "\"foo" );
-    assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : \"foo"));
+      //bad Escaped unicode
+      tokens = tokenize( '"' + backSlash( "u26" ) + '"' );
+      assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : \\u26"));
+
+      //bad Escaped character
+      tokens = tokenize( '"' + backSlash( "s" ) + '"' );
+      assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : \\s"));
+
+      //bad Escaped unicode and unclosed string
+      tokens = tokenize( '"' + backSlash( "u26f" )  );
+      assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : \"\\u26f"));
+
+      // unclosed string
+      tokens = tokenize( "\"foo" );
+      assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : \"foo"));
+
+      // unclosed string 2
+      tokens = tokenize( "\"foo\" \"bar" );
+      assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : \"foo\" \"bar"));
 
     // invalid constant (constant with typo)
     tokens = tokenize( "truel" );
@@ -297,6 +331,9 @@ public class TokenizerTest
     // invalid constant (constant with typo)
     tokens = tokenize( "truel false" );
     assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : truel"),token(CONSTANT,"false"));
+
+      tokens = tokenize( "truefalse" );
+      assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : truefalse"));
 
   }
 

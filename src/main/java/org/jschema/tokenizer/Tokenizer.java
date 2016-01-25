@@ -85,8 +85,7 @@ public class Tokenizer
 
   private Token consumeString()
   {
-      String tok="";
-     // String pattern="\"((\\\\(([\"\\\\/\b\f\n\r\t])|[u][0-9a-fA-F]{4}))|([^\"\\\\]*))*\"";
+      String tok=""; //for actual escaped token
       String pattern ="^\"((\\\\[\"\\\\/\b\f\n\r\t]|(\\\\[u][0-9a-fA-F]{4}))|[^\"\\\\])*\"$";
       Pattern r=Pattern.compile(pattern);
       String input=""; //for checking with regex
@@ -103,7 +102,6 @@ public class Tokenizer
           offset++;
           //look at following chars that aren't end of string and not at end of string
           while (_offset + offset < _chars.length && !isEndOfString(_chars[_offset + offset])) {
-              //System.out.println(_chars[_offset+offset]);
               //if backslash, handle special case
               if (_chars[_offset + offset] == '\\') {
                   //if u, handle unicode
@@ -113,31 +111,39 @@ public class Tokenizer
                       if (uni != null) {
                           try {
                               char token = (char) Integer.parseInt(uni.substring(2), 16);
-                              System.out.println("tok is " + uni);
                               tok += token;
                               input += uni;
-                              //System.out.println("input is "+input);
                               offset += 5;
                           } catch (NumberFormatException e) {
-                              tok += uni;
+                             // tok += uni;
                               input += uni;
                               offset += 5;
-                              //bumpOffset(offset);
-                              //System.out.println(tok);
-                              //return newToken(ERROR,">> BAD TOKEN : " +tok);
                           }
                       } else {
-                          //something bad
+                          input+="\\"+_chars[offset];
+                          offset++;
+                          //invalid unicode, so just grab rest of string and break out of loop
+                          while(_offset+offset<_chars.length && !isEndOfString(_chars[_offset + offset])){
+                              input+=_chars[_offset+offset];
+                              offset++;
+                          }
+                          break;
                       }
+                      //not unicode
                   } else {
                       String temp = unescapeChar(offset);
+                      //not unescaped character
                       if (temp != null) {
                           tok += temp;
                           input += "\\" + temp;
-                          //System.out.println(tok);
                           offset += 2;
                       } else {
-                          //something bad
+                          //invalid character escaping, so just grab rest of string and break out of loop
+                          while(_offset+offset<_chars.length && !isEndOfString(_chars[_offset + offset])){
+                              input+=_chars[_offset+offset];
+                              offset++;
+                          }
+                          break;
                       }
                   }
               } else {
@@ -145,34 +151,14 @@ public class Tokenizer
                   input += _chars[_offset + offset];
                   offset++;
               }
-              // offset++;
           }
           bumpOffset(offset);
-          //check last "
-          /*if( !tok.substring(tok.length()-1).equals("\"")){
-              //non-matching quotes
-              return newToken(ERROR,">> BAD TOKEN : " + "\""+tok);
-          }else{
-              return newToken(STRING,tok.substring(0,tok.length()-1));
-          }*/
-          //System.out.println(input);
-
-         /* if(!input.matches(pattern)){
-              System.out.println("error"+tok.substring(1,tok.length()-1));
-              //non-matching quotes
-              return newToken(ERROR,">> BAD TOKEN : " +tok);
-          }else{
-              System.out.println("token"+tok.substring(1,tok.length()-1));
-              return newToken(STRING,tok.substring(1,tok.length()-1));
-          }*/
           Matcher m = r.matcher(input);
           if (m.find()) {
-              System.out.println("token is" + input);
               return newToken(STRING, tok.substring(1, tok.length() - 1));
           } else {
-              System.out.println("bad is" + input);
-              //check if lack of matching parenthesis is cause of no match
-              if (tok.charAt(tok.length() - 1) != '"') {
+              //check if lack of matching parenthesis (on right hand side) is cause of no match
+              if (input.charAt(input.length() - 1) != '"') {
                   return newToken(ERROR, ">> BAD TOKEN : " + input.substring(0, input.length()));
               } else {
                   return newToken(ERROR, ">> BAD TOKEN : " + input.substring(1, input.length() - 1));
@@ -194,14 +180,13 @@ public class Tokenizer
             hexDigs--;
         }
         if(hexDigs==0){
-            //System.out.println(tok);
             return tok;
         }
         return null;
 
     }
     private boolean isEndOfString(char endOfString){
-        if (endOfString==','||endOfString==':'||endOfString==']'||endOfString=='}'|| endOfString==' '){
+        if (endOfString==','||endOfString==':'||endOfString==']'||endOfString=='}'){
             return true;
         }
         return false;
