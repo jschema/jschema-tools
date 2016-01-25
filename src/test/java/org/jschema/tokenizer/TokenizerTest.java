@@ -88,7 +88,6 @@ public class TokenizerTest
   @Test
   public void testStrings() {
     List<Token> tokens;
-
     //Test basic string
     tokens = tokenize( "\"test\"" );
     assertTokensAre( tokens, token(STRING, "test"));

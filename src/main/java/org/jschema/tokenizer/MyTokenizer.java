@@ -82,16 +82,24 @@ public class MyTokenizer
       StringBuilder str = new StringBuilder();
       str.append(_chars[_offset]);
       int i = _offset + 1;
-      while(true){
-        if(i == _chars.length) return null;
+      while (i < _chars.length) {
         str.append(_chars[i]);
-        if (_chars[i++] == '\"') break;
+        if(_chars[i] == '\\'){
+          if(++i < _chars.length){
+            str.setCharAt(str.length()-1, _chars[i++]);
+          }
+        }
+        else if(_chars[i++] == '\"'){
+          break;
+        }
       }
-      Token t = newToken(STRING, str.toString());
-      bumpOffset(i);
+      Token t = matchString(str.toString()) ?
+              newToken(STRING, str.substring(1, str.length()-1)) :
+              badToken(str.toString());
+      bumpOffset(i - _offset);
       return t;
-    }
-    return null;
+      }
+      return null;
   }
 
   private Token consumeNumber()
@@ -102,18 +110,13 @@ public class MyTokenizer
       while (i < _chars.length && _chars[i] != ' ') {
         num.append(_chars[i++]);
       }
-      if (matchNumber(num.toString())) {
-        Token t = newToken(NUMBER, num.toString());
-        bumpOffset(i-_offset);
-        return t;
+      Token t = matchNumber(num.toString()) ?
+              newToken(NUMBER, num.toString()) :
+              badToken(num.toString());
+      bumpOffset(i-_offset);
+      return t;
       }
-      else{
-        Token t = newToken(ERROR, ">> BAD TOKEN : " +  num.toString());
-        bumpOffset(i-_offset);
-        return t;
-      }
-    }
-    return null;
+      return null;
   }
 
   private Token consumePunctuation()
@@ -158,9 +161,15 @@ public class MyTokenizer
     _offset += amt;
   }
 
+  private Token badToken(String str){
+    return newToken(ERROR, ">> BAD TOKEN : " + str);
+  }
   private Token newToken( Token.TokenType type, String tokenValue )
   {
     return new Token( type, tokenValue, _line, _column, _offset + 1 );
+  }
+  private boolean matchString(String n){
+    return n.matches("(\".+\")");
   }
   private boolean matchNumber(String n){
 
