@@ -157,25 +157,17 @@ public class MyTokenizer
 
     private Token consumeConstant()
     {
-        if( match( 't', 'r', 'u', 'e' ) )
-        {
-            Token t = newToken( CONSTANT, "true" );
-            bumpOffset(4);
-            return t;
+        String constant = matchRegex("\\w+");
+        if (constant == null) {
+            return null;
         }
-        if( match( 'f', 'a', 'l', 's', 'e' ) )
-        {
-            Token t = newToken( CONSTANT, "false" );
-            bumpOffset(5);
-            return t;
+
+        bumpOffset(constant.length());
+        if (constant.equals("true") || constant.equals("false") || constant.equals("null")) {
+            return newToken(CONSTANT, constant);
         }
-        if( match( 'n', 'u', 'l', 'l' ) )
-        {
-            Token t = newToken( CONSTANT, "null" );
-            bumpOffset(4);
-            return t;
-        }
-        return null;
+
+        return newToken(ERROR, ">> BAD TOKEN : "+constant);
     }
 
     //========================================================================================
@@ -187,21 +179,8 @@ public class MyTokenizer
         _offset += amt;
     }
 
-    private Token newToken( Token.TokenType type, String tokenValue )
-    {
-        return new Token( type, tokenValue, _line, _column, _offset + 1 );
-    }
-
-    private boolean match( char... charArray)
-    {
-        for( int i = 0; i < charArray.length; i++ )
-        {
-            if( !peekAndMatch( i, charArray[i] ))
-            {
-                return false;
-            }
-        }
-        return true;
+    private Token newToken( Token.TokenType type, String tokenValue ) {
+        return new Token(type, tokenValue, _line, _column, _offset + 1);
     }
 
     private boolean matchString(String string) {
