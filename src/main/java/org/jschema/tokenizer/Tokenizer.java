@@ -2,6 +2,7 @@ package org.jschema.tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.jschema.tokenizer.Token.TokenType.*;
@@ -85,6 +86,10 @@ public class Tokenizer
   private Token consumeString()
   {
       String tok="";
+     // String pattern="\"((\\\\(([\"\\\\/\b\f\n\r\t])|[u][0-9a-fA-F]{4}))|([^\"\\\\]*))*\"";
+      String pattern ="^\"((\\\\[\"\\\\/\b\f\n\r\t]|(\\\\[u][0-9a-fA-F]{4}))|[^\"\\\\])*\"$";
+      Pattern r=Pattern.compile(pattern);
+      String input=""; //for checking with regex
       int offset=0;
     //first make sure that string starts with quote
       //loop through characters until ',',':', ']','}',or ' '
@@ -93,31 +98,106 @@ public class Tokenizer
       //then check entire token for validity before returning
       //make sure it starts with a quote
       if(_chars[_offset+offset]=='"') {
+          tok += _chars[_offset + offset];
+          input += _chars[_offset + offset];
           offset++;
           //look at following chars that aren't end of string and not at end of string
-          while (_offset+offset<_chars.length &&!isEndOfString(_chars[_offset + offset])&&_chars[_offset+offset]!='"') {
-                  tok+=_chars[_offset+offset];
+          while (_offset + offset < _chars.length && !isEndOfString(_chars[_offset + offset])) {
+              //System.out.println(_chars[_offset+offset]);
               //if backslash, handle special case
-              /*if(_chars[_offset+offset]=='\\'){
+              if (_chars[_offset + offset] == '\\') {
                   //if u, handle unicode
-                  if(_offset+offset<_chars.length && _chars[_offset+offset]=='u'){
-                      unicode(offset);
-                  }else {
-                      unescapeChar(offset);
+                  if (_offset + offset + 1 < _chars.length && _chars[_offset + offset + 1] == 'u') {
+                      offset++;
+                      String uni = unicode(offset);
+                      if (uni != null) {
+                          try {
+                              char token = (char) Integer.parseInt(uni.substring(2), 16);
+                              System.out.println("tok is " + uni);
+                              tok += token;
+                              input += uni;
+                              //System.out.println("input is "+input);
+                              offset += 5;
+                          } catch (NumberFormatException e) {
+                              tok += uni;
+                              input += uni;
+                              offset += 5;
+                              //bumpOffset(offset);
+                              //System.out.println(tok);
+                              //return newToken(ERROR,">> BAD TOKEN : " +tok);
+                          }
+                      } else {
+                          //something bad
+                      }
+                  } else {
+                      String temp = unescapeChar(offset);
+                      if (temp != null) {
+                          tok += temp;
+                          input += "\\" + temp;
+                          //System.out.println(tok);
+                          offset += 2;
+                      } else {
+                          //something bad
+                      }
                   }
-              }*/
-              offset++;
+              } else {
+                  tok += _chars[_offset + offset];
+                  input += _chars[_offset + offset];
+                  offset++;
+              }
+              // offset++;
           }
-          System.out.println(tok);
-          bumpOffset(offset+1);
-          return newToken(STRING,tok);
+          bumpOffset(offset);
+          //check last "
+          /*if( !tok.substring(tok.length()-1).equals("\"")){
+              //non-matching quotes
+              return newToken(ERROR,">> BAD TOKEN : " + "\""+tok);
+          }else{
+              return newToken(STRING,tok.substring(0,tok.length()-1));
+          }*/
+          //System.out.println(input);
+
+         /* if(!input.matches(pattern)){
+              System.out.println("error"+tok.substring(1,tok.length()-1));
+              //non-matching quotes
+              return newToken(ERROR,">> BAD TOKEN : " +tok);
+          }else{
+              System.out.println("token"+tok.substring(1,tok.length()-1));
+              return newToken(STRING,tok.substring(1,tok.length()-1));
+          }*/
+          Matcher m = r.matcher(input);
+          if (m.find()) {
+              System.out.println("token is" + input);
+              return newToken(STRING, tok.substring(1, tok.length() - 1));
+          } else {
+              System.out.println("bad is" + input);
+              //check if lack of matching parenthesis is cause of no match
+              if (tok.charAt(tok.length() - 1) != '"') {
+                  return newToken(ERROR, ">> BAD TOKEN : " + input.substring(0, input.length()));
+              } else {
+                  return newToken(ERROR, ">> BAD TOKEN : " + input.substring(1, input.length() - 1));
+              }
+          }
       }
 
       return null;
 
   }
-    //convert unicode to character
-    private void unicode(int offset){
+    //convert to unicode
+    private String unicode(int offset){
+        int newOffset=_offset+offset+1;
+        int hexDigs=4;
+        String tok="\\u";
+        while(newOffset<_chars.length && hexDigs>0){
+            tok+=_chars[newOffset+_offset];
+            newOffset++;
+            hexDigs--;
+        }
+        if(hexDigs==0){
+            //System.out.println(tok);
+            return tok;
+        }
+        return null;
 
     }
     private boolean isEndOfString(char endOfString){
@@ -131,15 +211,16 @@ public class Tokenizer
         int newOffset=_offset+curr_offset+1;
         //check to see if next character is " \ / b f n r t
         if(newOffset<_chars.length){
-            /*switch(_chars[newOffset]){
+            switch(_chars[newOffset]){
                 case '"': return "\"";
                 case '\\': return "\\";
                 case '/': return "/";
-                case 'b': return "/b";
-                case 'f': return 'f';
-                case 'n': return 'n';
-                case 'r': return
-            }*/
+                case 'b': return "\b";
+                case 'f': return "\f";
+                case 'n': return "\n";
+                case 'r': return "\r";
+                default: return null;
+            }
 
         }
 

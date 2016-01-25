@@ -96,14 +96,15 @@ public class TokenizerTest
     //Test basic string
     tokens = tokenize( "\"test\"" );
     assertTokensAre( tokens, token(STRING, "test"));
-/*
+
     //string not ending in quote
     tokens = tokenize( "\"test" );
     assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : \"test"));
 
     //string not beginning in quote
     tokens = tokenize( "test\"" );
-    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : e"),token(ERROR,">> BAD TOKEN : s"),token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : \""));
+    //assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : e"),token(ERROR,">> BAD TOKEN : s"),token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : \""));
+      assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : test\""));
 
     //escaped quote in string
     tokens = tokenize( '"' + backSlash( '"' ) + '"' );
@@ -139,8 +140,8 @@ public class TokenizerTest
     assertTokensAre( tokens, token(STRING, "☺"));
 
     tokens = tokenize( '"' + backSlash( "u263G" ) + '"' );
-    assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : "), token(ERROR, ">> BAD TOKEN : "));
-*/
+    assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : \\u263G"));
+
   }
 
   @Test
@@ -272,8 +273,8 @@ public class TokenizerTest
     List<Token> tokens;
 
     //assortment
-//    tokens=tokenize("\"type\": \"array\":");
-  //  assertTokensAre(tokens,token(STRING,"type"), token(PUNCTUATION,":"), token(STRING,"array"), token(PUNCTUATION,":"));
+    tokens=tokenize("\"type\": \"array\":");
+    assertTokensAre(tokens,token(STRING,"type"), token(PUNCTUATION,":"), token(STRING,"array"), token(PUNCTUATION,":"));
 
 
     tokens = tokenize("123, true");
@@ -286,8 +287,8 @@ public class TokenizerTest
     List<Token> tokens;
 
     // unclosed string
-    //tokens = tokenize( "\"foo" );
-    //assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : \"foo"));
+    tokens = tokenize( "\"foo" );
+    assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : \"foo"));
 
     // invalid constant (constant with typo)
     tokens = tokenize( "truel" );
