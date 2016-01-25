@@ -169,48 +169,7 @@ public class Tokenizer
       return null;
 
   }
-    //convert to unicode
-    private String unicode(int offset){
-        int newOffset=_offset+offset+1;
-        int hexDigs=4;
-        String tok="\\u";
-        while(newOffset<_chars.length && hexDigs>0){
-            tok+=_chars[newOffset+_offset];
-            newOffset++;
-            hexDigs--;
-        }
-        if(hexDigs==0){
-            return tok;
-        }
-        return null;
 
-    }
-    private boolean isEndOfString(char endOfString){
-        if (endOfString==','||endOfString==':'||endOfString==']'||endOfString=='}'){
-            return true;
-        }
-        return false;
-    }
-
-    private String unescapeChar(int curr_offset){
-        int newOffset=_offset+curr_offset+1;
-        //check to see if next character is " \ / b f n r t
-        if(newOffset<_chars.length){
-            switch(_chars[newOffset]){
-                case '"': return "\"";
-                case '\\': return "\\";
-                case '/': return "/";
-                case 'b': return "\b";
-                case 'f': return "\f";
-                case 'n': return "\n";
-                case 'r': return "\r";
-                default: return null;
-            }
-
-        }
-
-    return null;
-    }
 
     //needs to work for integers and decimals
   private Token consumeNumber()
@@ -376,39 +335,48 @@ public class Tokenizer
             return null;
         }
     }
-    //checks exponents to make sure they are valid
-    private Token checkValidExp(int offset, String tok, boolean isDec) {
-        Token t=newToken(NUMBER, tok);;
-        String regex = "-?[0-9]+";
-        //check if number before e
-        if(!(isDec && tok.substring(0,offset).equals(""))) {
-            //make sure isn't small decimal like .23
-            if ((offset - 1 < 0) || !(tok.substring(0, offset).matches(regex))) {
-                t = newToken(ERROR, ">> BAD TOKEN : " + tok);
-
-                //check if number or negative sign after e
-                //TODO need to check more for validity
-            } else {
-                //get anything after token
-                int offsetAfter = 0;
-                String badTok = tok;
-                //System.out.println("tok is" +tok.length());
-                //get any bad input after exponent
-                while (tok.length() + _offset+ offsetAfter < _chars.length &&
-                        !Character.toString(_chars[_offset+tok.length() + offsetAfter]).equals(" ")&&
-                        _chars[_offset+tok.length() + offsetAfter]!=',') {
-                    badTok += _chars[tok.length() + offsetAfter];
-                    offsetAfter++;
-                }
-                bumpOffset(offsetAfter);
-                if (offsetAfter > 0) {
-                    t = newToken(ERROR, ">> BAD TOKEN : " + badTok);
-                } else {
-                    t = newToken(NUMBER, tok);
-                }
-            }
+    //convert to unicode
+    private String unicode(int offset){
+        int newOffset=_offset+offset+1;
+        int hexDigs=4;
+        String tok="\\u";
+        while(newOffset<_chars.length && hexDigs>0){
+            tok+=_chars[newOffset+_offset];
+            newOffset++;
+            hexDigs--;
         }
-        return t;
+        if(hexDigs==0){
+            return tok;
+        }
+        return null;
+
+    }
+    //checks if end of string
+    private boolean isEndOfString(char endOfString){
+        if (endOfString==','||endOfString==':'||endOfString==']'||endOfString=='}'){
+            return true;
+        }
+        return false;
+    }
+    //unescapes characters
+    private String unescapeChar(int curr_offset){
+        int newOffset=_offset+curr_offset+1;
+        //check to see if next character is " \ / b f n r t
+        if(newOffset<_chars.length){
+            switch(_chars[newOffset]){
+                case '"': return "\"";
+                case '\\': return "\\";
+                case '/': return "/";
+                case 'b': return "\b";
+                case 'f': return "\f";
+                case 'n': return "\n";
+                case 'r': return "\r";
+                default: return null;
+            }
+
+        }
+
+        return null;
     }
 
 }
