@@ -2,6 +2,7 @@ package org.jschema.tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.*;
 
 import static org.jschema.tokenizer.Token.TokenType.*;
 
@@ -67,15 +68,8 @@ public class MyTokenizer
         continue;
       }
 
-      /********************added for error implementation **************/
-
-      Token error = consumeError();
-      if(error != null){
-        // unrecognized token, add error token
         tokens.add( newToken( ERROR, ">> BAD TOKEN : " + currentChar() ) );
         bumpOffset( 1 );
-        continue;
-      }
 
     }
 
@@ -96,31 +90,21 @@ public class MyTokenizer
 
     Token s = newToken(STRING, "");
 
-
       while(Character.isLetter(currentChar())){                      //if what we're reading currently is a letter...
-
-        _chars[_offset] = currentChar();   //array to add each char to, later check if char at that position is '\*', increment i.
-        _offset++;
-
         s = appendT(STRING, s.getTokenValue(), "" + currentChar());
         bumpOffset(1);
-
         if(!moreChars()){
           break;
         }
-
       }
 
-      if(_chars[0] == '\"' && _chars[_offset - 1] == '\"'){
-        //if both the starting position and ending position is '\"', basic string test should pass
-        //return the token
-        s = appendT(STRING, s.getTokenValue(), "" + currentChar());
-      }
-
-      /*if((_checkString[0] == '"' && _checkString[_cs-1] != ' ')
-            || (_checkString[0] != ' ' && _checkString[_cs-1] == '"')){
-        e = appendT( ERROR, e.getTokenValue(), ">> BAD TOKEN : " + currentChar());
-      }*/
+    //new code for string test cases. test case b, n, f, r
+    if(currentChar() == '"'){
+      s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+    }else{         //if no quote
+      s = newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+    }
+    bumpOffset(1);
 
       if(!s.getTokenValue().equals("")) {
         return s;
@@ -129,73 +113,70 @@ public class MyTokenizer
   }
 
 
-  private Token consumeError(){
-    Token e = newToken(ERROR, "");
+  private Token consumeNumber()
+  {
+    //TOOD - implement
+    int exponent = 0;
+    boolean negative = false;           //boolean positive/negative flag
 
-    if(!e.getTokenValue().equals("")){
-      return e;
+    Token t = newToken(NUMBER, "");
+
+    if( currentChar() == '.'){                                        //if the first thing read is a '.' , decimal number or return fraction
+      t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
+      bumpOffset(1);
+
+      //fraction work goes here
+
+      return newToken( ERROR, ">> BAD TOKEN : " + currentChar() );
     }
 
+    if(currentChar() == '-'){
+      //negative number, continue
+      negative = true;
+      t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
+      bumpOffset(1);
+    }
+
+    if(currentChar() == 'e' || currentChar() == 'E') {            //don't return error if e or E for euler's number
+      boolean negativeExp = false;                                //flag for exponent
+      bumpOffset(1);
+      if (currentChar() == '-') {                                      //read for negative sign in front of exponent
+        t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
+        negativeExp = true;
+        bumpOffset(1);
+      } else if (currentChar() == '+') {
+        t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
+        bumpOffset(1);
+      }
+      if (Character.isDigit(currentChar())) {
+        while (Character.isDigit(currentChar())) {
+          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
+          //exponent;                                          // needs work
+          bumpOffset(1);
+        }
+      }
+    }
+
+    if( !t.getTokenValue().equals("") ) {
+      return t;
+    }
     return null;
   }
 
 
-
-
-  private Token consumeNumber()
-  {
-    //TOOD - implement
-
-    Token t = newToken(NUMBER, "");
-    Token e = newToken(ERROR, "");
-
-    if( currentChar() == '.'){
-      //if the first thing read is a '.' , return error token, then continue reading. Do below.
-      e = appendE(ERROR, e.getTokenValue(), ">> BAD TOKEN : " + currentChar() );
-
-      bumpOffset(1);
-    }
-    if( currentChar() == '-'){
-      //negative number, continue
-      bumpOffset(1);
-    }
-    if( Character.isLetter(currentChar()) ){
-      //if it's a letter, return error token.
-      e = appendE(ERROR, e.getTokenValue(), ">> BAD TOKEN : " + currentChar() );
-      bumpOffset(1);
-    }
-
+/*
        while( Character.isDigit(currentChar())){ //if what is read is an integer and not a char
          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar()); // "" + "1" = "1" ...
           bumpOffset(1);
 
-          if(!moreChars()){
-            break;
-          }
-        }
+*/
 
-        if( !t.getTokenValue().equals("") ) {
-          return t;
-        }
-        if( !e.getTokenValue().equals("") ){
-          return e;
-        }
-    return null;
-  }
-
-
-
-  //appendT method for tokens used in NUMBER and STRING
+  //Append token method for tokens used in NUMBER and STRING
   private Token appendT(Token.TokenType type, String curVal, String newVal){
     Token t = newToken(type, curVal + newVal); //string 1 + string 2
     return t;
   }
 
-  //appendE method for error tokens....not sure if this is necessary
-  private Token appendE(Token.TokenType type, String curVal, String newVal){
-    Token e = newToken(type, curVal + newVal); //string 1 + string 2
-    return e;
-  }
 
 
   private Token consumePunctuation()
@@ -240,6 +221,7 @@ public class MyTokenizer
 
     return null;
   }
+
 
   private Token consumeConstant()
   {
