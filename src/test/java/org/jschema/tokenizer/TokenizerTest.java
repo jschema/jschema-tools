@@ -135,7 +135,7 @@ public class TokenizerTest
     assertTokensAre( tokens, token(STRING, "☺"));
 
     tokens = tokenize( '"' + backSlash( "u263G" ) + '"' );
-    assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : "), token(ERROR, ">> BAD TOKEN : "));
+    assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : \\u263G"));
 
   }
 
@@ -253,7 +253,6 @@ public class TokenizerTest
     //assortment
     tokens=tokenize("\"type\": \"array\":");
     assertTokensAre(tokens,token(STRING,"type"), token(PUNCTUATION,":"), token(STRING,"array"), token(PUNCTUATION,":"));
-
 
     tokens = tokenize("123, true");
     assertTokensAre( tokens, token(NUMBER, "123"), token(PUNCTUATION, ","), token(CONSTANT, "true"));

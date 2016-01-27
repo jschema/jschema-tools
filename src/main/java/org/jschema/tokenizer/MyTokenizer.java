@@ -15,6 +15,17 @@ public class MyTokenizer
     private int _line;
     private int _column;
 
+    private Pattern _numberPattern;
+    private Pattern _punctuationPattern;
+    private Pattern _constantPattern;
+    
+    private Pattern _validStringPattern;
+    private Pattern _invalidStartingInQuoteStringPattern;
+    private Pattern _invalidEndingInQuoteStringPattern;
+
+    private Pattern _unicodePattern;
+    private Pattern _potentialUnicodePattern;
+
     public MyTokenizer(String string )
     {
         _string = string;
@@ -32,6 +43,19 @@ public class MyTokenizer
         _offset = 0;
         _line = 1;
         _column = 0;
+
+        // Pattern compilation is expensive, only do it once
+        _numberPattern = Pattern.compile("(-?(?:0|[1-9](?:\\d+)?+)(?:\\.+[\\d]+)?(?:[E|e][+|-]?[\\d]+)?)");
+        _punctuationPattern = Pattern.compile("(\\[|\\]|\\{|\\}|:|,)");
+        _constantPattern = Pattern.compile("\\w+(?!\\w)(?!\")");
+
+        String innerRegex = "((?:[^\\\\]|\\\\\"|\\\\\\\\|\\\\\\/|\\\\[b|f|n|r|t]|\\\\u(?:\\w{4}))*)";
+        _invalidStartingInQuoteStringPattern = Pattern.compile("\"" + innerRegex);
+        _invalidEndingInQuoteStringPattern = Pattern.compile(innerRegex + "\"");
+        _validStringPattern = Pattern.compile("\"" + innerRegex + "\"");
+
+        _unicodePattern = Pattern.compile("\\\\u(\\p{XDigit}{4})");
+        _potentialUnicodePattern = Pattern.compile("\\\\u\\w{4}");
 
         while(moreChars()) {
             eatWhiteSpace(); // eat leading whitespace
@@ -80,13 +104,12 @@ public class MyTokenizer
 
     private Token consumeString()
     {
-        String innerRegex = "((?:[^\\\\]|\\\\\"|\\\\\\\\|\\\\\\/|\\\\[b|f|n|r|t]|\\\\u(?:[0-9A-Fa-f]{4}))*)";
-        String startingInQuoteRegex = matchRegex("\"" + innerRegex);
-        String endingInQuoteRegex = matchRegex(innerRegex + "\"");
-        String validRegex = matchRegex("\"" + innerRegex + "\"");
+        String startingInQuoteRegex = matchRegex(_invalidStartingInQuoteStringPattern);
+        String endingInQuoteRegex = matchRegex(_invalidEndingInQuoteStringPattern);
+        String validRegex = matchRegex(_validStringPattern);
 
         if (validRegex != null) {
-            int originalValueLength = validRegex.length();
+            bumpOffset(validRegex.length());
 
             validRegex = validRegex.substring(1, validRegex.length() - 1);
 
@@ -105,9 +128,13 @@ public class MyTokenizer
             validRegex = validRegex.replace("\\n", "\n");
             validRegex = validRegex.replace("\\r", "\r");
 
-            validRegex = replaceUnicode(validRegex);
+            int unicodeErrorCount = countBadUnicode(validRegex);
+            if (unicodeErrorCount == 0) {
+                validRegex = replaceUnicode(validRegex);
+            } else {
+                return newToken(ERROR, ">> BAD TOKEN : " + validRegex);
+            }
 
-            bumpOffset(originalValueLength);
             return newToken(STRING, validRegex);
 
         } else if (startingInQuoteRegex != null) {
@@ -116,16 +143,14 @@ public class MyTokenizer
         } else if (endingInQuoteRegex != null) {
             return null;
         }
-        
+
         return null;
     }
 
     private Token consumeNumber()
     {
-        String value = matchRegex("(-?(?:0|[1-9](?:\\d+)?+)(?:\\.+[\\d]+)?(?:[E|e][+|-]?[\\d]+)?)");
+        String value = matchRegex(_numberPattern);
         if (value != null) {
-            int originalValueLength = value.length();
-
             // Check invalid decimal
             int dotCount = 0;
             for (int i = 0; i < value.length(); i++) {
@@ -147,7 +172,7 @@ public class MyTokenizer
 
     private Token consumePunctuation()
     {
-        String value = matchRegex("(\\[|\\]|\\{|\\}|:|,)");
+        String value = matchRegex(_punctuationPattern);
         if (value != null) {
             Token t = newToken(PUNCTUATION, value);
             bumpOffset(1);
@@ -158,7 +183,7 @@ public class MyTokenizer
 
     private Token consumeConstant()
     {
-        String constant = matchRegex("\\w+(?!\\w)(?!\")");
+        String constant = matchRegex(_constantPattern);
         if (constant == null) {
             return null;
         }
@@ -203,9 +228,7 @@ public class MyTokenizer
         }
     }
 
-    private String matchRegex(String patternString) {
-        Pattern pattern = Pattern.compile(patternString);
-
+    private String matchRegex(Pattern pattern) {
         // Build string to match from current position
         StringBuffer remainingCharsBuffer = new StringBuffer(_chars.length);
         for (int i = _offset; i < _chars.length; i++){
@@ -224,9 +247,21 @@ public class MyTokenizer
         }
     }
 
+    private int countBadUnicode(String input) {
+        Matcher validMatcher = _unicodePattern.matcher(input);
+        Matcher potentialMatcher = _potentialUnicodePattern.matcher(input);
+        return countMatches(potentialMatcher) - countMatches(validMatcher);
+    }
+
+    private int countMatches(Matcher matcher) {
+        int count = 0;
+        while (matcher.find())
+            count++;
+        return count;
+    }
+
     private String replaceUnicode(String input) {
-        Pattern pattern = Pattern.compile("\\\\u(\\p{XDigit}{4})");
-        Matcher matcher = pattern.matcher(input);
+        Matcher matcher = _unicodePattern.matcher(input);
         StringBuffer buffer = new StringBuffer(input.length());
         while (matcher.find()) {
             String character = String.valueOf((char)Integer.parseInt(matcher.group(1), 16));
