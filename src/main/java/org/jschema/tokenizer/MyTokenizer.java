@@ -79,23 +79,51 @@ public class MyTokenizer
   private Token consumeString()
   {
     if (_chars[_offset] == '\"') {
-      StringBuilder str = new StringBuilder();
-      str.append(_chars[_offset]);
+      StringBuilder sb = new StringBuilder();
+      sb.append(_chars[_offset]);
       int i = _offset + 1;
       while (i < _chars.length) {
-        str.append(_chars[i]);
         if(_chars[i] == '\\'){
-          if(++i < _chars.length){
-            str.setCharAt(str.length()-1, _chars[i++]);
+          i++;
+          if(i == _chars.length){
+            sb.append('\\');
+            break;
           }
+          switch(_chars[i]) {
+            case 'b':
+              sb.append('\b');
+              break;
+            case 'f':
+              sb.append('\f');
+              break;
+            case 'n':
+              sb.append('\n');
+              break;
+            case 'r':
+              sb.append('\r');
+              break;
+            case 't':
+              sb.append('\t');
+              break;
+            case 'u':
+              // good stuff here
+              break;
+            default:
+              sb.append(_chars[i]);
+          }
+          i++;
+          continue;
         }
-        else if(_chars[i++] == '\"'){
+        sb.append(_chars[i]);
+        if(_chars[i++] == '\"'){
           break;
         }
       }
-      Token t = matchString(str.toString()) ?
-              newToken(STRING, str.substring(1, str.length()-1)) :
-              badToken(str.toString());
+      System.out.println(sb.length());
+      System.out.println(sb.charAt(0));
+      Token t = (sb.length() > 1 && sb.charAt(sb.length() - 1) == '\"') ?
+              newToken(STRING, sb.substring(1, sb.length()-1)) :
+              badToken(sb.toString());
       bumpOffset(i - _offset);
       return t;
       }
@@ -107,7 +135,7 @@ public class MyTokenizer
     if (_chars[_offset] == '-' || Character.isDigit(_chars[_offset])) {
       StringBuilder num = new StringBuilder();
       int i = _offset;
-      while (i < _chars.length && _chars[i] != ' ') {
+      while (i < _chars.length && _chars[i] != ' ' && _chars[i] !=',') {
         num.append(_chars[i++]);
       }
       Token t = matchNumber(num.toString()) ?
