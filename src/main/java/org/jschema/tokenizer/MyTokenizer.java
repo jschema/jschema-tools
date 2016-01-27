@@ -98,6 +98,8 @@ public class MyTokenizer
         }
       }
 
+
+
     //new code for string test cases. test case b, n, f, r
     if(currentChar() == '"'){
       s = appendT(STRING, s.getTokenValue(), "" + currentChar());
@@ -113,70 +115,80 @@ public class MyTokenizer
   }
 
 
+
+
+
   private Token consumeNumber()
   {
     //TOOD - implement
     int exponent = 0;
+    int num;
+    boolean digitExist = false;
+    boolean dotExist = false;
     boolean negative = false;           //boolean positive/negative flag
 
     Token t = newToken(NUMBER, "");
 
-    if( currentChar() == '.'){                                        //if the first thing read is a '.' , decimal number or return fraction
-      t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
-      bumpOffset(1);
-
-      //fraction work goes here
-
-      return newToken( ERROR, ">> BAD TOKEN : " + currentChar() );
-    }
-
-    if(currentChar() == '-'){
-      //negative number, continue
+    if (currentChar() == '-'){                       //negative number, continue
       negative = true;
       t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
       bumpOffset(1);
     }
 
-    if(currentChar() == 'e' || currentChar() == 'E') {            //don't return error if e or E for euler's number
-      boolean negativeExp = false;                                //flag for exponent
-      bumpOffset(1);
-      if (currentChar() == '-') {                                      //read for negative sign in front of exponent
-        t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
-        negativeExp = true;
-        bumpOffset(1);
-      } else if (currentChar() == '+') {
+    while (true) {
+      while (Character.isDigit(currentChar())) {
+        digitExist = true;                        //digit exists  ex: "0.12" -> 0 exists.
         t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
         bumpOffset(1);
       }
-      if (Character.isDigit(currentChar())) {
-        while (Character.isDigit(currentChar())) {
+      if (digitExist) {
+        if (currentChar() == '.') {
+          dotExist = true;
           t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
-          //exponent;                                          // needs work
           bumpOffset(1);
         }
+      } else {                   //if no digit before dot.
+        return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
       }
-    }
+      if (dotExist && currentChar() == '.') {              //if another dot is read.
+        return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+      }
 
-    if( !t.getTokenValue().equals("") ) {
-      return t;
+
+      if (currentChar() == 'e' || currentChar() == 'E') {            //don't return error if e or E for euler's number
+        boolean negativeExp = false;                                //flag for exponent
+        bumpOffset(1);
+        if (currentChar() == '-') {                                      //read for negative sign in front of exponent
+          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
+          negativeExp = true;
+          bumpOffset(1);
+        } else if (currentChar() == '+') {
+          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
+          bumpOffset(1);
+        }
+        if (Character.isDigit(currentChar())) {
+          while (Character.isDigit(currentChar())) {
+            t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
+            //exponent;                                          // needs work
+            bumpOffset(1);
+          }
+        }
+      }
+
+      if (!t.getTokenValue().equals("")) {
+        return t;
+      }
+      return null;
     }
-    return null;
   }
 
 
-/*
-       while( Character.isDigit(currentChar())){ //if what is read is an integer and not a char
-         t = appendT(NUMBER, t.getTokenValue(), "" + currentChar()); // "" + "1" = "1" ...
-          bumpOffset(1);
-
-*/
 
   //Append token method for tokens used in NUMBER and STRING
   private Token appendT(Token.TokenType type, String curVal, String newVal){
     Token t = newToken(type, curVal + newVal); //string 1 + string 2
     return t;
   }
-
 
 
   private Token consumePunctuation()

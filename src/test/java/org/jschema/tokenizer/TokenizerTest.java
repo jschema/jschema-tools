@@ -215,6 +215,7 @@ public class TokenizerTest
     //exp and neg num
     tokens = tokenize( "3E4," );
     assertTokensAre( tokens, token(NUMBER,"3E4"),token(PUNCTUATION,","));
+   //  assertTokensAre( "3E4", token(NUMBER,"3E4"),token(PUNCTUATION,","));
 
     //invalid input exp and decimal
     tokens = tokenize( "3E-4.0" );
@@ -291,6 +292,7 @@ public class TokenizerTest
     for( int i = 0; i < matches.length; i++ )
     {
       assertTokenMatches( matches[i], tokens.get( i ) );
+
     }
   }
 
