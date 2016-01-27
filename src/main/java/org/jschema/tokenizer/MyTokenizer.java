@@ -18,7 +18,7 @@ public class MyTokenizer
     private Pattern _numberPattern;
     private Pattern _punctuationPattern;
     private Pattern _constantPattern;
-    
+
     private Pattern _validStringPattern;
     private Pattern _invalidStartingInQuoteStringPattern;
     private Pattern _invalidEndingInQuoteStringPattern;
@@ -49,7 +49,7 @@ public class MyTokenizer
         _punctuationPattern = Pattern.compile("(\\[|\\]|\\{|\\}|:|,)");
         _constantPattern = Pattern.compile("\\w+(?!\\w)(?!\")");
 
-        String innerRegex = "((?:[^\\\\]|\\\\\"|\\\\\\\\|\\\\\\/|\\\\[b|f|n|r|t]|\\\\u(?:\\w{4}))*)";
+        String innerRegex = "((?:[^\"\\\\]|\\\\\"|\\\\\\\\|\\\\\\/|\\\\[bfnrt]|\\\\u(?:\\w{4}))*)";
         _invalidStartingInQuoteStringPattern = Pattern.compile("\"" + innerRegex);
         _invalidEndingInQuoteStringPattern = Pattern.compile(innerRegex + "\"");
         _validStringPattern = Pattern.compile("\"" + innerRegex + "\"");
