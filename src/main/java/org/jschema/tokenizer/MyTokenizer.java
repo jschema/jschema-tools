@@ -109,8 +109,25 @@ public class MyTokenizer
               StringBuilder udigits = new StringBuilder();
               for(int j = 0; j < 4; j++){
                 i++;
-                if (i == _chars.length) break;
+                if (i == _chars.length) {
+                  sb.append(udigits);
+                  Token t = badToken(sb.toString());
+                  bumpOffset(i - _offset);
+                  return t;
+                }
                 udigits.append(_chars[i]);
+              }
+              if(!isHex(udigits.toString()) || udigits.length() != 4) {
+                sb.append("\\u");
+                sb.append(udigits);
+                i++;
+                while(i <_chars.length && _chars[i] != ' '){
+                  sb.append(_chars[i]);
+                  Token t = badToken(sb.toString());
+                  bumpOffset(i - _offset);
+                  return t;
+                }
+
               }
               sb.append(Character.toString((char)Integer.parseInt(udigits.toString(), 16)));
               break;
@@ -202,6 +219,9 @@ public class MyTokenizer
     return new Token( type, tokenValue, _line, _column, _offset + 1 );
   }
 
+  private boolean isHex(String n){
+    return n.matches("[0-9A-F]+");
+  }
   private boolean matchNumber(String n){
 
     return n.matches("(-?((\\d+\\.\\d+)|([1-9]\\d*))([eE]{1}[-+]?\\d+)?)");
