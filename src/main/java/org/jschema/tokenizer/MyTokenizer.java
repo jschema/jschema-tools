@@ -106,9 +106,16 @@ public class MyTokenizer
               sb.append('\t');
               break;
             case 'u':
-              // good stuff here
+              StringBuilder udigits = new StringBuilder();
+              for(int j = 0; j < 4; j++){
+                i++;
+                if (i == _chars.length) break;
+                udigits.append(_chars[i]);
+              }
+              sb.append(Character.toString((char)Integer.parseInt(udigits.toString(), 16)));
               break;
             default:
+              // check
               sb.append(_chars[i]);
           }
           i++;
@@ -119,8 +126,6 @@ public class MyTokenizer
           break;
         }
       }
-      System.out.println(sb.length());
-      System.out.println(sb.charAt(0));
       Token t = (sb.length() > 1 && sb.charAt(sb.length() - 1) == '\"') ?
               newToken(STRING, sb.substring(1, sb.length()-1)) :
               badToken(sb.toString());
@@ -196,9 +201,7 @@ public class MyTokenizer
   {
     return new Token( type, tokenValue, _line, _column, _offset + 1 );
   }
-  private boolean matchString(String n){
-    return n.matches("(\".+\")");
-  }
+
   private boolean matchNumber(String n){
 
     return n.matches("(-?((\\d+\\.\\d+)|([1-9]\\d*))([eE]{1}[-+]?\\d+)?)");
