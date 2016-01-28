@@ -148,6 +148,15 @@ public class TokenizerTest
   public void testNumbers() {
     List<Token> tokens;
 
+    /*
+    //decimal number
+    tokens = tokenize( ".23" );
+    for(Token val : tokens)
+    System.out.println("*********" + val.getTokenValue());
+    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "23"));
+
+    System.out.println("********************************");
+*/
 
     //number by itself
     tokens = tokenize( "1234" );
@@ -344,7 +353,7 @@ public class TokenizerTest
 
   private List<Token> tokenize( String str )
   {
-    return new Tokenizer( str ).tokenize();
+    return new MyTokenizer( str ).tokenize();
   }
 
   private String backSlash( char s )

@@ -16,6 +16,7 @@ public class Tokenizer
 
   public Tokenizer( String string )
   {
+      System.out.println("In TOKENIZER");
     _string = string;
   }
 
@@ -25,6 +26,7 @@ public class Tokenizer
 
   public List<Token> tokenize()
   {
+      System.out.println("*******In TOKENIZER");
     ArrayList<Token> tokens = new ArrayList<Token>();
 
     _chars = _string.toCharArray();
@@ -32,11 +34,15 @@ public class Tokenizer
     _line = 1;
     _column = 0;
 
+
     while(moreChars()) {
+
+
       eatWhiteSpace(); // eat leading whitespace
 
       if(!moreChars()) break; // if we got to the end of the string, exit
-      Token string = consumeString();
+
+        Token string = consumeString();
       if(string != null)
       {
         tokens.add( string );

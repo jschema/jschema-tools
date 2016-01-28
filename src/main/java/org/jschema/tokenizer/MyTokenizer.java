@@ -90,23 +90,52 @@ public class MyTokenizer
 
     Token s = newToken(STRING, "");
 
-      while(Character.isLetter(currentChar())){                      //if what we're reading currently is a letter...
+
+    if(_chars[0] == '\"'){          //if first thing read is an open quote, read for letters.
+      while(Character.isLetter(currentChar())){
         s = appendT(STRING, s.getTokenValue(), "" + currentChar());
         bumpOffset(1);
         if(!moreChars()){
           break;
         }
       }
-
-
-
-    //new code for string test cases. test case b, n, f, r
-    if(currentChar() == '"'){
-      s = appendT(STRING, s.getTokenValue(), "" + currentChar());
-    }else{         //if no quote
-      s = newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+      if(_chars[_offset] == '\"'){                //if open & close matches after all letters are read.
+        return s;
+      }else {                                      //if last char != '\"'
+        return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+      }
+    }else{                                          //if _char[0] != '\"' and last char == '\"'
+      while(Character.isLetter(currentChar())){
+        s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+        bumpOffset(1);
+        if(!moreChars()){
+          break;
+        }
+      }
+      if(_chars[_offset] == '\"'){                      //return an error token for each char read.
+        for(int i = 0; i < _chars.length; i++) {
+          return newToken(ERROR, ">> BAD TOKEN : " + _chars[i]);
+        }
+      }
     }
-    bumpOffset(1);
+
+
+    /* b, f, n, r */
+
+      if(currentChar() == 'b' || currentChar() == 'f'
+              || currentChar() == 'n' || currentChar() == 'r'){
+        s = appendT(STRING, s.getTokenValue(), "\"" + currentChar());
+        bumpOffset(1);
+      }
+
+
+      //new code for string test cases.
+      if(currentChar() == '"'){
+        s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+      }else{         //if no quote
+        s = newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+      }
+      bumpOffset(1);
 
       if(!s.getTokenValue().equals("")) {
         return s;
@@ -116,60 +145,69 @@ public class MyTokenizer
 
 
 
-
-
   private Token consumeNumber()
   {
+    //System.out.print("Inside consume number method");
     //TOOD - implement
-    int exponent = 0;
-    int num;
+
     boolean digitExist = false;
     boolean dotExist = false;
-    boolean negative = false;           //boolean positive/negative flag
+    boolean negativeExist = false;           //boolean positive/negative flag
 
     Token t = newToken(NUMBER, "");
 
     if (currentChar() == '-'){                       //negative number, continue
-      negative = true;
+      negativeExist = true;
       t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
       bumpOffset(1);
     }
 
     while (true) {
+
+     // System.out.println("inside while true");
       while (Character.isDigit(currentChar())) {
+        //System.out.println("I came inside isDigit true");
         digitExist = true;                        //digit exists  ex: "0.12" -> 0 exists.
         t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
         bumpOffset(1);
       }
+
       if (digitExist) {
         if (currentChar() == '.') {
           dotExist = true;
           t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
           bumpOffset(1);
         }
-      } else {                   //if no digit before dot.
-        return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
-      }
-      if (dotExist && currentChar() == '.') {              //if another dot is read.
+      } else {
+
+        //System.out.println("Inside isDigitExist false");
+        //if no digit before dot.
         return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
       }
 
+      if (dotExist && currentChar() == '.') {              //if another dot is read.
+        return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+      }
 
       if (currentChar() == 'e' || currentChar() == 'E') {            //don't return error if e or E for euler's number
         boolean negativeExp = false;                                //flag for exponent
         bumpOffset(1);
         if (currentChar() == '-') {                                      //read for negative sign in front of exponent
-          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
           negativeExp = true;
+          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
           bumpOffset(1);
         } else if (currentChar() == '+') {
           t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
           bumpOffset(1);
         }
-        if (Character.isDigit(currentChar())) {
+
+        if(negativeExp && currentChar() == '-'){                    //if another negative sign exists after one is read after e/E.
+          return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+        }
+
+        if (Character.isDigit(currentChar())) {                    //append digits for exponential value
           while (Character.isDigit(currentChar())) {
             t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
-            //exponent;                                          // needs work
             bumpOffset(1);
           }
         }
@@ -178,8 +216,10 @@ public class MyTokenizer
       if (!t.getTokenValue().equals("")) {
         return t;
       }
-      return null;
+      //return null;
+      break;
     }
+    return null;
   }
 
 
