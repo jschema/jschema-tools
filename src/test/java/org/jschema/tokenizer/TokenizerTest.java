@@ -171,11 +171,6 @@ public class TokenizerTest
     tokens = tokenize( "1.23" );
     assertTokensAre( tokens, token(NUMBER,"1.23"));
 
-
-    //invalid decimal number
-    tokens = tokenize( "1..23" );                                   //if curr is dot and next is also dot
-    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 1..23"));
-
     //decimal number
     tokens = tokenize( ".23" );
     assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "23"));
@@ -193,6 +188,7 @@ public class TokenizerTest
     tokens = tokenize( "3E4" );
     assertTokensAre( tokens, token(NUMBER,"3E4"));
 
+
     //negative number
     tokens = tokenize( "-2" );
     assertTokensAre( tokens, token(NUMBER,"-2"));
@@ -200,6 +196,7 @@ public class TokenizerTest
     //negative decimal
     tokens = tokenize( "-4.2" );
     assertTokensAre( tokens, token(NUMBER,"-4.2"));
+
 
     //negative exp
     tokens = tokenize( "-3E+4" );
@@ -212,8 +209,6 @@ public class TokenizerTest
     tokens = tokenize( "3E-4" );
     assertTokensAre( tokens, token(NUMBER,"3E-4"));
 
-    tokens = tokenize( "-0.1E4" );
-    assertTokensAre(tokens, token(NUMBER, "-0.1E4"));
 
     //double negative exp
     tokens = tokenize( "-3E-4" );
@@ -223,10 +218,18 @@ public class TokenizerTest
     tokens = tokenize( "-3E-4 -5e1" );
     assertTokensAre( tokens, token(NUMBER,"-3E-4"),token(NUMBER,"-5e1"));
 
+    tokens = tokenize( "-0.1E4" );
+    assertTokensAre(tokens, token(NUMBER, "-0.1E4"));
+
     //exp and neg num
     tokens = tokenize( "3E4," );
     assertTokensAre( tokens, token(NUMBER,"3E4"),token(PUNCTUATION,","));
-   //  assertTokensAre( "3E4", token(NUMBER,"3E4"),token(PUNCTUATION,","));
+
+    ///////////////***************EVERYTHING ABOVE WORKS********************//////////////////////////////////////////
+
+
+
+
 
     //invalid input exp and decimal
     tokens = tokenize( "3E-4.0" );
@@ -239,6 +242,19 @@ public class TokenizerTest
     //invalid input decimal
     tokens = tokenize( "3.4a" );
     assertTokensAre( tokens, token(NUMBER, "3.4"), token(ERROR, ">> BAD TOKEN : a"));
+
+
+
+
+
+
+
+
+    //invalid decimal number
+    tokens = tokenize( "1..23" );                                   //if curr is dot and next is also dot
+    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 1..23"));
+
+
 
   }
 

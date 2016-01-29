@@ -185,15 +185,36 @@ public class MyTokenizer
           //if no digit before dot.
           return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
         }
-      }
-/*
-        if(digitExist && dotExist) {
-            if (currentChar() == '.') {              //if another dot is read.
-              return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
-            }
+
+
+        if (currentChar() == 'e' || currentChar() == 'E') {            //don't return error if e or E for euler's number
+          boolean negativeExp = false;                                //flag for exponent
+          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
+          bumpOffset(1);
+
+          if (currentChar() == '-') {                                      //read for negative sign in front of exponent
+            negativeExp = true;
+            t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
+            bumpOffset(1);
+          } else if (currentChar() == '+') {
+            t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
+            bumpOffset(1);
+          } else if (currentChar() == ','){
+            t = appendT(PUNCTUATION, t.getTokenValue(), "" + currentChar());
+            bumpOffset(1);
+          }
         }
+      }
 
-
+/*
+        if (dotExist) {
+          if (currentChar() == '.') {              //if another dot is read.
+            return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+          }
+        }
+      }
+*/
+/*
       if (dotExist && currentChar() == '.') {              //if another dot is read.
         return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
       }
