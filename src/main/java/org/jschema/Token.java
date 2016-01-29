@@ -1,8 +1,8 @@
-package org.jschema.tokenizer;
+package org.jschema;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Token
 {
@@ -12,16 +12,7 @@ public class Token
   private int _column;
   private int _offset;
   private double _num;
-  static final Set<String> constants = initializeConstants();
-
-  public enum TokenType {
-    PUNCTUATION,
-    STRING,
-    NUMBER,
-    CONSTANT,
-    ERROR,
-    EOF
-  }
+  static final Map<String, TokenType> constants = initializeConstants();
 
   public Token( TokenType tokenType, String value, int lineNumber, int column, int offset, double num)
   {
@@ -33,12 +24,12 @@ public class Token
     _num = num;
   }
 
-  private static Set<String> initializeConstants() {
-    HashSet<String> set = new HashSet<String>();
-    set.add("true");
-    set.add("false");
-    set.add("null");
-    return Collections.unmodifiableSet(set);
+  private static Map<String, TokenType> initializeConstants() {
+    HashMap<String, TokenType> map = new HashMap<String, TokenType>();
+    map.put("true", TokenType.TRUE);
+    map.put("false", TokenType.FALSE);
+    map.put("null", TokenType.NULL);
+    return Collections.unmodifiableMap(map);
   }
 
   public String getTokenValue() {

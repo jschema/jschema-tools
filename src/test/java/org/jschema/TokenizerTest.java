@@ -1,75 +1,36 @@
-package org.jschema.tokenizer;
+package org.jschema;
 
-import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runners.JUnit4;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.jschema.tokenizer.Token.TokenType.CONSTANT;
-import static org.jschema.tokenizer.Token.TokenType.PUNCTUATION;
-import static org.jschema.tokenizer.Token.TokenType.NUMBER;
-import static org.jschema.tokenizer.Token.TokenType.STRING;
-import static org.jschema.tokenizer.Token.TokenType.ERROR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class TokenizerTest
 {
-
-  @Test
-  public void readBigFile() {
-    String bigJson = null;
-    try {
-      String path = getClass().getClassLoader().getResource("citylots.json").getPath();
-      bigJson = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
-    } catch(Exception e) {
-      fail("Please copy the file 'citylots.json' in the src/main/resources folder");
-    }
-    long times = 1;
-    long before = System.currentTimeMillis();
-    int errors = 0;
-    for(int i = 0; i < times; i++) {
-      Tokenizer tokenizer = new Tokenizer(bigJson);
-      Token token = tokenizer.next();
-      while(token.getTokenType() != Token.TokenType.EOF) {
-        token = tokenizer.next();
-      }
-      errors = tokenizer.getErrCount();
-    }
-    long after = System.currentTimeMillis();
-    System.out.println("Time: " + (after-before) / (double) times + " ms");
-    assertEquals(0, errors);
-  }
-
-
   @Test
   public void bootstrapTest()
   {
     //basic constant
     List<Token> tokens = tokenize( "true" );
-    assertTokensAre( tokens, token( CONSTANT, "true" ) );
+    assertTokensAre( tokens, token( TokenType.TRUE, "true" ) );
 
     // leading whitespace
     tokens = tokenize( "   true" );
-    assertTokensAre( tokens, token( CONSTANT, "true" ) );
+    assertTokensAre( tokens, token( TokenType.TRUE, "true" ) );
 
     // trailing whitespace
     tokens = tokenize( "true   " );
-    assertTokensAre(tokens, token(CONSTANT, "true"));
+    assertTokensAre(tokens, token(TokenType.TRUE, "true"));
 
     // trailing whitespace
     tokens = tokenize( "true   " );
-    assertTokensAre( tokens, token(CONSTANT, "true"));
+    assertTokensAre( tokens, token(TokenType.TRUE, "true"));
 
     // two tokens whitespace
     tokens = tokenize( "true   false" );
-    assertTokensAre( tokens, token( CONSTANT, "true" ), token( CONSTANT, "false" ) );
+    assertTokensAre( tokens, token( TokenType.TRUE, "true" ), token( TokenType.FALSE, "false" ) );
   }
 
   @Test
@@ -78,43 +39,43 @@ public class TokenizerTest
 
     //braces
     tokens = tokenize( "[]" );
-    assertTokensAre( tokens, token( PUNCTUATION, "[" ), token( PUNCTUATION, "]" ) );
+    assertTokensAre( tokens, token( TokenType.LSQUARE, "[" ), token( TokenType.RSQUARE, "]" ) );
 
     //single curly brace
     tokens = tokenize( "{" );
-    assertTokensAre(tokens,token(PUNCTUATION,"{"));
+    assertTokensAre(tokens,token(TokenType.LCURLY,"{"));
 
     //curly braces with white space
     tokens = tokenize( "{   }" );
-    assertTokensAre( tokens, token( PUNCTUATION, "{" ), token( PUNCTUATION, "}" ) );
+    assertTokensAre( tokens, token( TokenType.LCURLY, "{" ), token( TokenType.RCURLY, "}" ) );
 
     //comma
     tokens = tokenize( "," );
-    assertTokensAre( tokens, token( PUNCTUATION, "," ));
+    assertTokensAre( tokens, token( TokenType.COMMA, "," ));
 
     //colon
     tokens = tokenize( ":" );
-    assertTokensAre( tokens, token( PUNCTUATION, ":" ));
+    assertTokensAre( tokens, token( TokenType.COLON, ":" ));
 
 
     //tests for PUNCTUATION
     tokens = tokenize("[");
-    assertTokensAre( tokens, token(PUNCTUATION, "["));
+    assertTokensAre( tokens, token(TokenType.LSQUARE, "["));
 
     tokens = tokenize("]");
-    assertTokensAre( tokens, token(PUNCTUATION, "]"));
+    assertTokensAre( tokens, token(TokenType.RSQUARE, "]"));
 
     tokens = tokenize("{");
-    assertTokensAre( tokens, token(PUNCTUATION, "{"));
+    assertTokensAre( tokens, token(TokenType.LCURLY, "{"));
 
     tokens = tokenize("}");
-    assertTokensAre( tokens, token(PUNCTUATION, "}"));
+    assertTokensAre( tokens, token(TokenType.RCURLY, "}"));
 
     tokens = tokenize(":");
-    assertTokensAre( tokens, token(PUNCTUATION, ":"));
+    assertTokensAre( tokens, token(TokenType.COLON, ":"));
 
     tokens = tokenize(",");
-    assertTokensAre( tokens, token(PUNCTUATION, ","));
+    assertTokensAre( tokens, token(TokenType.COMMA, ","));
   }
 
   @Test
@@ -123,51 +84,51 @@ public class TokenizerTest
 
     //Test basic string
     tokens = tokenize( "\"test\"" );
-    assertTokensAre( tokens, token(STRING, "test"));
+    assertTokensAre( tokens, token(TokenType.STRING, "test"));
 
     //string not ending in quote
     tokens = tokenize( "\"test" );
-    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : test"));
+    assertTokensAre( tokens, token(TokenType.ERROR,"test"));
 
     //string not beginning in quote
     tokens = tokenize( "test\"" );
-    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : test"),token(ERROR,">> BAD TOKEN : "));
+    assertTokensAre( tokens, token(TokenType.ERROR,"test"),token(TokenType.ERROR,""));
 
     //escaped quote in string
     tokens = tokenize( '"' + backSlash( '"' ) + '"' );
-    assertTokensAre( tokens, token(STRING, "\""));
+    assertTokensAre( tokens, token(TokenType.STRING, "\""));
 
     //escaped backslash in string
     tokens = tokenize( '"' + backSlash( '\\' ) + '"' );
-    assertTokensAre( tokens, token(STRING, "\\"));
+    assertTokensAre( tokens, token(TokenType.STRING, "\\"));
 
     //escaped frontslash in string
     tokens = tokenize( '"' + backSlash( '/' ) + '"' );
-    assertTokensAre( tokens, token(STRING, "/"));
+    assertTokensAre( tokens, token(TokenType.STRING, "/"));
 
     //escaped backspace in string
     tokens = tokenize( '"' + backSlash( 'b' ) + '"' );
-    assertTokensAre( tokens, token(STRING, "\b"));
+    assertTokensAre( tokens, token(TokenType.STRING, "\b"));
 
     //escaped form feed in string
     tokens = tokenize( '"' + backSlash( 'f' ) + '"' );
-    assertTokensAre( tokens, token(STRING, "\f"));
+    assertTokensAre( tokens, token(TokenType.STRING, "\f"));
 
     //escaped new line in string
     tokens = tokenize( '"' + backSlash( 'n' ) + '"' );
-    assertTokensAre( tokens, token(STRING, "\n"));
+    assertTokensAre( tokens, token(TokenType.STRING, "\n"));
 
     //escaped carriage return in string
     tokens = tokenize( '"' + backSlash( 'r' ) + '"' );
-    assertTokensAre( tokens, token(STRING, "\r"));
+    assertTokensAre( tokens, token(TokenType.STRING, "\r"));
 
     //Escaped unicode
     tokens = tokenize( '"' + backSlash( "u263A" ) + '"' );
-    assertTokensAre( tokens, token(STRING, "\u263A"));
-    assertTokensAre( tokens, token(STRING, "☺"));
+    assertTokensAre( tokens, token(TokenType.STRING, "\u263A"));
+    assertTokensAre( tokens, token(TokenType.STRING, "☺"));
 
     tokens = tokenize( '"' + backSlash( "u263G" ) + '"' );
-    assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : "), token(ERROR, ">> BAD TOKEN : "));
+    assertTokensAre( tokens, token(TokenType.ERROR, ""), token(TokenType.ERROR, ""));
 
   }
 
@@ -182,88 +143,88 @@ public class TokenizerTest
 
     //number by itself
     tokens = tokenize( "1234" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "1234", 1234.0));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "1234", 1234.0));
 
     //multiple numbers
     tokens = tokenize( "1 2 3" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "1", 1.0), numberToken(NUMBER, "2", 2.0), numberToken(NUMBER, "3", 3.0));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "1", 1.0), numberToken(TokenType.NUMBER, "2", 2.0), numberToken(TokenType.NUMBER, "3", 3.0));
 
     //decimal number
     tokens = tokenize( "1.23" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "1.23", 1.23));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "1.23", 1.23));
 
     //invalid decimal number
     tokens = tokenize( "1..23" );
-    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : 1."), token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "23"));
+    assertTokensAre(tokens, token(TokenType.ERROR, "1."), token(TokenType.ERROR, "."), token(TokenType.NUMBER, "23"));
 
     //decimal number
     tokens = tokenize( ".23" );
-    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "23"));
+    assertTokensAre(tokens, token(TokenType.ERROR, "."), token(TokenType.NUMBER, "23"));
 
     //multiple fractions
     tokens = tokenize( "0.23 1.56" );
-    assertTokensAre(tokens, token(NUMBER, "0.23"), token(NUMBER, "1.56"));
+    assertTokensAre(tokens, token(TokenType.NUMBER, "0.23"), token(TokenType.NUMBER, "1.56"));
 
     tokens = tokenize( "01.3" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "0", 0.0), numberToken(NUMBER, "1.3", 1.3));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "0", 0.0), numberToken(TokenType.NUMBER, "1.3", 1.3));
 
     //exponents lowercase e
     tokens = tokenize( "2e1" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "2e1", 20.0));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "2e1", 20.0));
 
     //exponents uppercase e
     tokens = tokenize( "3E4" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "3E4", 30000.0));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "3E4", 30000.0));
 
     //negative number
     tokens = tokenize( "-2" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "-2", -2.0));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "-2", -2.0));
 
     //negative decimal
     tokens = tokenize( "-4.2" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "-4.2", -4.2));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "-4.2", -4.2));
 
     //negative exp
     tokens = tokenize( "-3E+4" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "-3E+4", -30000.0));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "-3E+4", -30000.0));
 
     //negative exp
     tokens = tokenize( "2E-4" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "2E-4", 0.0002));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "2E-4", 0.0002));
 
     tokens = tokenize( "3E-4" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "3E-4", 3.0 * Math.pow(10, -4)));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "3E-4", 3.0 * Math.pow(10, -4)));
 
     tokens = tokenize( "-0.1E4" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "-0.1E4", -1000.0));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "-0.1E4", -1000.0));
 
     //double negative exp
     tokens = tokenize( "-2E-4" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "-2E-4", -0.000200));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "-2E-4", -0.000200));
 
     //double negative exp two
     tokens = tokenize( "-2E-4 -5e1" );
-    assertTokensAreNumbers(tokens, numberToken(NUMBER, "-2E-4", -0.000200), numberToken(NUMBER, "-5e1", -50.0));
+    assertTokensAreNumbers(tokens, numberToken(TokenType.NUMBER, "-2E-4", -0.000200), numberToken(TokenType.NUMBER, "-5e1", -50.0));
 
     //exp and neg num
     tokens = tokenize( "3E4," );
-    assertTokensAre( tokens, token(NUMBER,"3E4"),token(PUNCTUATION,","));
+    assertTokensAre( tokens, token(TokenType.NUMBER,"3E4"),token(TokenType.COMMA,","));
 
     //invalid input exp and decimal
     tokens = tokenize( "3E-4.0" );
-    assertTokensAre( tokens, token(NUMBER, "3E-4"), token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "0"));
+    assertTokensAre( tokens, token(TokenType.NUMBER, "3E-4"), token(TokenType.ERROR, "."), token(TokenType.NUMBER, "0"));
 
     //invalid input exp
     tokens = tokenize( "3E-4a" );
-    assertTokensAre( tokens, token(NUMBER, "3E-4"), token(ERROR, ">> BAD TOKEN : a"));
+    assertTokensAre( tokens, token(TokenType.NUMBER, "3E-4"), token(TokenType.ERROR, "a"));
 
     //invalid input decimal
     tokens = tokenize( "3.4a" );
-    assertTokensAre( tokens, token(NUMBER, "3.4"), token(ERROR, ">> BAD TOKEN : a"));
+    assertTokensAre( tokens, token(TokenType.NUMBER, "3.4"), token(TokenType.ERROR, "a"));
 
   }
 
-  private Token numberToken(Token.TokenType type, String value, double num) {
+  private Token numberToken(TokenType type, String value, double num) {
     return new Token( type, value, 0, 0, 0, num );
   }
 
@@ -272,13 +233,13 @@ public class TokenizerTest
     List<Token> tokens;
 
     tokens = tokenize( "true" );
-    assertTokensAre( tokens, token( CONSTANT, "true" ) );
+    assertTokensAre( tokens, token( TokenType.TRUE, "true" ) );
 
     tokens = tokenize( "false" );
-    assertTokensAre( tokens, token( CONSTANT, "false" ) );
+    assertTokensAre( tokens, token( TokenType.FALSE, "false" ) );
 
     tokens = tokenize( "null" );
-    assertTokensAre( tokens, token( CONSTANT, "null" ) );
+    assertTokensAre( tokens, token( TokenType.NULL, "null" ) );
 
   }
 
@@ -288,11 +249,11 @@ public class TokenizerTest
 
     //assortment
     tokens=tokenize("\"type\": \"array\":");
-    assertTokensAre(tokens,token(STRING,"type"), token(PUNCTUATION,":"), token(STRING,"array"), token(PUNCTUATION,":"));
+    assertTokensAre(tokens,token(TokenType.STRING,"type"), token(TokenType.COLON,":"), token(TokenType.STRING,"array"), token(TokenType.COLON,":"));
 
 
     tokens = tokenize("123, true");
-    assertTokensAre( tokens, token(NUMBER, "123"), token(PUNCTUATION, ","), token(CONSTANT, "true"));
+    assertTokensAre( tokens, token(TokenType.NUMBER, "123"), token(TokenType.COMMA, ","), token(TokenType.TRUE, "true"));
 
   }
 
@@ -302,15 +263,15 @@ public class TokenizerTest
 
     // unclosed string
     tokens = tokenize( "\"foo" );
-    assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : foo"));
+    assertTokensAre( tokens,token(TokenType.ERROR,"foo"));
 
     // invalid constant (constant with typo)
     tokens = tokenize( "truel" );
-    assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : truel"));
+    assertTokensAre( tokens,token(TokenType.ERROR,"truel"));
 
     // invalid constant (constant with typo)
     tokens = tokenize( "truel false" );
-    assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : truel"),token(CONSTANT,"false"));
+    assertTokensAre( tokens,token(TokenType.ERROR,"truel"),token(TokenType.FALSE,"false"));
 
   }
 
@@ -361,27 +322,27 @@ public class TokenizerTest
     }
   }
 
-  private Token token(Token.TokenType type)
+  private Token token(TokenType type)
   {
     return token( type, null );
   }
 
-  private Token token(Token.TokenType type, String value)
+  private Token token(TokenType type, String value)
   {
     return token( type, value, -1);
   }
 
-  private Token token(Token.TokenType type, String value, int offset)
+  private Token token(TokenType type, String value, int offset)
   {
     return token( type, value, offset, -1);
   }
 
-  private Token token(Token.TokenType type, String value, int offset, int line)
+  private Token token(TokenType type, String value, int offset, int line)
   {
     return token( type, value, offset, line, -1);
   }
 
-  private Token token(Token.TokenType type, String value, int offset, int line, int col)
+  private Token token(TokenType type, String value, int offset, int line, int col)
   {
     return new Token( type, value, line, col, offset, 0 );
   }
