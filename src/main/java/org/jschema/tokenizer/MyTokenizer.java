@@ -181,6 +181,9 @@ public class MyTokenizer
             t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
             bumpOffset(1);
           }
+          if(dotExist && currentChar() == '.'){
+            return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+          }
         } else {
           //if no digit before dot.
           return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
@@ -199,9 +202,15 @@ public class MyTokenizer
           } else if (currentChar() == '+') {
             t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
             bumpOffset(1);
-          } else if (currentChar() == ','){
+          } else if (currentChar() == ',') {
             t = appendT(PUNCTUATION, t.getTokenValue(), "" + currentChar());
             bumpOffset(1);
+          }else if (currentChar() == '.'){
+            return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+
+          }else if (Character.isLetter(currentChar())){
+            return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+
           }
         }
       }

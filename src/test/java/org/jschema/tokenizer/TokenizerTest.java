@@ -225,16 +225,6 @@ public class TokenizerTest
     tokens = tokenize( "3E4," );
     assertTokensAre( tokens, token(NUMBER,"3E4"),token(PUNCTUATION,","));
 
-    ///////////////***************EVERYTHING ABOVE WORKS********************//////////////////////////////////////////
-
-
-
-
-
-    //invalid input exp and decimal
-    tokens = tokenize( "3E-4.0" );
-    assertTokensAre( tokens, token(NUMBER, "3E-4"), token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "0"));
-
     //invalid input exp
     tokens = tokenize( "3E-4a" );
     assertTokensAre( tokens, token(NUMBER, "3E-4"), token(ERROR, ">> BAD TOKEN : a"));
@@ -244,15 +234,20 @@ public class TokenizerTest
     assertTokensAre( tokens, token(NUMBER, "3.4"), token(ERROR, ">> BAD TOKEN : a"));
 
 
-
-
-
-
+    ///////////////***************EVERYTHING ABOVE WORKS********************//////////////////////////////////////////
 
 
     //invalid decimal number
     tokens = tokenize( "1..23" );                                   //if curr is dot and next is also dot
     assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 1..23"));
+
+
+    //invalid input exp and decimal
+    tokens = tokenize( "3E-4.0" );
+    assertTokensAre( tokens, token(NUMBER, "3E-4"), token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "0"));
+
+
+
 
 
 
