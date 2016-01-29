@@ -166,12 +166,14 @@ public class TokenizerTest
     tokens = tokenize( "1 2 3" );
     assertTokensAre( tokens, token(NUMBER,"1"),token( NUMBER, "2" ), token(NUMBER,"3"));
 
+
     //decimal number
     tokens = tokenize( "1.23" );
     assertTokensAre( tokens, token(NUMBER,"1.23"));
 
+
     //invalid decimal number
-    tokens = tokenize( "1..23" );                                   //if curr is dot but next is not dot
+    tokens = tokenize( "1..23" );                                   //if curr is dot and next is also dot
     assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 1..23"));
 
     //decimal number
