@@ -99,7 +99,7 @@ public class MyTokenizer
       return null;            //if '\"' not found at first position
     }
 
-    while(moreChars() && Character.isLetter(currentChar())){
+    while(moreChars() && currentChar() != '"'){
 
       if(currentChar() == '\\'){
         bumpOffset(1);
@@ -120,6 +120,15 @@ public class MyTokenizer
           bumpOffset(1);
         }else if(currentChar() == 'r'){
           s = appendT(STRING, s.getTokenValue(), "\r");
+          bumpOffset(1);
+        }
+        /*else if (currentChat() == 'u'){
+          //check for 4 characters after u
+          //check for A-S
+        }
+        */
+        else{                                       //if it's not \\, /, b, n, f, r
+          s = appendT(STRING, s.getTokenValue(), "" + currentChar());
           bumpOffset(1);
         }
       }else {
