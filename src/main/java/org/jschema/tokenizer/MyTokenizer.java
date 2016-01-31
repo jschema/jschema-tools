@@ -100,8 +100,32 @@ public class MyTokenizer
     }
 
     while(moreChars() && Character.isLetter(currentChar())){
-      s = appendT(STRING, s.getTokenValue(), "" + currentChar());
-      bumpOffset(1);
+
+      if(currentChar() == '\\'){
+        bumpOffset(1);
+        if(currentChar() == '\\'){
+          s = appendT(STRING, s.getTokenValue(), "\\");
+          bumpOffset(1);
+        }else if(currentChar() == '/'){
+          s = appendT(STRING, s.getTokenValue(), "/");
+          bumpOffset(1);
+        }else if(currentChar() == 'b'){
+          s = appendT(STRING, s.getTokenValue(), "\b");
+          bumpOffset(1);
+        }else if(currentChar() == 'f'){
+          s = appendT(STRING, s.getTokenValue(), "\f");
+          bumpOffset(1);
+        }else if(currentChar() == 'n'){
+          s = appendT(STRING, s.getTokenValue(), "\n");
+          bumpOffset(1);
+        }else if(currentChar() == 'r'){
+          s = appendT(STRING, s.getTokenValue(), "\r");
+          bumpOffset(1);
+        }
+      }else {
+        s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+        bumpOffset(1);
+      }
     }
 
     if (moreChars() && slashExist){
@@ -115,73 +139,9 @@ public class MyTokenizer
       return newToken(ERROR, ">> BAD TOKEN : " + s.getTokenValue());
     }
 
-
-
-    /*
-    while(Character.isLetter(currentChar())) {
-
-      s = appendT(STRING, s.getTokenValue(), "" + currentChar());
-      bumpOffset(1);
-      if (!moreChars()) {
-        break;
-      }
-    }
-/*
-      if(slashExist) {
-        if (currentChar() == '\"') {
-          return s;
-        }
-      }
-    }
-*/
-
-/*
-    if(_chars[0] == '\"'){          //if first thing read is an open quote, read for letters.
-      s = appendT(STRING, s.getTokenValue(), "" + currentChar());
-      bumpOffset(1);
-      while(Character.isLetter(currentChar())){
-        s = appendT(STRING, s.getTokenValue(), "" + currentChar());
-        bumpOffset(1);
-      }
-      if(_chars[_offset] == '\"'){                //if open & close matches after all letters are read.
+    if(!s.getTokenValue().equals("")) {
         return s;
-      }else {                                      //if last char != '\"'
-        return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
-      }
     }
-    else{                                          //if _char[0] != '\"' and last char == '\"'
-      while(Character.isLetter(currentChar())){
-        s = appendT(STRING, s.getTokenValue(), "" + currentChar());
-        bumpOffset(1);
-      }
-      if(_chars[_offset] == '\"'){                      //return an error token for each char read.
-        for(int i = 0; i < _chars.length; i++) {
-          return newToken(ERROR, ">> BAD TOKEN : " + _chars[i]);
-        }
-      }
-    }
-
-    // b, f, n, r
-
-      if(currentChar() == 'b' || currentChar() == 'f'
-              || currentChar() == 'n' || currentChar() == 'r'){
-        s = appendT(STRING, s.getTokenValue(), '"' + currentChar() + '"');
-        bumpOffset(1);
-      }
-
-
-      //new code for string test cases.
-      if(currentChar() == '"'){
-        s = appendT(STRING, s.getTokenValue(), "" + currentChar());
-        bumpOffset(1);
-      }else{         //if no quote
-        s = newToken(ERROR, ">> BAD TOKEN : " + currentChar());
-      }
-*/
-
-      if(!s.getTokenValue().equals("")) {
-        return s;
-      }
 
     return null;
   }
@@ -273,18 +233,6 @@ public class MyTokenizer
 
     return null;
   }
-
-
-
-/*
-        if (Character.isDigit(currentChar())) {                    //append digits for exponential value
-          while (Character.isDigit(currentChar())) {
-            t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
-            bumpOffset(1);
-          }
-        }
-      }
-*/
 
 
 
