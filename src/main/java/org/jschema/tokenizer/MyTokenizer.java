@@ -82,7 +82,8 @@ public class MyTokenizer
 
   private Token consumeString()
   {
-/*
+
+    boolean slashExist = false;
     //prevent consumerString from identifying possible STRINGS to be CONSTANTS
     if( match('t','r','u','e') || match('f','a','l','s','e') || match('n','u','l','l')){
       return null;
@@ -90,8 +91,53 @@ public class MyTokenizer
 
     Token s = newToken(STRING, "");
 
+    if(currentChar() == '\"') {
+      slashExist = true;
+      //s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+      bumpOffset(1);
+    }else{
+      return null;            //if '\"' not found at first position
+    }
 
+    while(moreChars() && Character.isLetter(currentChar())){
+      s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+      bumpOffset(1);
+    }
+
+    if (moreChars() && slashExist){
+      if (currentChar() == '\"'){
+       // s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+        bumpOffset(1);
+      }else{                                  //if no starting '\"'
+        return newToken(ERROR, ">> BAD TOKEN : " + s.getTokenValue());     //no '\"' to finish string
+      }
+    }else{
+      return newToken(ERROR, ">> BAD TOKEN : " + s.getTokenValue());
+    }
+
+
+
+    /*
+    while(Character.isLetter(currentChar())) {
+
+      s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+      bumpOffset(1);
+      if (!moreChars()) {
+        break;
+      }
+    }
+/*
+      if(slashExist) {
+        if (currentChar() == '\"') {
+          return s;
+        }
+      }
+    }
+*/
+
+/*
     if(_chars[0] == '\"'){          //if first thing read is an open quote, read for letters.
+      s = appendT(STRING, s.getTokenValue(), "" + currentChar());
       bumpOffset(1);
       while(Character.isLetter(currentChar())){
         s = appendT(STRING, s.getTokenValue(), "" + currentChar());
@@ -102,7 +148,8 @@ public class MyTokenizer
       }else {                                      //if last char != '\"'
         return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
       }
-    }else{                                          //if _char[0] != '\"' and last char == '\"'
+    }
+    else{                                          //if _char[0] != '\"' and last char == '\"'
       while(Character.isLetter(currentChar())){
         s = appendT(STRING, s.getTokenValue(), "" + currentChar());
         bumpOffset(1);
@@ -118,22 +165,24 @@ public class MyTokenizer
 
       if(currentChar() == 'b' || currentChar() == 'f'
               || currentChar() == 'n' || currentChar() == 'r'){
-        s = appendT(STRING, s.getTokenValue(), "\"" + currentChar());
+        s = appendT(STRING, s.getTokenValue(), '"' + currentChar() + '"');
         bumpOffset(1);
       }
+
 
       //new code for string test cases.
       if(currentChar() == '"'){
         s = appendT(STRING, s.getTokenValue(), "" + currentChar());
+        bumpOffset(1);
       }else{         //if no quote
         s = newToken(ERROR, ">> BAD TOKEN : " + currentChar());
       }
-      bumpOffset(1);
+*/
 
       if(!s.getTokenValue().equals("")) {
         return s;
       }
-      */
+
     return null;
   }
 
@@ -147,8 +196,6 @@ public class MyTokenizer
   private Token consumeNumber()
   {
 
-
-    //System.out.print("Inside consume number method");
     //TOOD - implement
 
     boolean digitExist = false;
@@ -163,9 +210,6 @@ public class MyTokenizer
       bumpOffset(1);
     }
 
-    //while (true) {
-
-      //System.out.println("inside while true");
       while (Character.isDigit(currentChar())) {
         //System.out.println("I came inside isDigit true");
         digitExist = true;                        //digit exists  ex: "0.12" -> 0 exists.
@@ -181,12 +225,14 @@ public class MyTokenizer
             t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
             bumpOffset(1);
           }
-          if(dotExist && currentChar() == '.'){
-            return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
-          }
         } else {
           //if no digit before dot.
           return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+        }
+        if (dotExist) {
+          if (currentChar() == '.') {
+            return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+          }
         }
 
 
@@ -199,12 +245,18 @@ public class MyTokenizer
             negativeExp = true;
             t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
             bumpOffset(1);
+
           } else if (currentChar() == '+') {
             t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
             bumpOffset(1);
+
           } else if (currentChar() == ',') {
             t = appendT(PUNCTUATION, t.getTokenValue(), "" + currentChar());
             bumpOffset(1);
+
+          }else if (negativeExp && currentChar() == '-'){
+            return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+
           }else if (currentChar() == '.'){
             return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
 
@@ -215,35 +267,16 @@ public class MyTokenizer
         }
       }
 
-/*
-        if (dotExist) {
-          if (currentChar() == '.') {              //if another dot is read.
-            return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
-          }
-        }
-      }
-*/
-/*
-      if (dotExist && currentChar() == '.') {              //if another dot is read.
-        return newToken(ERROR, ">> BAD TOKEN : " + currentChar());
+      if (!t.getTokenValue().equals("")) {
+        return t;
       }
 
-      if (currentChar() == 'e' || currentChar() == 'E') {            //don't return error if e or E for euler's number
-        boolean negativeExp = false;                                //flag for exponent
-        bumpOffset(1);
-        if (currentChar() == '-') {                                      //read for negative sign in front of exponent
-          negativeExp = true;
-          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
-          bumpOffset(1);
-        } else if (currentChar() == '+') {
-          t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
-          bumpOffset(1);
-        }
+    return null;
+  }
 
-        if(negativeExp && currentChar() == '-'){                    //if another negative sign exists after one is read after e/E.
-          return newToken(ERROR, ">> BAD TOKEN : " + currentChar());     //this check might not be necessary
-        }
 
+
+/*
         if (Character.isDigit(currentChar())) {                    //append digits for exponential value
           while (Character.isDigit(currentChar())) {
             t = appendT(NUMBER, t.getTokenValue(), "" + currentChar());
@@ -251,19 +284,7 @@ public class MyTokenizer
           }
         }
       }
-
 */
-
-      if (!t.getTokenValue().equals("")) {
-        return t;
-      }
-      //return null;
-      //break;
-
-
-
-    return null;
-  }
 
 
 

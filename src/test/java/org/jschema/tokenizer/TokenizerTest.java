@@ -91,15 +91,19 @@ public class TokenizerTest
 
     //Test basic string
     tokens = tokenize( "\"test\"" );
+
+    //System.out.println("primero " + tokens.get(1).getTokenType() + tokens.size() + " " + tokens.get(1).getTokenValue());
+
     assertTokensAre( tokens, token(STRING, "test"));
+
 
     //string not ending in quote
     tokens = tokenize( "\"test" );
-    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : \"test"));
+    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : test"));
 
     //string not beginning in quote
     tokens = tokenize( "test\"" );
-    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : e"),token(ERROR,">> BAD TOKEN : s"),token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : \""));
+    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : e"),token(ERROR,">> BAD TOKEN : s"),token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : "));
 
     //escaped quote in string
     tokens = tokenize( '"' + backSlash( '"' ) + '"' );
@@ -148,15 +152,6 @@ public class TokenizerTest
   public void testNumbers() {
     List<Token> tokens;
 
-    /*
-    //decimal number
-    tokens = tokenize( ".23" );
-    for(Token val : tokens)
-    System.out.println("*********" + val.getTokenValue());
-    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "23"));
-
-    System.out.println("********************************");
-*/
 
     //number by itself
     tokens = tokenize( "1234" );
@@ -234,7 +229,7 @@ public class TokenizerTest
     assertTokensAre( tokens, token(NUMBER, "3.4"), token(ERROR, ">> BAD TOKEN : a"));
 
 
-    ///////////////***************EVERYTHING ABOVE WORKS********************//////////////////////////////////////////
+    ///////////////***************EVERYTHING ABOVE WORKS********************////////////////////////
 
 
     //invalid decimal number
@@ -245,10 +240,6 @@ public class TokenizerTest
     //invalid input exp and decimal
     tokens = tokenize( "3E-4.0" );
     assertTokensAre( tokens, token(NUMBER, "3E-4"), token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "0"));
-
-
-
-
 
 
   }
@@ -313,6 +304,7 @@ public class TokenizerTest
     }
     for( int i = 0; i < matches.length; i++ )
     {
+      System.out.println(tokens.get(i).getTokenValue());       //print out
       assertTokenMatches( matches[i], tokens.get( i ) );
 
     }
