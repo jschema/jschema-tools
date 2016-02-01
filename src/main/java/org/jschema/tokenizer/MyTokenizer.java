@@ -226,7 +226,6 @@ public class MyTokenizer
   }
 
   private boolean isHex(String n){
-    //return n.matches("[0-9A-F]+");
     return hexPattern.matcher(n).matches();
   }
   private boolean matchNumber(String n){
@@ -235,17 +234,20 @@ public class MyTokenizer
 
   private boolean matchPunctuation (String p){
     return punctPattern.matcher(p).matches();
-    //return p.matches("([\\[\\]{}:,])");
   }
 
   private boolean match( char... charArray)
   {
-    for( int i = 0; i < charArray.length; i++ )
+    int i;
+    for( i = 0; i < charArray.length; i++ )
     {
       if( !peekAndMatch( i, charArray[i] ))
       {
         return false;
       }
+    }
+    if(_offset + i < _chars.length && _chars[_offset + i] != ' '){
+      return false;
     }
     return true;
   }
