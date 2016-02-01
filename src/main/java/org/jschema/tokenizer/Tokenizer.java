@@ -2,340 +2,301 @@ package org.jschema.tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static org.jschema.tokenizer.Token.TokenType.*;
 
-public class Tokenizer
-{
+public class Tokenizer {
   private String _string;
-  private char[] _chars;
   private int _offset;
   private int _line;
   private int _column;
+  private char ch;
+  private int _errCount;
 
-  public Tokenizer( String string )
-  {
+  public Tokenizer(String string) {
     _string = string;
+    _offset = 0;
+    _line = 1;
+    _column = 0;
+    nextChar();
   }
 
   //========================================================================================
   //  Main tokenization loop
   //========================================================================================
 
-  public List<Token> tokenize()
-  {
-    ArrayList<Token> tokens = new ArrayList<Token>();
-
-    _chars = _string.toCharArray();
-    _offset = 0;
-    _line = 1;
-    _column = 0;
-
-    while(moreChars()) {
-      eatWhiteSpace(); // eat leading whitespace
-
-      if(!moreChars()) break; // if we got to the end of the string, exit
-      Token string = consumeString();
-      if(string != null)
-      {
-        tokens.add( string );
-        continue;
-      }
-
-      Token number = consumeNumber();
-      if(number != null)
-      {
-        tokens.add( number );
-        continue;
-      }
-
-      Token punctuation = consumePunctuation();
-      if(punctuation != null)
-      {
-        tokens.add( punctuation );
-        continue;
-      }
-
-      Token constant = consumeConstant();
-      if(constant != null)
-      {
-        tokens.add( constant );
-        continue;
-      }
-        //System.out.println(currentChar());
-      // unrecognized token, add error token
-      tokens.add( newToken( ERROR, ">> BAD TOKEN : " + currentChar() ) );
-      bumpOffset( 1 );
+  public Token next() {
+    Token T;
+    eatWhiteSpace(); // eat leading whitespace
+    switch(ch) {
+      case '"':
+        T = consumeString();
+        break;
+      case '-':
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        T = consumeNumber();
+        break;
+      case '{':
+      case '}':
+      case '[':
+      case ']':
+      case ',':
+      case ':':
+        T = newToken(PUNCTUATION, String.valueOf(ch));
+        nextChar();
+        break;
+      case 't':
+      case 'f':
+      case 'n':
+        T = consumeConstant();
+        break;
+      case '\0':
+        T = new Token(EOF, "EOF", _line, _column, _offset, 0.0);
+        _string = "";
+        break;
+      default:
+        // unrecognized token
+        T = newToken(ERROR, ">> BAD TOKEN : " + ch);
+        nextChar();
     }
-
-    return tokens;
+    return T;
   }
 
   //========================================================================================
   //  Tokenization type methods
   //========================================================================================
 
-  private Token consumeString()
-  {
-      String tok="";
-
-
-      int newOffset=0;
-      //check if starts with quote
-    if(_chars[_offset]=='"'){
-        //go until a space is found
-        //should cover case with escaped quotes inside string
-        while(_offset+newOffset<_chars.length &&!Character.toString(_chars[_offset+newOffset]).equals(" ")
-                &&_chars[_offset+newOffset]!=':' &&_chars[_offset+newOffset]!=','){
-            tok+=_chars[_offset+newOffset];
-            newOffset++;
-
-        }
-
-        //check to make sure ends in quote and is not a single quote
-        if(!tok.substring(tok.length()-1).equals("\"") || tok.length()==1){
-            bumpOffset(newOffset);
-            return newToken(ERROR,">> BAD TOKEN : " + tok);
-        }else{
-            bumpOffset(newOffset);
-
-            return newToken(STRING,tok);
-        }
-    }
-
-      return null;
-
-  }
-
-    //needs to work for integers and decimals
-  private Token consumeNumber()
-  {
-      String token="";
-      //whether there is a decimal or not
-      int isDecimal=0;
-      int decOffset=0;
-      //whether there is an exponent or not
-      int isExp=0;
-      int expOffset=0;
-      int offset=0;
-      //for negative numbers;
-      if(_chars[_offset+offset]=='-') {
-          token +=_chars[_offset+offset];
-          offset++;
-      }
-      while( _offset+offset < _chars.length && (Character.isDigit(_chars[_offset+offset])||_chars[_offset+offset]=='.'
-              ||((_chars[_offset+offset]=='e'||_chars[_offset+offset]=='E')&& offset!=0))){
-          token +=_chars[_offset+offset];
-          //don't need to check if number after decimal->valid to have 20. in javascript
-          if(_chars[_offset+offset]=='.'){
-              isDecimal++;
-              decOffset=offset;
-              //
-          }else if (_chars[_offset+offset]=='E'||_chars[_offset+offset]=='e'){
-              isExp++;
-              expOffset=offset;
-              //for negative exponents
-              if(_offset+offset+1 < _chars.length &&_chars[_offset+offset+1]=='-'){
-                  token +=_chars[_offset+offset+1];
-                  offset++;
+  private Token consumeString() {
+    StringBuilder sb = new StringBuilder();
+    Token T;
+    nextChar();
+    while(moreChars() && ch != '"') {
+      if(ch == '\\') {
+        nextChar();
+        switch(ch) {
+          case '"':
+          case '\\':
+          case '/':
+            sb.append(ch);
+            nextChar();
+            break;
+          case 'b':
+            sb.append('\b');
+            nextChar();
+            break;
+          case 'f':
+            sb.append('\f');
+            nextChar();
+            break;
+          case 'n':
+            sb.append('\n');
+            nextChar();
+            break;
+          case 'r':
+            sb.append('\r');
+            nextChar();
+            break;
+          case 't':
+            sb.append('\t');
+            nextChar();
+            break;
+          case 'u':
+            nextChar();
+            int u = 0;
+            for(int i = 0; i < 4; i++) {
+              if(isHexDigit(ch)) {
+                u = u * 16 + ch - '0';
+                if(ch >= 'A') { // handle hex numbers: 'A' = 65, '0' = 48. 'A'-'0' = 17, 17 - 7 = 10
+                  u = u - 7;
+                }
+              } else {
+                nextChar();
+                return newToken(ERROR, ">> BAD TOKEN : " + sb.toString());
               }
-          }
-          offset++;
+              nextChar();
+            }
+            sb.append((char) u);
+            break;
+          default:
+            return newToken(ERROR, ">> BAD TOKEN : " + sb.toString());
+        }
+      } else {
+        sb.append(ch);
+        nextChar();
       }
-      if(!token.equals("")) {
-          //System.out.println(token);
-          //in case multiple decimals appear from invalid input
-          Token t;
-          //invalid number token, more than one '.', 'e', or a '.e'
-          if (isDecimal > 1 || isExp > 1 || (isDecimal == 1 && isExp == 1)) {
-               t = newToken(ERROR, ">> BAD TOKEN : " + token);
-          }else if (isExp==1){
-               t=checkValidExp(expOffset, token,false);
-          }else if(isDecimal==1) {
-              //System.out.println(token+" "+decOffset);
-
-              t = checkValidExp(decOffset, token,true);
-          }else{
-              t=newToken(NUMBER,token);
-          }
-
-          bumpOffset(offset);
-          return t;
-      }
-    return null;
+    }
+    if(ch == '"') {
+      T = newToken(STRING, sb.toString());
+    } else {
+      T = newToken(ERROR, ">> BAD TOKEN : " + sb.toString());
+    }
+    nextChar();
+    return T;
   }
 
-  private Token consumePunctuation()
-  {
-      //Square brackets, curly brackets, comma, colon
-    switch(_chars[_offset]){
-        case '{': return createPuncToken("{");
-        case '}': return createPuncToken("}");
-        case '[': return createPuncToken("[");
-        case ']': return createPuncToken("]");
-        case ',': return createPuncToken(",");
-        case ':': return createPuncToken(":");
-        default: break;
+  //needs to work for integers and decimals
+  private Token consumeNumber() {
+    StringBuilder sb = new StringBuilder();
+    Token T;
+    int num = 0;
+    int frac = 0;
+    int numFracDigit = 0;
+    int exp = 0;
+    boolean neg = false;
+    if(ch == '-') {
+      sb.append(ch);
+      nextChar();
+      neg = true;
     }
-    return null;
+    if(ch != '0') {
+      num = consumeDigits(sb);
+      if(num == -1) {
+        return newToken(ERROR, ">> BAD TOKEN : " + sb.toString());
+      }
+    } else {
+      sb.append(ch);
+      nextChar();
+    }
+    if(ch == '.') {
+      sb.append(ch);
+      nextChar();
+      numFracDigit = sb.length();
+      frac = consumeDigits(sb);
+      if(frac == -1) {
+        return newToken(ERROR, ">> BAD TOKEN : " + sb.toString());
+      }
+      numFracDigit = sb.length() - numFracDigit;
+    }
+    if(ch == 'E' || ch == 'e') {
+      sb.append(ch);
+      nextChar();
+      boolean negExp = false;
+      if(ch == '-') {
+        sb.append(ch);
+        nextChar();
+        negExp = true;
+      } else if(ch == '+') {
+        sb.append(ch);
+        nextChar();
+      }
+      exp = consumeDigits(sb);
+      if(negExp) {
+        exp = -exp;
+      }
+    }
+    double doubleValue = num;
+    if(frac != 0) {
+      doubleValue += (frac * Math.pow(10, -numFracDigit));
+    }
+    if(exp != 0) {
+      doubleValue = doubleValue * Math.pow(10, exp);
+    }
+    if(neg) {
+      doubleValue = -doubleValue;
+    }
+    T = newNumberToken(NUMBER, sb.toString(), doubleValue);
+    return T;
   }
 
+  private int consumeDigits(StringBuilder sb) {
+    int num = 0;
+    if(isDigit(ch)) {
+      while(moreChars() && isDigit(ch)) {
+        sb.append(ch);
+        num = num * 10 + ch - '0';
+        nextChar();
+      }
+    } else {
+      num = -1;
+    }
+    return num;
+  }
 
-  private Token consumeConstant()
-  {
-    if( match( 't', 'r', 'u', 'e' ) )
-    {
-        Token t=invalidConstant(4);
-        if(t!=null){
-            return t;
-        }else {
-            t = newToken(CONSTANT, "true");
-            bumpOffset(4);
-            return t;
-        }
+  private boolean isDigit(char ch) {
+    return ch >= '0' && ch <= '9';
+  }
+
+  private boolean isHexDigit(char ch) {
+    return ch >= '0' && ch <= '9' || ch >= 'A' && ch <= 'F' || ch >= 'a' && ch <= 'f';
+  }
+
+  private Token consumeConstant() {
+    StringBuilder sb = new StringBuilder();
+    Token T;
+    do {
+      sb.append(ch);
+      nextChar();
+    } while(moreChars() && (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z'));
+    String str = sb.toString();
+    if(sb.length() > 5 || !Token.constants.contains(str)) {
+      T = newToken(ERROR, ">> BAD TOKEN : " + str);
+    } else {
+      T = newToken(CONSTANT, str);
     }
-    if( match( 'f', 'a', 'l', 's', 'e' ) )
-    {
-        Token t=invalidConstant(5);
-        if(t!=null){
-            return t;
-        }else {
-            t = newToken(CONSTANT, "false");
-            bumpOffset(5);
-            return t;
-        }
-    }
-    if( match( 'n', 'u', 'l', 'l' ) )
-    {
-        Token t=invalidConstant(4);
-        if(t!=null){
-            return t;
-        }else {
-            t = newToken(CONSTANT, "null");
-            bumpOffset(4);
-            return t;
-        }
-    }
-    return null;
+    return T;
   }
 
   //========================================================================================
   //  Utility methods
   //========================================================================================
 
-  private void bumpOffset( int amt )
-  {
-    _offset += amt;
-  }
-
-  private Token newToken( Token.TokenType type, String tokenValue )
-  {
-    return new Token( type, tokenValue, _line, _column, _offset + 1 );
-  }
-
-  private boolean match( char... charArray)
-  {
-    for( int i = 0; i < charArray.length; i++ )
-    {
-      if( !peekAndMatch( i, charArray[i] ))
-      {
-        return false;
-      }
+  private Token newToken(Token.TokenType type, String tokenValue) {
+    if(type == ERROR) {
+      _errCount++;
     }
-    return true;
+    return new Token(type, tokenValue, _line, _column, _offset + 1, 0);
   }
 
-  private boolean peekAndMatch( int i, char toMatch )
-  {
-    if( _offset + i < _chars.length )
-    {
-      return _chars[_offset + i] == toMatch;
-    } else {
-      return false;
-    }
+  private Token newNumberToken(Token.TokenType type, String tokenValue, double num) {
+    return new Token(type, tokenValue, _line, _column, _offset + 1, num);
   }
 
-  private void eatWhiteSpace()
-  {
+  private void eatWhiteSpace() {
     //while there exists more characters and the current character is white space
-    while( moreChars() && Character.isWhitespace( currentChar() ) )
-    {
-      char c = currentChar();
-      if( c == '\n' ) // if we are at a newline character, bump the line number and reset the column
+    while(moreChars() && Character.isWhitespace(ch)) {
+      nextChar();
+    }
+  }
+
+  private void nextChar() {
+    if(_offset < _string.length()) {
+      ch = _string.charAt(_offset);
+      if(ch == '\n') // if we are at a newline character, bump the line number and reset the column
       {
         _line++;
         _column = 0;
       }
       _offset = _offset + 1; // bump offset
       _column = _column + 1; // bump column
+    } else {
+      ch = '\0';
     }
   }
 
-  private char currentChar()
-  {
-    return _chars[_offset];
+  private boolean moreChars() {
+    return ch != '\0';
   }
 
-  private boolean moreChars()
-  {
-    return _offset < _chars.length;
+  public int getErrCount() {
+    return _errCount;
   }
-    //creates tokens for punctuation
-    private Token createPuncToken(String token){
-        Token t = newToken( PUNCTUATION, token );
-        bumpOffset(1);
-        return t;
-    }
-    //handles case where there is a partial match to "true" or "false"
-    private Token invalidConstant(int offset) {
-        if (((_offset + offset) < _chars.length) && !(Character.toString(_chars[_offset + offset]).equals(" "))) {
-            String token = "true";
-            int offsetNew = offset;
-            while (_offset + offsetNew < _chars.length && !(Character.toString(_chars[_offset + offsetNew]).equals(" "))) {
-                token += _chars[_offset + offsetNew];
-                offsetNew++;
-            }
-            Token t = newToken(ERROR, ">> BAD TOKEN : " + token);
-            bumpOffset(offsetNew);
-            return t;
-        }else{
-            return null;
-        }
-    }
-    //checks exponents to make sure they are valid
-    private Token checkValidExp(int offset, String tok, boolean isDec) {
-        Token t=newToken(NUMBER, tok);;
-        String regex = "-?[0-9]+";
-        //check if number before e
-        if(!(isDec && tok.substring(0,offset).equals(""))) {
-            //make sure isn't small decimal like .23
-            if ((offset - 1 < 0) || !(tok.substring(0, offset).matches(regex))) {
-                t = newToken(ERROR, ">> BAD TOKEN : " + tok);
 
-                //check if number or negative sign after e
-                //TODO need to check more for validity
-            } else {
-                //get anything after token
-                int offsetAfter = 0;
-                String badTok = tok;
-                //System.out.println("tok is" +tok.length());
-                //get any bad input after exponent
-                while (tok.length() + _offset+ offsetAfter < _chars.length &&
-                        !Character.toString(_chars[_offset+tok.length() + offsetAfter]).equals(" ")&&
-                        _chars[_offset+tok.length() + offsetAfter]!=',') {
-                    badTok += _chars[tok.length() + offsetAfter];
-                    offsetAfter++;
-                }
-                bumpOffset(offsetAfter);
-                if (offsetAfter > 0) {
-                    t = newToken(ERROR, ">> BAD TOKEN : " + badTok);
-                } else {
-                    t = newToken(NUMBER, tok);
-                }
-            }
-        }
-        return t;
+  public List<Token> tokenize() {
+    ArrayList<Token> list = new ArrayList<Token>();
+    Token token = next();
+    while(token.getTokenType() != Token.TokenType.EOF) {
+      list.add(token);
+      token = next();
     }
-
+    return list;
+  }
 }
