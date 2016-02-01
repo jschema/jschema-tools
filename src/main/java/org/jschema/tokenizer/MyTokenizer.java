@@ -2,6 +2,7 @@ package org.jschema.tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.jschema.tokenizer.Token.TokenType.*;
 
@@ -12,6 +13,7 @@ public class MyTokenizer
   private int _offset;
   private int _line;
   private int _column;
+  Pattern numPattern = Pattern.compile("(-?(([1-9]*\\d\\.\\d+)|([1-9]\\d*))([eE]{1}[-+]?\\d+)?)");
 
   public MyTokenizer( String string )
   {
@@ -159,14 +161,14 @@ public class MyTokenizer
   private Token consumeNumber()
   {
     if (_chars[_offset] == '-' || Character.isDigit(_chars[_offset])) {
-      StringBuilder num = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       int i = _offset;
       while (i < _chars.length && _chars[i] != ' ' && _chars[i] !=',') {
-        num.append(_chars[i++]);
+        sb.append(_chars[i++]);
       }
-      Token t = matchNumber(num.toString()) ?
-              newToken(NUMBER, num.toString()) :
-              badToken(num.toString());
+      Token t = matchNumber(sb.toString()) ?
+              newToken(NUMBER, sb.toString()) :
+              badToken(sb.toString());
       bumpOffset(i-_offset);
       return t;
       }
@@ -228,7 +230,7 @@ public class MyTokenizer
   }
   private boolean matchNumber(String n){
 
-    return n.matches("(-?(([1-9]*\\d\\.\\d+)|([1-9]\\d*))([eE]{1}[-+]?\\d+)?)");
+    return numPattern.matcher(n).matches();
   }
 
   private boolean matchPunctuation (String p){
