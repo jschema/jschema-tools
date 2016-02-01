@@ -99,7 +99,7 @@ public class TokenizerTest
 
     //string not beginning in quote
     tokens = tokenize( "test\"" );
-    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : e"),token(ERROR,">> BAD TOKEN : s"),token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : \""));
+    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : test\""));
 
     //escaped quote in string
     tokens = tokenize( '"' + backSlash( '"' ) + '"' );
@@ -134,8 +134,6 @@ public class TokenizerTest
     assertTokensAre( tokens, token(STRING, "\u263A"));
     assertTokensAre( tokens, token(STRING, "☺"));
 
-    tokens = tokenize( '"' + backSlash( "u263G" ) + '"' );
-    assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : "), token(ERROR, ">> BAD TOKEN : "));
 
   }
 
@@ -167,7 +165,7 @@ public class TokenizerTest
 
     //decimal number
     tokens = tokenize( ".23" );
-    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "23"));
+    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : .23"));
 
     //multiple fractions
     tokens = tokenize( "0.23 1.56" );
@@ -220,7 +218,7 @@ public class TokenizerTest
 
     //invalid input exp and decimal
     tokens = tokenize( "3E-4.0" );
-    assertTokensAre( tokens, token(NUMBER, "3E-4"), token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "0"));
+    assertTokensAre( tokens, token(NUMBER, "3E-4.0"));
 
     //invalid input exp
     tokens = tokenize( "3E-4a" );
