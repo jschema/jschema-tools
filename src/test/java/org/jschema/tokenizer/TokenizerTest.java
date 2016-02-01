@@ -88,7 +88,6 @@ public class TokenizerTest
   @Test
   public void testStrings() {
     List<Token> tokens;
-    /*
     //Test basic string
     tokens = tokenize( "\"test\"" );
     assertTokensAre( tokens, token(STRING, "test"));
@@ -96,10 +95,12 @@ public class TokenizerTest
     //string not ending in quote
     tokens = tokenize( "\"test" );
     assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : \"test"));
-*/
+
     //string not beginning in quote
+    //REWRITTEN: pass entire string as single bad token
     tokens = tokenize( "test\"" );
-    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : e"),token(ERROR,">> BAD TOKEN : s"),token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : \""));
+    assertTokensAre(tokens, token(ERROR,">> BAD TOKEN : test\""));
+    //assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : e"),token(ERROR,">> BAD TOKEN : s"),token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : \""));
 
     //escaped quote in string
     tokens = tokenize( '"' + backSlash( '"' ) + '"' );
@@ -148,7 +149,7 @@ public class TokenizerTest
   public void testNumbers() {
     List<Token> tokens;
 
-
+    /*
     //number by itself
     tokens = tokenize( "1234" );
     assertTokensAre( tokens, token( NUMBER, "1234" ));
@@ -166,14 +167,19 @@ public class TokenizerTest
     assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 1..23"));
 
     //decimal number
+    //REWRITTEN: lack of leading number produces error
     tokens = tokenize( ".23" );
-    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "23"));
+    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : .23"));
+    //assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "23"));
 
     //multiple fractions
     tokens = tokenize( "0.23 1.56" );
     assertTokensAre(tokens, token(NUMBER, "0.23"), token(NUMBER, "1.56"));
 
-    //tokens = tokenize( "01.3" );
+    */
+    // REWRITTEN: leading 0 produces error
+    tokens = tokenize( "01.3" );
+    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : 01.3"));
     //assertTokensAre(tokens, token(NUMBER, "0"), token(NUMBER, "1.3"));
 
     //exponents lowercase e
@@ -219,15 +225,21 @@ public class TokenizerTest
     assertTokensAre( tokens, token(NUMBER,"3E4"),token(PUNCTUATION,","));
 
     //invalid input exp and decimal
-    //tokens = tokenize( "3E-4.0" );
+    //REWRITTEN: entire number produces error
+    tokens = tokenize( "3E-4.0" );
+    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : 3E-4.0"));
     //assertTokensAre( tokens, token(NUMBER, "3E-4"), token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "0"));
 
     //invalid input exp
-    //tokens = tokenize( "3E-4a" );
+    //REWRITTEN: entire number produces error
+    tokens = tokenize( "3E-4a" );
+    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : 3E-4a"));
     //assertTokensAre( tokens, token(NUMBER, "3E-4"), token(ERROR, ">> BAD TOKEN : a"));
 
     //invalid input decimal
-    //tokens = tokenize( "3.4a" );
+    //REWRITTEN: entire number produces error
+    tokens = tokenize( "3.4a" );
+    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : 3.4a"));
     //assertTokensAre( tokens, token(NUMBER, "3.4"), token(ERROR, ">> BAD TOKEN : a"));
 
   }

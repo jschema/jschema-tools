@@ -65,8 +65,12 @@ public class MyTokenizer
       }
 
       // unrecognized token, add error token
-      tokens.add( newToken( ERROR, ">> BAD TOKEN : " + currentChar() ) );
-      bumpOffset( 1 );
+      StringBuilder sb = new StringBuilder();
+      while(_offset < _chars.length && _chars[_offset] != ' '){
+        sb.append(_chars[_offset]);
+        bumpOffset(1);
+      }
+      tokens.add(badToken(sb.toString()));
     }
 
     return tokens;
@@ -224,7 +228,7 @@ public class MyTokenizer
   }
   private boolean matchNumber(String n){
 
-    return n.matches("(-?((\\d+\\.\\d+)|([1-9]\\d*))([eE]{1}[-+]?\\d+)?)");
+    return n.matches("(-?(([1-9]*\\d\\.\\d+)|([1-9]\\d*))([eE]{1}[-+]?\\d+)?)");
   }
 
   private boolean matchPunctuation (String p){
