@@ -14,6 +14,8 @@ public class MyTokenizer
   private int _line;
   private int _column;
   Pattern numPattern = Pattern.compile("(-?(([1-9]*\\d\\.\\d+)|([1-9]\\d*))([eE]{1}[-+]?\\d+)?)");
+  Pattern punctPattern = Pattern.compile("([\\[\\]{}:,])");
+  Pattern hexPattern = Pattern.compile("[0-9A-F]+");
 
   public MyTokenizer( String string )
   {
@@ -128,17 +130,15 @@ public class MyTokenizer
                 sb.append(udigits);
                 i++;
                 while(i <_chars.length && _chars[i] != ' '){
-                  sb.append(_chars[i]);
+                  sb.append(_chars[i++]);
+                }
                   Token t = badToken(sb.toString());
                   bumpOffset(i - _offset);
                   return t;
-                }
-
               }
               sb.append(Character.toString((char)Integer.parseInt(udigits.toString(), 16)));
               break;
             default:
-              // check
               sb.append(_chars[i]);
           }
           i++;
@@ -226,15 +226,16 @@ public class MyTokenizer
   }
 
   private boolean isHex(String n){
-    return n.matches("[0-9A-F]+");
+    //return n.matches("[0-9A-F]+");
+    return hexPattern.matcher(n).matches();
   }
   private boolean matchNumber(String n){
-
     return numPattern.matcher(n).matches();
   }
 
   private boolean matchPunctuation (String p){
-    return p.matches("([\\[\\]{}:,])");
+    return punctPattern.matcher(p).matches();
+    //return p.matches("([\\[\\]{}:,])");
   }
 
   private boolean match( char... charArray)

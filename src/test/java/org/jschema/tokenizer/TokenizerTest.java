@@ -88,6 +88,7 @@ public class TokenizerTest
   @Test
   public void testStrings() {
     List<Token> tokens;
+
     //Test basic string
     tokens = tokenize( "\"test\"" );
     assertTokensAre( tokens, token(STRING, "test"));
@@ -135,8 +136,10 @@ public class TokenizerTest
     assertTokensAre( tokens, token(STRING, "\u263A"));
     assertTokensAre( tokens, token(STRING, "☺"));
 
+    // REWRITTEN: entire string produces error
     tokens = tokenize( '"' + backSlash( "u263G" ) + '"' );
-    assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : "), token(ERROR, ">> BAD TOKEN : "));
+    assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : \"\\u263G\""));
+    //assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : "), token(ERROR, ">> BAD TOKEN : "));
 
   }
 
@@ -149,7 +152,6 @@ public class TokenizerTest
   public void testNumbers() {
     List<Token> tokens;
 
-    /*
     //number by itself
     tokens = tokenize( "1234" );
     assertTokensAre( tokens, token( NUMBER, "1234" ));
@@ -176,7 +178,6 @@ public class TokenizerTest
     tokens = tokenize( "0.23 1.56" );
     assertTokensAre(tokens, token(NUMBER, "0.23"), token(NUMBER, "1.56"));
 
-    */
     // REWRITTEN: leading 0 produces error
     tokens = tokenize( "01.3" );
     assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : 01.3"));
