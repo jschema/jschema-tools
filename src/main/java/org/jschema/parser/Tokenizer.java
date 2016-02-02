@@ -1,9 +1,8 @@
-package org.jschema.tokenizer;
+package org.jschema.parser;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.jschema.tokenizer.Token.TokenType.*;
+import org.jschema.parser.Token.TokenType;
 
 public class Tokenizer {
   private String _string;
@@ -11,7 +10,7 @@ public class Tokenizer {
   private int _line;
   private int _column;
   private char ch;
-  private int _errCount;
+  private int _errorCount;
 
   public Tokenizer(String string) {
     _string = string;
@@ -46,12 +45,27 @@ public class Tokenizer {
         T = consumeNumber();
         break;
       case '{':
+        T = newToken(TokenType.LCURLY, "{");
+        nextChar();
+        break;
       case '}':
+        T = newToken(TokenType.RCURLY, "}");
+        nextChar();
+        break;
       case '[':
+        T = newToken(TokenType.LSQUARE, "[");
+        nextChar();
+        break;
       case ']':
+        T = newToken(TokenType.RSQUARE, "]");
+        nextChar();
+        break;
       case ',':
+        T = newToken(TokenType.COMMA, ",");
+        nextChar();
+        break;
       case ':':
-        T = newToken(PUNCTUATION, String.valueOf(ch));
+        T = newToken(TokenType.COLON, ":");
         nextChar();
         break;
       case 't':
@@ -60,12 +74,12 @@ public class Tokenizer {
         T = consumeConstant();
         break;
       case '\0':
-        T = new Token(EOF, "EOF", _line, _column, _offset, 0.0);
+        T = new Token(TokenType.EOF, "EOF", _line, _column, _offset, 0.0);
         _string = "";
         break;
       default:
         // unrecognized token
-        T = newToken(ERROR, ">> BAD TOKEN : " + ch);
+        T = errorToken( String.valueOf(ch) );
         nextChar();
     }
     return T;
@@ -120,14 +134,14 @@ public class Tokenizer {
                 }
               } else {
                 nextChar();
-                return newToken(ERROR, ">> BAD TOKEN : " + sb.toString());
+                return errorToken( sb.toString() );
               }
               nextChar();
             }
             sb.append((char) u);
             break;
           default:
-            return newToken(ERROR, ">> BAD TOKEN : " + sb.toString());
+            return errorToken( sb.toString() );
         }
       } else {
         sb.append(ch);
@@ -135,9 +149,9 @@ public class Tokenizer {
       }
     }
     if(ch == '"') {
-      T = newToken(STRING, sb.toString());
+      T = newToken(TokenType.STRING, sb.toString());
     } else {
-      T = newToken(ERROR, ">> BAD TOKEN : " + sb.toString());
+      T = errorToken( sb.toString() );
     }
     nextChar();
     return T;
@@ -160,7 +174,7 @@ public class Tokenizer {
     if(ch != '0') {
       num = consumeDigits(sb);
       if(num == -1) {
-        return newToken(ERROR, ">> BAD TOKEN : " + sb.toString());
+        return errorToken( sb.toString() );
       }
     } else {
       sb.append(ch);
@@ -172,7 +186,7 @@ public class Tokenizer {
       numFracDigit = sb.length();
       frac = consumeDigits(sb);
       if(frac == -1) {
-        return newToken(ERROR, ">> BAD TOKEN : " + sb.toString());
+        return errorToken( sb.toString() );
       }
       numFracDigit = sb.length() - numFracDigit;
     }
@@ -203,7 +217,7 @@ public class Tokenizer {
     if(neg) {
       doubleValue = -doubleValue;
     }
-    T = newNumberToken(NUMBER, sb.toString(), doubleValue);
+    T = newNumberToken(TokenType.NUMBER, sb.toString(), doubleValue);
     return T;
   }
 
@@ -237,32 +251,40 @@ public class Tokenizer {
       nextChar();
     } while(moreChars() && (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z'));
     String str = sb.toString();
-    if(sb.length() > 5 || !Token.constants.contains(str)) {
-      T = newToken(ERROR, ">> BAD TOKEN : " + str);
+    TokenType type = Token.constants.get(str);
+    if(type == null) {
+      T = errorToken( str );
     } else {
-      T = newToken(CONSTANT, str);
+      T = newToken(type, str);
     }
     return T;
+  }
+
+  private Token errorToken( String str )
+  {
+    _errorCount++;
+    return newToken( TokenType.ERROR, str);
+  }
+
+  public int getErrorCount() {
+    return _errorCount;
   }
 
   //========================================================================================
   //  Utility methods
   //========================================================================================
 
-  private Token newToken(Token.TokenType type, String tokenValue) {
-    if(type == ERROR) {
-      _errCount++;
-    }
+  private Token newToken(TokenType type, String tokenValue) {
     return new Token(type, tokenValue, _line, _column, _offset + 1, 0);
   }
 
-  private Token newNumberToken(Token.TokenType type, String tokenValue, double num) {
+  private Token newNumberToken(TokenType type, String tokenValue, double num) {
     return new Token(type, tokenValue, _line, _column, _offset + 1, num);
   }
 
   private void eatWhiteSpace() {
     //while there exists more characters and the current character is white space
-    while(moreChars() && Character.isWhitespace(ch)) {
+    while(moreChars() && (ch == '\t' || ch == '\n' || ch == '\r' || ch == ' ')) {
       nextChar();
     }
   }
@@ -286,14 +308,10 @@ public class Tokenizer {
     return ch != '\0';
   }
 
-  public int getErrCount() {
-    return _errCount;
-  }
-
   public List<Token> tokenize() {
     ArrayList<Token> list = new ArrayList<Token>();
     Token token = next();
-    while(token.getTokenType() != Token.TokenType.EOF) {
+    while(token.getTokenType() != TokenType.EOF) {
       list.add(token);
       token = next();
     }
