@@ -104,6 +104,12 @@ public class Tokenizer
     String t = "";
     Token token;
     while(moreChars()){
+      if(currentChar() == ' '){
+        break;
+      }
+      if(isPunc(currentChar())){
+        break;
+      }
       if(currentChar() == '\\'){
         bumpOffset(1);
         if(currentChar() == '"'){
@@ -226,17 +232,11 @@ public class Tokenizer
       }
       bumpOffset(1);
     }
-/*
-    if(!isNumber(t.charAt(0))){
-      token = newToken(ERROR, ">> BAD TOKEN : " + t);
-      return token;
-    }
-    */
+
     if (dotcount > 1) {
       token = newToken(ERROR, ">> BAD TOKEN : " + t);
       return token;
     }
-    System.out.print(t);
     token = newToken(NUMBER, t);
     return token;
   }
@@ -286,7 +286,7 @@ public class Tokenizer
   {
     if( match( 't', 'r', 'u', 'e' ) )
     {
-      Token t = newToken( CONSTANT, "true" );
+      Token t = newToken(CONSTANT, "true");
       bumpOffset(4);
       return t;
     }
