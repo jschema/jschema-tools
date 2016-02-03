@@ -10,6 +10,8 @@ import static org.jschema.tokenizer.Token.TokenType.PUNCTUATION;
 import static org.jschema.tokenizer.Token.TokenType.NUMBER;
 import static org.jschema.tokenizer.Token.TokenType.STRING;
 import static org.jschema.tokenizer.Token.TokenType.ERROR;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class TokenizerTest
 {
@@ -62,6 +64,7 @@ public class TokenizerTest
     tokens = tokenize( ":" );
     assertTokensAre( tokens, token( PUNCTUATION, ":" ));
 
+
     //tests for PUNCTUATION
     tokens = tokenize("[");
     assertTokensAre( tokens, token(PUNCTUATION, "["));
@@ -80,7 +83,6 @@ public class TokenizerTest
 
     tokens = tokenize(",");
     assertTokensAre( tokens, token(PUNCTUATION, ","));
-
   }
 
   @Test
@@ -131,11 +133,15 @@ public class TokenizerTest
     tokens = tokenize( '"' + backSlash( "u263A" ) + '"' );
     assertTokensAre( tokens, token(STRING, "\u263A"));
     assertTokensAre( tokens, token(STRING, "☺"));
+
+    tokens = tokenize( '"' + backSlash( "u263G" ) + '"' );
+    assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : "), token(ERROR, ">> BAD TOKEN : "));
+
   }
 
   @Test
   public void unicodeSanityCheck(){
-    Assert.assertEquals( "\u263A", "☺" );
+    assertEquals("\u263A", "☺");
   }
 
   @Test
@@ -161,11 +167,14 @@ public class TokenizerTest
 
     //decimal number
     tokens = tokenize( ".23" );
-    assertTokensAre( tokens, token(NUMBER,".23"));
+    assertTokensAre(tokens, token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "23"));
 
     //multiple fractions
-    tokens = tokenize( ".23 .56" );
-    assertTokensAre( tokens, token(NUMBER,".23"),token(NUMBER,".56"));
+    tokens = tokenize( "0.23 1.56" );
+    assertTokensAre(tokens, token(NUMBER, "0.23"), token(NUMBER, "1.56"));
+
+    tokens = tokenize( "01.3" );
+    assertTokensAre(tokens, token(NUMBER, "0"), token(NUMBER, "1.3"));
 
     //exponents lowercase e
     tokens = tokenize( "2e1" );
@@ -184,12 +193,18 @@ public class TokenizerTest
     assertTokensAre( tokens, token(NUMBER,"-4.2"));
 
     //negative exp
-    tokens = tokenize( "-3E4" );
-    assertTokensAre( tokens, token(NUMBER,"-3E4"));
+    tokens = tokenize( "-3E+4" );
+    assertTokensAre(tokens, token(NUMBER, "-3E+4"));
 
     //negative exp
+    tokens = tokenize( "2E-4" );
+    assertTokensAre(tokens, token(NUMBER, "2E-4"));
+
     tokens = tokenize( "3E-4" );
     assertTokensAre( tokens, token(NUMBER,"3E-4"));
+
+    tokens = tokenize( "-0.1E4" );
+    assertTokensAre(tokens, token(NUMBER, "-0.1E4"));
 
     //double negative exp
     tokens = tokenize( "-3E-4" );
@@ -205,15 +220,15 @@ public class TokenizerTest
 
     //invalid input exp and decimal
     tokens = tokenize( "3E-4.0" );
-    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 3E-4.0"));
+    assertTokensAre( tokens, token(NUMBER, "3E-4"), token(ERROR, ">> BAD TOKEN : ."), token(NUMBER, "0"));
 
     //invalid input exp
     tokens = tokenize( "3E-4a" );
-    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 3E-4a"));
+    assertTokensAre( tokens, token(NUMBER, "3E-4"), token(ERROR, ">> BAD TOKEN : a"));
 
     //invalid input decimal
     tokens = tokenize( "3.4a" );
-    assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : 3.4a"));
+    assertTokensAre( tokens, token(NUMBER, "3.4"), token(ERROR, ">> BAD TOKEN : a"));
 
   }
 
@@ -238,7 +253,7 @@ public class TokenizerTest
 
     //assortment
     tokens=tokenize("\"type\": \"array\":");
-    assertTokensAre(tokens,token(STRING,"\"type\""), token(PUNCTUATION,":"), token(STRING,"\"array\""), token(PUNCTUATION,":"));
+    assertTokensAre(tokens,token(STRING,"type"), token(PUNCTUATION,":"), token(STRING,"array"), token(PUNCTUATION,":"));
 
 
     tokens = tokenize("123, true");
@@ -262,7 +277,6 @@ public class TokenizerTest
     tokens = tokenize( "truel false" );
     assertTokensAre( tokens,token(ERROR,">> BAD TOKEN : truel"),token(CONSTANT,"false"));
 
-
   }
 
 
@@ -284,22 +298,22 @@ public class TokenizerTest
 
   private void assertTokenMatches( Token match, Token token )
   {
-    Assert.assertEquals( match.getTokenType(), token.getTokenType() );
+    assertEquals(match.getTokenType(), token.getTokenType());
     if( match.getTokenValue() != null )
     {
-      Assert.assertEquals( match.getTokenValue(), token.getTokenValue() );
+      assertEquals(match.getTokenValue(), token.getTokenValue());
     }
     if( match.getLineNumber() > 0 )
     {
-      Assert.assertEquals( match.getLineNumber(), token.getLineNumber() );
+      assertEquals(match.getLineNumber(), token.getLineNumber());
     }
     if( match.getOffset() > 0 )
     {
-      Assert.assertEquals( match.getOffset(), token.getOffset() );
+      assertEquals(match.getOffset(), token.getOffset());
     }
     if( match.getColumn() > 0 )
     {
-      Assert.assertEquals( match.getColumn(), token.getColumn() );
+      assertEquals(match.getColumn(), token.getColumn());
     }
   }
 
