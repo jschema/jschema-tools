@@ -2,9 +2,7 @@ package org.jschema.tokenizer;
 
 import java.util.ArrayList;
 
-/**
- * Created by sachin on 1/14/16.
- */
+
 public class Node {
     public Node parent;
     public ArrayList<Node> children;

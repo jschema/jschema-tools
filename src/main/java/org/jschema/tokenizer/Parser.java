@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import static org.jschema.tokenizer.Token.TokenType.*;
 
-/**
- * Created by Sachin Patel on 1/14/16.
- */
 
 public class Parser {
     public Parser() {

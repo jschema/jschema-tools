@@ -16,7 +16,84 @@ import static org.junit.Assert.fail;
 public class TokenizerTest
 {
 
-  @Test
+
+@Test
+    public void myTests(){
+    //List<Token> tokens = tokenize( "true" );
+    //tokens = tokenize("123, true");
+    //System.out.println("Tokens size: " + tokens.size());
+    //System.out.println("primero " + tokens.get(0).getTokenType() + " " + tokens.get(0).getTokenValue());
+    //System.out.println("primero " + tokens.get(1).getTokenType() + " " + tokens.get(1).getTokenValue());
+    //System.out.println("primero " + tokens.get(2).getTokenType() + " " + tokens.get(2).getTokenValue());
+    //System.out.println("primero " + tokens.get(3).getTokenType() + " " + tokens.get(3).getTokenValue());
+    //System.out.println("primero " + tokens.get(4).getTokenType() + " " + tokens.get(4).getTokenValue());
+    //assertTokensAre( tokens, token(NUMBER, "123"), token(PUNCTUATION, ","), token(CONSTANT, "true"));
+
+    List<Token> tokens;
+
+    //Test basic string
+    //tokens = tokenize( "\"test\"" );
+    //assertTokensAre( tokens, token(STRING, "test"));
+
+    //string not ending in quote
+    //tokens = tokenize( "\"test" );
+    //assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : test"));
+
+    //string not beginning in quote
+    //tokens = tokenize( "test\"" );
+    //assertTokensAre( tokens, token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : e"),token(ERROR,">> BAD TOKEN : s"),token(ERROR,">> BAD TOKEN : t"),token(ERROR,">> BAD TOKEN : "));
+
+    //escaped quote in string
+    tokens = tokenize( '"' + backSlash( '"' ) + '"' );
+    System.out.println("Tokens size: " + tokens.size());
+    System.out.println("primero " + tokens.get(0).getTokenType() + " " + tokens.get(0).getTokenValue());
+//    System.out.println("primero " + tokens.get(1).getTokenType() + " " + tokens.get(1).getTokenValue());
+    assertTokensAre( tokens, token(STRING, "\""));
+
+    //escaped backslash in string
+    tokens = tokenize( '"' + backSlash( '\\' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "\\"));
+
+    //escaped frontslash in string
+    tokens = tokenize( '"' + backSlash( '/' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "/"));
+
+    //escaped backspace in string
+    tokens = tokenize( '"' + backSlash( 'b' ) + '"' );
+    //System.out.println("primero " + tokens.get(0).getTokenType() + " " + tokens.get(0).getTokenValue());
+    assertTokensAre( tokens, token(STRING, "\b"));
+
+    //escaped form feed in string
+    tokens = tokenize( '"' + backSlash( 'f' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "\f"));
+
+    //escaped new line in string
+    tokens = tokenize( '"' + backSlash( 'n' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "\n"));
+
+    //escaped carriage return in string
+    tokens = tokenize( '"' + backSlash( 'r' ) + '"' );
+    assertTokensAre( tokens, token(STRING, "\r"));
+
+    //Escaped unicode
+    tokens = tokenize( '"' + backSlash( "u263A" ) + '"' );
+    //System.out.println("Tokens size: " + tokens.size());
+    //System.out.println("primero " + tokens.get(0).getTokenType() + " " + tokens.get(0).getTokenValue());
+    //System.out.println("primero " + tokens.get(1).getTokenType() + " " + tokens.get(1).getTokenValue());
+    assertTokensAre( tokens, token(STRING, "\u263A"));
+    assertTokensAre( tokens, token(STRING, "☺"));
+
+    tokens = tokenize( '"' + backSlash( "u263G" ) + '"' );
+    System.out.println("Tokens size: " + tokens.size());
+    System.out.println("primero " + tokens.get(0).getTokenType() + " " + tokens.get(0).getTokenValue());
+    System.out.println("segundo " + tokens.get(1).getTokenType() + " " + tokens.get(1).getTokenValue());
+    assertTokensAre( tokens, token(ERROR, ">> BAD TOKEN : "), token(ERROR, ">> BAD TOKEN : "));
+
+}
+
+
+    /*
+    @Test
   public void bootstrapTest()
   {
     //basic constant
@@ -279,6 +356,7 @@ public class TokenizerTest
 
   }
 
+*/
 
   //========================================================================================
   // Test Helpers
