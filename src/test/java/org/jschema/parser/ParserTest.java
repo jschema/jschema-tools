@@ -28,6 +28,7 @@ public class ParserTest
   {
     assertEquals( new ArrayList(), parse( "[]" ) );
     assertEquals( Arrays.asList( "foo", "bar" ), parse( "[\"foo\", \"bar\"]" ) );
+    assertEquals( Arrays.asList( "foo", "bar", Arrays.asList("baz", "qux") ), parse( "[\"foo\", \"bar\", [\"baz\", \"qux\"]]" ) );
     //TODO add more
   }
 

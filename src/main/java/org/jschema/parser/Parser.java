@@ -25,70 +25,119 @@ public class Parser
 
   public Object parse() {
     Object value = parseValue();
-    if( match( EOF ) )
-    {
+    if(match(EOF)) {
       return value;
     }
-    else
-    {
+    else {
       return error();
     }
   }
 
   public Object parseValue()
   {
-    if( match( LCURLY ) )
-    {
+    if(match(LCURLY)) {
       nextToken();
       return parseObject();
     }
 
     // parse arrays
-    if( match( LSQUARE ) )
-    {
+    if(match(LSQUARE)) {
+      Object array = parseArray();
       nextToken();
-      return parseArray();
+      return array;
     }
 
     // parse literals (e.g. true, false, strings, numbers)
-    if( match( STRING ) )
-    {
+    if(match(STRING)) {
       String tokenValue = _currentToken.getTokenValue();
       nextToken();
       return tokenValue;
+    } else if (match(NUMBER)) {
+      String tokenValue = _currentToken.getTokenValue();
+      nextToken();
+      try {
+        return Integer.parseInt(tokenValue);
+      } catch(NumberFormatException exception) {
+        // Definitely a double value
+        try {
+          return Double.parseDouble(tokenValue);
+        } catch(NumberFormatException e) {
+          return error();
+        }
+      }
+    } else if (match(TRUE)) {
+      nextToken();
+      return true;
+    } else if (match(FALSE)) {
+      nextToken();
+      return false;
+    } else if (match(NULL)) {
+      nextToken();
+      return null;
     }
 
-    //TODO implement other literals
-
+    System.out.println("Returning error in parseValue()!");
     return error();
   }
 
   public Object parseObject()
   {
-    //TODO implement, return a map of name/value pairs, and Error if an error is detected
-    //                pass the map into parseMember to populate
     HashMap<String, Object> map = new HashMap<>();
-    if( match( RCURLY ) )
-    {
-      nextToken();
-      return map;
+    Object nextMemberResult = null;
+    while(!(nextMemberResult instanceof Token)) {
+      nextMemberResult = addNextMember(map);
+      if (nextMemberResult instanceof Error) {
+        return nextMemberResult;
+      } else if (nextMemberResult instanceof HashMap) {
+        map = (HashMap<String, Object>) nextMemberResult;
+      }
     }
-    else
-    {
-      return error();
-    }
+    return map;
   }
 
-  private Object parseMember( HashMap map )
+  private Object addNextMember( HashMap map )
   {
-    //TODO implement, parse the key and value, return the map if it is good, Error otherwise.
+    String key;
+    Object value;
+    nextToken();
+    if (match(RCURLY)) { return _currentToken; }
+    if (!match(STRING)) { return error(); }
+    key = _currentToken.getTokenValue();
+    nextToken();
+    if (!match(COLON)) { return error(); }
+    nextToken();
+    value = _currentToken.getTokenValue();
+    map.put(key, value);
     return map;
   }
 
   public Object parseArray()
   {
-    //TODO implement, parse the elements inline, return Error if any element is error
-    return new ArrayList();
+    ArrayList<Object> array = new ArrayList<>();
+
+    // step over left square bracket
+    nextToken();
+
+    // array contents
+    while (!match(RSQUARE)) {
+      if (match(ERROR) || match(EOF)) {
+        // Error or reach end of file prematurely
+        return error();
+      } else if (match(LSQUARE)) {
+        // sub-array, parse recursively
+        Object inArray = parseArray();
+        if (inArray instanceof Error) {
+          return inArray;
+        } else {
+          array.add(inArray);
+        }
+      } else if (!match(COMMA)) {
+        array.add(_currentToken.getTokenValue());
+      }
+      nextToken();
+    }
+
+    return array;
   }
 
   //=================================================================================
