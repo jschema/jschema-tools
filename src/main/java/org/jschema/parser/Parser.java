@@ -35,34 +35,52 @@ public class Parser
     }
   }
 
-  public Object parseValue()
-  {
-    if( match( LCURLY ) )
-    {
+  public Object parseValue() {
+    if (match(LCURLY)) {
       nextToken();
       return parseObject();
     }
 
     // parse arrays
-    if( match( LSQUARE ) )
-    {
+    if (match(LSQUARE)) {
       nextToken();
       return parseArray();
     }
 
     // parse literals (e.g. true, false, strings, numbers)
-    if( match( STRING ) )
-    {
+    if (match(STRING)) {
       String tokenValue = _currentToken.getTokenValue();
       nextToken();
       return tokenValue;
     }
 
-    //TODO implement other literals
+    if (match(TRUE)) {
+      nextToken();
+      return true;
+    }
 
+    if (match(FALSE)) {
+      nextToken();
+      return false;
+    }
+
+    if (match(NULL)) {
+      nextToken();
+      return null;
+    }
+
+    if (match(NUMBER)){
+      String tokenValue = _currentToken.getTokenValue();
+      nextToken();
+      if (tokenValue.indexOf('.') >= 0){
+        return Double.parseDouble(tokenValue);
+      }
+      else{
+        return Integer.parseInt(tokenValue);
+      }
+    }
     return error();
   }
-
   public Object parseObject()
   {
     //TODO implement, return a map of name/value pairs, and Error if an error is detected
