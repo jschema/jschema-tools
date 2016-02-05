@@ -5,3 +5,4 @@ jschema-tools.iml
 target
 *.class
 .DS_Store
+citylots.json
