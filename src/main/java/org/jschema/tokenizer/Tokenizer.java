@@ -14,6 +14,8 @@ public class Tokenizer
   private int _offset;
   private int _line;
   private int _column;
+    private Pattern patternString;
+    private Pattern patternNum;
 
   public Tokenizer(String string )
   {
@@ -32,6 +34,9 @@ public class Tokenizer
     _offset = 0;
     _line = 1;
     _column = 0;
+
+      String pattern ="^\"((\\\\[\"\\\\/\b\f\n\r\t]|(\\\\[u][0-9a-fA-F]{4}))|[^\"\\\\])*\"$";
+      patternString=Pattern.compile(pattern);
 
     while(moreChars()) {
       eatWhiteSpace(); // eat leading whitespace
@@ -86,8 +91,7 @@ public class Tokenizer
   private Token consumeString()
   {
       String tok=""; //for actual escaped token
-      String pattern ="^\"((\\\\[\"\\\\/\b\f\n\r\t]|(\\\\[u][0-9a-fA-F]{4}))|[^\"\\\\])*\"$";
-      Pattern r=Pattern.compile(pattern);
+
       String input=""; //for checking with regex
       int offset=0;
     //first make sure that string starts with quote
@@ -153,7 +157,7 @@ public class Tokenizer
               }
           }
           bumpOffset(offset);
-          Matcher m = r.matcher(input);
+          Matcher m = patternString.matcher(input);
           if (m.find()) {
               return newToken(STRING, tok.substring(1, tok.length() - 1));
           } else {

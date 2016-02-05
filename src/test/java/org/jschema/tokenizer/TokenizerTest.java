@@ -152,6 +152,10 @@ public class TokenizerTest
       tokens = tokenize( "\"how " +backSlash('"')+"are"+ backSlash('"')+" you?\"");
       assertTokensAre( tokens, token(STRING, "how \"are\" you?"));
 
+      //text with spaces and unmatched nested quotes
+      tokens = tokenize( "\"how " +backSlash('"')+"are"+" you?\"");
+      assertTokensAre( tokens, token(STRING, "how \"are you?"));
+
       //escape unicode with spaces
       tokens = tokenize( '"'+backSlash("u263A") +" "+backSlash("u263A") +'"');
       assertTokensAre( tokens, token(STRING, "\u263A \u263A"));
