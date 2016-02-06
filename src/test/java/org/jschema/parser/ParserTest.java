@@ -47,6 +47,9 @@ public class ParserTest
   public void testErrors() {
     assertTrue( parse( "}{" ) instanceof Error);
     //TODO add more
+    assertTrue( parse( "}}}}" ) instanceof Error);
+    assertTrue( parse( "}{}}{{" ) instanceof Error);
+    assertTrue( parse( "{}}{{" ) instanceof Error);
   }
 
 

@@ -4,6 +4,8 @@ import org.jschema.parser.Token.TokenType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.lang.*;
+import java.util.*;
 
 import static org.jschema.parser.Token.TokenType.*;
 
@@ -60,6 +62,40 @@ public class Parser
 
     //TODO implement other literals
 
+
+
+    if( match ( NUMBER ) ){
+      double tokenNumberValue = _currentToken.getTokenNumberValue();
+      if (!_currentToken.getTokenValue().contains(".")){             //if it's an integer
+       int temp = (int)(_currentToken.getTokenNumberValue());
+        nextToken();
+        return temp;
+      }
+      nextToken();
+      return tokenNumberValue;
+    }
+    
+    if( match ( TRUE )){
+      nextToken();
+      return true;
+    }
+
+    if( match ( FALSE )){
+      nextToken();
+      return false;
+    }
+
+    if( match ( NULL )){
+      nextToken();
+      return null;
+    }
+
+    if( match ( ERROR )){
+
+      nextToken();
+      return error();
+    }
+
     return error();
   }
 
@@ -72,11 +108,12 @@ public class Parser
     {
       nextToken();
       return map;
-    }
-    else
+    }else
     {
       return error();
     }
+
+
   }
 
   private Object parseMember( HashMap map )
@@ -88,7 +125,22 @@ public class Parser
   public Object parseArray()
   {
     //TODO implement, parse the elements inline, return Error if any element is error
-    return new ArrayList();
+
+    List<String> mylist = new ArrayList();
+    for(String s : mylist){
+      s = _currentToken.getTokenValue();
+      nextToken();
+      return '\"' + s + '\"';
+    }
+
+
+    if ( match( RSQUARE ) ){                                   //once it hits the end
+      nextToken();
+    }else{
+      return error();
+    }
+    //return new ArrayList();
+    return mylist;
   }
 
   //=================================================================================
