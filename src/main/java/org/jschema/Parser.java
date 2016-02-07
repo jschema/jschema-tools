@@ -1,6 +1,7 @@
 package org.jschema;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /*
@@ -40,75 +41,91 @@ public class Parser {
   }
 
   // jsonText = value.
-  public void parse() {
+  public Object parse() {
+    Object val = null;
     if(isValue()) {
-      parseValue();
+      val = parseValue();
     }
     else {
       addError();
     }
+    return val;
   }
 
   // array = "[" [ value { "," value } ] "]".
-  private void parseArray() {
+  private Object parseArray() {
+    ArrayList arr = new ArrayList();
     next();
     if(isValue()) {
-      parseValue();
+      arr.add(parseValue());
       while(T.getTokenType() == TokenType.COMMA) {
         next();
-        parseValue();
+        arr.add(parseValue());
       }
     }
     check(TokenType.RSQUARE, "]");
+    return arr;
   }
 
   // object = "{" [ member { "," member } ] "}".
-  private void parseObject() {
+  private Object parseObject() {
+    HashMap map = new HashMap();
     next();
     if(T.getTokenType() == TokenType.STRING) {
-      parseMember();
+      parseMember(map);
       while(T.getTokenType() == TokenType.COMMA) {
         next();
-        parseMember();
+        parseMember(map);
       }
     }
     check(TokenType.RCURLY, "}");
+    return map;
   }
 
   // member = string ":" value.
-  private void parseMember() {
+  private void parseMember(HashMap map) {
+    String key = T.getTokenValue();
     check(TokenType.STRING, "a string");
     check(TokenType.COLON, ":");
-    parseValue();
+    Object val = parseValue();
+    map.put(key, val);
   }
 
   // value = object | array | number | string | "true" | "false" | "null" .
-  private void parseValue() {
+  private Object parseValue() {
+    Object val;
     switch(T.getTokenType()) {
       case LCURLY:
-        parseObject();
+        val = parseObject();
         break;
       case LSQUARE:
-        parseArray();
+        val = parseArray();
         break;
       case NUMBER:
+        val = T.getTokenNumberValue();
         next();
         break;
       case STRING:
+        val = T.getTokenValue();
         next();
         break;
       case TRUE:
+        val = true;
         next();
         break;
       case FALSE:
+        val = false;
         next();
         break;
       case NULL:
+        val = null;
         next();
         break;
       default:
+        val = null;
         addError();
     }
+    return val;
   }
 
   private void addError() {
