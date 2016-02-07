@@ -222,6 +222,9 @@ public class TokenizerTest
     tokens = tokenize( "3.4a" );
     assertTokensAre( tokens, token(TokenType.NUMBER, "3.4"), token(TokenType.ERROR, "a"));
 
+    tokens = tokenize( "1.4ea" );
+    assertTokensAre( tokens, token(TokenType.ERROR, "1.4e"), token(TokenType.ERROR, "a"));
+
   }
 
   private Token numberToken(TokenType type, String value, double num) {

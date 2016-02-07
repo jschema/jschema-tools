@@ -87,6 +87,11 @@ public class Tokenizer {
   //  Tokenization type methods
   //========================================================================================
 
+  /*
+    string = '"' {char} '"'.
+    char = unescaped | "\" ('"' | "\" | "/" | "b" | "f" | "n" | "r" | "t" | "u" hex hex hex hex).
+    unescaped = any printable Unicode character except '"' or "\".
+  */
   private Token consumeString() {
     StringBuilder sb = new StringBuilder();
     Token T;
@@ -155,7 +160,14 @@ public class Tokenizer {
     return T;
   }
 
-  //needs to work for integers and decimals
+  /*
+    number = [ "-" ] int [ frac ] [ exp ].
+    exp = ("e" | "E") [ "-" | "+" ] digit {digit}.
+    frac = "." digit {digit}.
+    int = "0" |  digit19 {digit}.
+    digit = "0" | "1" | ... | "9".
+    digit19 = "1" | ... | "9".
+  */
   private Token consumeNumber() {
     StringBuilder sb = new StringBuilder();
     Token T;
@@ -201,6 +213,9 @@ public class Tokenizer {
         nextChar();
       }
       exp = consumeDigits(sb);
+      if(exp == -1) {
+        return newToken(TokenType.ERROR, sb.toString());
+      }
       if(negExp) {
         exp = -exp;
       }
