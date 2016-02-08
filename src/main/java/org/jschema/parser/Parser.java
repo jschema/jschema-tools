@@ -104,21 +104,40 @@ public class Parser
     //TODO implement, return a map of name/value pairs, and Error if an error is detected
     //                pass the map into parseMember to populate
     HashMap<String, Object> map = new HashMap<>();
-    if( match( RCURLY ) )
-    {
+
+
+    if( match( RCURLY ) ){
       nextToken();
       return map;
-    }else
-    {
+    }else{
       return error();
     }
-
 
   }
 
   private Object parseMember( HashMap map )
   {
     //TODO implement, parse the key and value, return the map if it is good, Error otherwise.
+    //key value pair
+
+    if( !match( STRING ) ){
+      return error();
+    }
+
+    String key = _currentToken.getTokenValue();
+    nextToken();
+
+    if( !match( COLON ) ){
+      return error();
+    }
+
+    Object value = _currentToken.getTokenValue();
+    nextToken();
+
+    if( match( RCURLY ) ){               //end is reached
+      return _currentToken;
+    }
+    map.put(key, value);
     return map;
   }
 
@@ -126,13 +145,18 @@ public class Parser
   {
     //TODO implement, parse the elements inline, return Error if any element is error
 
-    List<String> mylist = new ArrayList();
-    for(String s : mylist){
-      s = _currentToken.getTokenValue();
-      nextToken();
-      return '\"' + s + '\"';
-    }
+    List<Object> mylist = new ArrayList<>();
+    Object s;
 
+    while( !match( RSQUARE ) ) {
+      if (match( EOF ) || match( ERROR ) ){
+        return error();
+      }else if( !match( COMMA ) ){
+        s = _currentToken.getTokenValue();
+        mylist.add(s);
+      }
+      nextToken();                    //if matches comma, not eof and not error, nextToken.
+    }
 
     if ( match( RSQUARE ) ){                                   //once it hits the end
       nextToken();
