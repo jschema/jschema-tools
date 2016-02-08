@@ -65,7 +65,7 @@ public class Tokenizer {
         T = consumeConstant();
         break;
       case '\0':
-        T = new Token(TokenType.EOF, "EOF", line, column, 0.0);
+        T = new Token(TokenType.EOF, "EOF", line, column, 0, 0.0);
         source = "";
         break;
       default:
@@ -164,6 +164,7 @@ public class Tokenizer {
     int numFracDigit = 0;
     int exp = 0;
     boolean neg = false;
+    boolean isReal = false;
     if(ch == '-') {
       sb.append(ch);
       nextChar();
@@ -179,6 +180,7 @@ public class Tokenizer {
       nextChar();
     }
     if(ch == '.') {
+      isReal = true;
       sb.append(ch);
       nextChar();
       numFracDigit = sb.length();
@@ -189,6 +191,7 @@ public class Tokenizer {
       numFracDigit = sb.length() - numFracDigit;
     }
     if(ch == 'E' || ch == 'e') {
+      isReal = true;
       sb.append(ch);
       nextChar();
       boolean negExp = false;
@@ -208,17 +211,24 @@ public class Tokenizer {
         exp = -exp;
       }
     }
-    double doubleValue = num;
-    if(frac != 0) {
-      doubleValue += (frac * Math.pow(10, -numFracDigit));
+    if(isReal) {
+      double real = num;
+      if(frac != 0) {
+        real += (frac * Math.pow(10, -numFracDigit));
+      }
+      if(exp != 0) {
+        real = real * Math.pow(10, exp);
+      }
+      if(neg) {
+        real = -real;
+      }
+      T = new Token(TokenType.REAL, sb.toString(), line, column, 0, real);
+    } else {
+      if(neg) {
+        num = -num;
+      }
+      T = new Token(TokenType.INTEGER, sb.toString(), line, column, num, 0.0);
     }
-    if(exp != 0) {
-      doubleValue = doubleValue * Math.pow(10, exp);
-    }
-    if(neg) {
-      doubleValue = -doubleValue;
-    }
-    T = newNumberToken(TokenType.NUMBER, sb.toString(), doubleValue);
     return T;
   }
 
@@ -262,11 +272,7 @@ public class Tokenizer {
   }
 
   private Token newToken(TokenType type, String tokenValue) {
-    return new Token(type, tokenValue, line, column, 0);
-  }
-
-  private Token newNumberToken(TokenType type, String tokenValue, double num) {
-    return new Token(type, tokenValue, line, column, num);
+    return new Token(type, tokenValue, line, column, 0, 0.0);
   }
 
   private void eatWhiteSpace() {
@@ -281,9 +287,10 @@ public class Tokenizer {
       if(ch == '\n') {
         line++;
         column = 0;
+      } else {
+        column++;
       }
       i = i + 1;
-      column = column + 1;
     } else {
       ch = '\0';
     }

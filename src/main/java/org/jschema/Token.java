@@ -9,15 +9,17 @@ public class Token {
   private String string;
   private int line;
   private int column;
-  private double number;
+  private int integer;
+  private double real;
   static final Map<String, TokenType> constants = initializeConstants();
 
-  public Token(TokenType type, String string, int line, int column, double number) {
+  public Token(TokenType type, String string, int line, int column, int integer, double real) {
     this.type = type;
     this.string = string;
     this.line = line;
     this.column = column;
-    this.number = number;
+    this.integer = integer;
+    this.real = real;
   }
 
   private static Map<String, TokenType> initializeConstants() {
@@ -32,8 +34,12 @@ public class Token {
     return string;
   }
 
-  public double getNumber() {
-    return number;
+  public double getReal() {
+    return real;
+  }
+
+  public int getInteger() {
+    return integer;
   }
 
   public TokenType getType() {

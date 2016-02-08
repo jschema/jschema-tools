@@ -63,7 +63,7 @@ public class Parser {
         arr.add(parseValue());
       }
     }
-    check(TokenType.RSQUARE, "]");
+    checkAndSkip(TokenType.RSQUARE, "]");
     return arr;
   }
 
@@ -78,7 +78,7 @@ public class Parser {
         parseMember(map);
       }
     }
-    check(TokenType.RCURLY, "}");
+    checkAndSkip(TokenType.RCURLY, "}");
     return map;
   }
 
@@ -101,8 +101,12 @@ public class Parser {
       case LSQUARE:
         val = parseArray();
         break;
-      case NUMBER:
-        val = T.getNumber();
+      case INTEGER:
+        val = T.getInteger();
+        next();
+        break;
+      case REAL:
+        val = T.getReal();
         next();
         break;
       case STRING:
@@ -135,7 +139,18 @@ public class Parser {
 
   private void check(TokenType type, String s) {
     if(T.getType() != type) {
-      errors.add("[" + T.getLineNumber() + ":" + T.getColumn() + "] expecting '" + s + "', found '" + "'" + T.getString() + "'");
+      errors.add("[" + T.getLineNumber() + ":" + T.getColumn() + "] expecting '" + s + "', found '" + T.getString() + "'");
+    }
+    next();
+  }
+
+  private void checkAndSkip(TokenType type, String s) {
+    if(T.getType() != type) {
+      errors.add("[" + T.getLineNumber() + ":" + T.getColumn() + "] expecting '" + s + "', found '" + T.getString() + "'");
+      while(T.getType() != TokenType.EOF &&
+        T.getType() != type) {
+        next();
+      }
     }
     next();
   }
@@ -143,9 +158,9 @@ public class Parser {
   public boolean isValue() {
     TokenType type = T.getType();
     return type == TokenType.LCURLY || type == TokenType.LSQUARE ||
-      type == TokenType.NUMBER || type == TokenType.STRING ||
-      type == TokenType.TRUE || type == TokenType.FALSE ||
-      type == TokenType.NULL;
+      type == TokenType.INTEGER || type == TokenType.REAL ||
+      type == TokenType.STRING || type == TokenType.TRUE ||
+      type == TokenType.FALSE || type == TokenType.NULL;
   }
 
   public List<String> getErrors() {
