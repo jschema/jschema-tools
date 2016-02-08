@@ -105,6 +105,14 @@ public class Parser
     //                pass the map into parseMember to populate
     HashMap<String, Object> map = new HashMap<>();
 
+    while ( !match( RCURLY ) ){
+      if( match ( EOF ) || match ( ERROR ) ){
+        return error();
+      }
+      map = (HashMap<String, Object>) parseMember(map);
+
+      nextToken();
+    }
 
     if( match( RCURLY ) ){
       nextToken();
@@ -149,7 +157,7 @@ public class Parser
     Object s;
 
     while( !match( RSQUARE ) ) {
-      if (match( EOF ) || match( ERROR ) ){
+      if ( match( EOF ) || match( ERROR ) ){
         return error();
       }else if( !match( COMMA ) ){
         s = _currentToken.getTokenValue();
