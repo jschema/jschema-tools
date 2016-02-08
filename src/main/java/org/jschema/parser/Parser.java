@@ -86,12 +86,14 @@ public class Parser
     //TODO implement, return a map of name/value pairs, and Error if an error is detected
     //                pass the map into parseMember to populate
     HashMap<String, Object> map = new HashMap<>();
+    while(!match(RCURLY)){
+      parseMember(map);
+    }
     if( match( RCURLY ) )
     {
       nextToken();
       return map;
     }
-    else
     {
       return error();
     }
@@ -99,13 +101,24 @@ public class Parser
 
   private Object parseMember( HashMap map )
   {
-    //TODO implement, parse the key and value, return the map if it is good, Error otherwise.
-    return map;
+    if(match(STRING)){
+      String key = getValue();
+      nextToken();
+      if(!match(COLON)){
+        return error();
+      }
+      nextToken();
+      Object value = parseValue();
+      if(!(value instanceof Error)){
+        map.put(key, value);
+        return map;
+      }
+    }
+    return error();
   }
 
   public Object parseArray()
   {
-    //TODO implement, parse the elements inline, return Error if any element is error
     ArrayList arrayList = new ArrayList();
     while(!match(RSQUARE)){
       if(match(EOF)) {
