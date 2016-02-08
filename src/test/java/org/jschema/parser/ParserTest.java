@@ -21,13 +21,18 @@ public class ParserTest
     assertEquals( new HashMap(), parse( "{}" ) );
     HashMap map1 = new HashMap();
     map1.put( "foo", "bar" );
+      assertEquals( map1, parse( "{\"foo\":\"bar\"}" ) );
       HashMap map5=new HashMap();
     map5.put("bar","baz");
       ArrayList temp=new ArrayList();
       temp.add(map1);
       temp.add(map5);
-    System.out.println(map1.toString());
-    assertEquals( temp, parse( "[{\"foo\":\"bar\"},{\"bar\":\"baz\"}]" ) );
+      //array of objects
+      assertEquals( temp, parse( "[{\"foo\":\"bar\"},{\"bar\":\"baz\"}]" ) );
+      HashMap map7=new HashMap();
+      //object with object value
+      map7.put("nested",map1);
+      assertEquals(map7, parse( "{\"nested\":{\"foo\":\"bar\"}}" ));
     HashMap map2 = new HashMap();
       HashMap map3=new HashMap();
       ArrayList testArray=new ArrayList();
@@ -36,6 +41,7 @@ public class ParserTest
       testArray.add(3);
     map2.put( "foo2", testArray );
     assertEquals( map2, parse( "{\"foo2\":[1,2,3]}" ) );
+      //Array of array of objects and object
       HashMap map4=new HashMap();
       ArrayList testArray2=new ArrayList();
       testArray2.add(temp);
@@ -44,6 +50,11 @@ public class ParserTest
       System.out.println("crazy map is "+map4.toString());
       assertEquals( map4, parse( "{\"array\":[[{\"foo\":\"bar\"},{\"bar\":\"baz\"}],{\"foo2\":[1,2,3]}]}"));//,{\"bar\":\"baz\"},{\"foo\":[1,2,3]},{\"test\":{\"foo\":\"bar\"},{\"bar\":\"baz\"}}]" ) );
       //TODO add more
+      //object with object as value
+      HashMap map6=new HashMap();
+      map6.put("object",map2);
+      assertEquals(map6,parse("{\"object\":{\"foo2\":[1,2,3]}}"));
+
   }
 
   @Test
@@ -69,6 +80,11 @@ public class ParserTest
     nestArray.add(nest2);
     assertEquals(Arrays.asList(1,2,3), parse( "[1,2,3]" ) );
     assertEquals(nestArray, parse( "[[1,2,3],[4,5,6]]" ));
+      //assorted array
+      HashMap map1 = new HashMap();
+      map1.put( "foo", "bar" );
+      nestArray.add(map1);
+      assertEquals( nestArray, parse( "[[1,2,3],[4,5,6],{\"foo\":\"bar\"}]" ) );
     //TODO add more
   }
 

@@ -153,20 +153,14 @@ public class Parser
       //make sure it matches right curly brace
       //keep going if there is a comma
       while(!match(RCURLY)) {
-
           map = (HashMap<String, Object>) parseMember(map);
           System.out.println("map is "+map.toString());
-          /*if(match(LCURLY)) {
-              nextToken();
-              map = (HashMap<String, Object>) parseMember(map);
-          }else{
-              return error();
-          }*/
           if(!match(RCURLY)) {
               nextToken();
           }
       }
       nextToken();
+      System.out.println("next tok is "+_currentToken.getTokenValue());
       System.out.println("final map is "+map.toString());
       return map;
   }
@@ -192,8 +186,11 @@ public class Parser
           val=parseValue();
           System.out.println("val is "+val.toString());
           map.put(key,val);
+          System.out.print(map.toString());
 
       }
+      System.out.println("next tok is "+_currentToken.getTokenValue());
+
       //check that last curly brace matches
       if( match( RCURLY ) )
       {
