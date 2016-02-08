@@ -1,6 +1,7 @@
 package org.jschema.parser;
 
 import org.jschema.parser.Token.TokenType;
+import sun.org.mozilla.javascript.ast.WhileLoop;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ public class Parser
 
   public Object parseValue()
   {
+
     if( match( LCURLY ) )
     {
       nextToken();
@@ -49,6 +51,22 @@ public class Parser
       nextToken();
       return parseArray();
     }
+    if( match( TRUE ) )
+    {
+      nextToken();
+      return true;
+    }
+
+    if( match( FALSE ) )
+    {
+      nextToken();
+      return false;
+    }
+    if( match( NULL ) )
+    {
+      nextToken();
+      return null;
+    }
 
     // parse literals (e.g. true, false, strings, numbers)
     if( match( STRING ) )
@@ -57,9 +75,19 @@ public class Parser
       nextToken();
       return tokenValue;
     }
-
-    //TODO implement other literals
-
+    if( match( NUMBER ) )
+    {
+      String tokenValue = _currentToken.getTokenValue();
+      double tokenNum = _currentToken.getTokenNumberValue();
+      if(tokenNum % 1 == 0){
+        nextToken();
+        return Integer.parseInt(tokenValue);
+      }
+      else{
+        nextToken();
+        return tokenNum;
+      }
+    }
     return error();
   }
 
@@ -68,8 +96,19 @@ public class Parser
     //TODO implement, return a map of name/value pairs, and Error if an error is detected
     //                pass the map into parseMember to populate
     HashMap<String, Object> map = new HashMap<>();
-    if( match( RCURLY ) )
-    {
+    String key = "";
+    String obj = "";
+    if(match(STRING)){
+      key = _currentToken.getTokenValue();
+      nextToken();
+      if(match(COLON)){
+        nextToken();
+        obj = _currentToken.getTokenValue();
+        map.put(key, obj);
+        nextToken();
+      }
+    }
+    if (match(RCURLY)) {
       nextToken();
       return map;
     }
@@ -88,7 +127,17 @@ public class Parser
   public Object parseArray()
   {
     //TODO implement, parse the elements inline, return Error if any element is error
-    return new ArrayList();
+    ArrayList array = new ArrayList();
+
+    while(!match(EOF) && !match(RSQUARE)){
+      array.add(parseValue());
+      nextToken();
+    }
+    if (match(RSQUARE) || match(EOF)) {
+      nextToken();
+      return array;
+    }
+    return error();
   }
 
   //=================================================================================
