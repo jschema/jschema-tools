@@ -4,24 +4,20 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
-public class Token
-{
-  private TokenType _tokenType;
-  private String _value;
-  private int _lineNumber;
-  private int _column;
-  private int _offset;
-  private double _num;
+public class Token {
+  private TokenType type;
+  private String string;
+  private int line;
+  private int column;
+  private double number;
   static final Map<String, TokenType> constants = initializeConstants();
 
-  public Token( TokenType tokenType, String value, int lineNumber, int column, int offset, double num)
-  {
-    _tokenType = tokenType;
-    _value = value;
-    _lineNumber = lineNumber;
-    _column = column;
-    _offset = offset;
-    _num = num;
+  public Token(TokenType type, String string, int line, int column, double number) {
+    this.type = type;
+    this.string = string;
+    this.line = line;
+    this.column = column;
+    this.number = number;
   }
 
   private static Map<String, TokenType> initializeConstants() {
@@ -32,33 +28,28 @@ public class Token
     return Collections.unmodifiableMap(map);
   }
 
-  public String getTokenValue() {
-    return _value;
+  public String getString() {
+    return string;
   }
 
-  public double getTokenNumberValue() {
-    return _num;
+  public double getNumber() {
+    return number;
   }
 
-  public TokenType getTokenType() {
-    return _tokenType;
+  public TokenType getType() {
+    return type;
   }
 
   public int getLineNumber() {
-    return _lineNumber;
+    return line;
   }
 
   public int getColumn() {
-    return _column;
-  }
-
-  public int getOffset() {
-    return _offset;
+    return column;
   }
 
   @Override
-  public String toString()
-  {
-    return   "[" + _tokenType + "]" + _value + ":" + _offset;
+  public String toString() {
+    return "[" + type + "]" + string;
   }
 }

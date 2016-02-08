@@ -2,6 +2,7 @@ package org.jschema;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -228,7 +229,7 @@ public class TokenizerTest
   }
 
   private Token numberToken(TokenType type, String value, double num) {
-    return new Token( type, value, 0, 0, 0, num );
+    return new Token( type, value, 0, 0, num );
   }
 
   @Test
@@ -291,7 +292,7 @@ public class TokenizerTest
     }
     for( int i = 0; i < matches.length; i++ )
     {
-      assertTokenMatches( matches[i], tokens.get( i ) );
+      assertTokenMatches(matches[i], tokens.get(i));
     }
   }
   private void assertTokensAreNumbers( List<Token> tokens, Token... matches )
@@ -301,23 +302,19 @@ public class TokenizerTest
       fail("Did not find " + matches.length + " tokens: " + tokens);
     }
     for(int i = 0; i < matches.length; i++) {
-      assertEquals(matches[i].getTokenType(), tokens.get(i).getTokenType());
-      assertEquals(matches[i].getTokenValue(), tokens.get(i).getTokenValue());
-      assertEquals(matches[i].getTokenNumberValue(), tokens.get(i).getTokenNumberValue(), Double.MIN_VALUE);
+      assertEquals(matches[i].getType(), tokens.get(i).getType());
+      assertEquals(matches[i].getString(), tokens.get(i).getString());
+      assertEquals(matches[i].getNumber(), tokens.get(i).getNumber(), Double.MIN_VALUE);
     }
   }
 
   private void assertTokenMatches( Token match, Token token) {
-    assertEquals(match.getTokenType(), token.getTokenType());
-    if( match.getTokenValue() != null ) {
-      assertEquals(match.getTokenValue(), token.getTokenValue());
+    assertEquals(match.getType(), token.getType());
+    if( match.getString() != null ) {
+      assertEquals(match.getString(), token.getString());
     }
     if( match.getLineNumber() > 0) {
       assertEquals(match.getLineNumber(), token.getLineNumber());
-    }
-    if( match.getOffset() > 0 )
-    {
-      assertEquals(match.getOffset(), token.getOffset());
     }
     if( match.getColumn() > 0 )
     {
@@ -325,34 +322,31 @@ public class TokenizerTest
     }
   }
 
-  private Token token(TokenType type)
-  {
-    return token( type, null );
-  }
-
   private Token token(TokenType type, String value)
   {
     return token( type, value, -1);
   }
 
-  private Token token(TokenType type, String value, int offset)
+  private Token token(TokenType type, String value, int line)
   {
-    return token( type, value, offset, -1);
+    return token( type, value, line, -1);
   }
 
-  private Token token(TokenType type, String value, int offset, int line)
+  private Token token(TokenType type, String value, int line, int col)
   {
-    return token( type, value, offset, line, -1);
-  }
-
-  private Token token(TokenType type, String value, int offset, int line, int col)
-  {
-    return new Token( type, value, line, col, offset, 0 );
+    return new Token( type, value, line, col, 0 );
   }
 
   private List<Token> tokenize( String str )
   {
-    return new Tokenizer( str ).tokenize();
+    Tokenizer tokenizer = new Tokenizer(str);
+    ArrayList<Token> list = new ArrayList<Token>();
+    Token token = tokenizer.next();
+    while(token.getType() != TokenType.EOF) {
+      list.add(token);
+      token = tokenizer.next();
+    }
+    return list;
   }
 
   private String backSlash( char s )

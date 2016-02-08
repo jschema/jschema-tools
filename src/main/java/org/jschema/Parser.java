@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /*
+  http://tools.ietf.org/html/rfc7159
+
   jsonText = value.
   object = "{" [ member { "," member } ] "}".
   member = string ":" value.
@@ -29,7 +31,6 @@ public class Parser {
   private List<String> errors;
 
 
-
   public Parser(Tokenizer tokenizer) {
     this.tokenizer = tokenizer;
     errors = new ArrayList<String>();
@@ -45,8 +46,7 @@ public class Parser {
     Object val = null;
     if(isValue()) {
       val = parseValue();
-    }
-    else {
+    } else {
       addError();
     }
     return val;
@@ -58,7 +58,7 @@ public class Parser {
     next();
     if(isValue()) {
       arr.add(parseValue());
-      while(T.getTokenType() == TokenType.COMMA) {
+      while(T.getType() == TokenType.COMMA) {
         next();
         arr.add(parseValue());
       }
@@ -71,9 +71,9 @@ public class Parser {
   private Object parseObject() {
     HashMap map = new HashMap();
     next();
-    if(T.getTokenType() == TokenType.STRING) {
+    if(T.getType() == TokenType.STRING) {
       parseMember(map);
-      while(T.getTokenType() == TokenType.COMMA) {
+      while(T.getType() == TokenType.COMMA) {
         next();
         parseMember(map);
       }
@@ -84,7 +84,7 @@ public class Parser {
 
   // member = string ":" value.
   private void parseMember(HashMap map) {
-    String key = T.getTokenValue();
+    String key = T.getString();
     check(TokenType.STRING, "a string");
     check(TokenType.COLON, ":");
     Object val = parseValue();
@@ -94,7 +94,7 @@ public class Parser {
   // value = object | array | number | string | "true" | "false" | "null" .
   private Object parseValue() {
     Object val;
-    switch(T.getTokenType()) {
+    switch(T.getType()) {
       case LCURLY:
         val = parseObject();
         break;
@@ -102,11 +102,11 @@ public class Parser {
         val = parseArray();
         break;
       case NUMBER:
-        val = T.getTokenNumberValue();
+        val = T.getNumber();
         next();
         break;
       case STRING:
-        val = T.getTokenValue();
+        val = T.getString();
         next();
         break;
       case TRUE:
@@ -129,23 +129,23 @@ public class Parser {
   }
 
   private void addError() {
-    errors.add("[" + T.getLineNumber() + ":" + T.getColumn() + "] Unexpected token '" + T.getTokenValue() + "'");
+    errors.add("[" + T.getLineNumber() + ":" + T.getColumn() + "] Unexpected token '" + T.getString() + "'");
     next();
   }
 
   private void check(TokenType type, String s) {
-    if(T.getTokenType() != type) {
-      errors.add("[" + T.getLineNumber() + ":" +  T.getColumn() + "] expecting '" + s + "', found '" + "'" + T.getTokenValue() + "'");
+    if(T.getType() != type) {
+      errors.add("[" + T.getLineNumber() + ":" + T.getColumn() + "] expecting '" + s + "', found '" + "'" + T.getString() + "'");
     }
     next();
   }
 
   public boolean isValue() {
-    TokenType type = T.getTokenType();
+    TokenType type = T.getType();
     return type == TokenType.LCURLY || type == TokenType.LSQUARE ||
-           type == TokenType.NUMBER || type == TokenType.STRING ||
-           type == TokenType.TRUE || type == TokenType.FALSE ||
-           type == TokenType.NULL;
+      type == TokenType.NUMBER || type == TokenType.STRING ||
+      type == TokenType.TRUE || type == TokenType.FALSE ||
+      type == TokenType.NULL;
   }
 
   public List<String> getErrors() {

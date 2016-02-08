@@ -1,30 +1,23 @@
 package org.jschema;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Tokenizer {
-  private String _string;
-  private int _offset;
-  private int _line;
-  private int _column;
+  private String source;
+  private int i;
+  private int line;
+  private int column;
   private char ch;
 
-  public Tokenizer(String string) {
-    _string = string;
-    _offset = 0;
-    _line = 1;
-    _column = 0;
+  public Tokenizer(String source) {
+    this.source = source;
+    i = 0;
+    line = 1;
+    column = 0;
     nextChar();
   }
 
-  //========================================================================================
-  //  Main tokenization loop
-  //========================================================================================
-
   public Token next() {
     Token T;
-    eatWhiteSpace(); // eat leading whitespace
+    eatWhiteSpace();
     switch(ch) {
       case '"':
         T = consumeString();
@@ -72,20 +65,15 @@ public class Tokenizer {
         T = consumeConstant();
         break;
       case '\0':
-        T = new Token(TokenType.EOF, "EOF", _line, _column, _offset, 0.0);
-        _string = "";
+        T = new Token(TokenType.EOF, "EOF", line, column, 0.0);
+        source = "";
         break;
       default:
-        // unrecognized token
         T = newToken(TokenType.ERROR, String.valueOf(ch));
         nextChar();
     }
     return T;
   }
-
-  //========================================================================================
-  //  Tokenization type methods
-  //========================================================================================
 
   /*
     string = '"' {char} '"'.
@@ -273,35 +261,29 @@ public class Tokenizer {
     return T;
   }
 
-  //========================================================================================
-  //  Utility methods
-  //========================================================================================
-
   private Token newToken(TokenType type, String tokenValue) {
-    return new Token(type, tokenValue, _line, _column, _offset + 1, 0);
+    return new Token(type, tokenValue, line, column, 0);
   }
 
   private Token newNumberToken(TokenType type, String tokenValue, double num) {
-    return new Token(type, tokenValue, _line, _column, _offset + 1, num);
+    return new Token(type, tokenValue, line, column, num);
   }
 
   private void eatWhiteSpace() {
-    //while there exists more characters and the current character is white space
     while(moreChars() && (ch == '\t' || ch == '\n' || ch == '\r' || ch == ' ')) {
       nextChar();
     }
   }
 
   private void nextChar() {
-    if(_offset < _string.length()) {
-      ch = _string.charAt(_offset);
-      if(ch == '\n') // if we are at a newline character, bump the line number and reset the column
-      {
-        _line++;
-        _column = 0;
+    if(i < source.length()) {
+      ch = source.charAt(i);
+      if(ch == '\n') {
+        line++;
+        column = 0;
       }
-      _offset = _offset + 1; // bump offset
-      _column = _column + 1; // bump column
+      i = i + 1;
+      column = column + 1;
     } else {
       ch = '\0';
     }
@@ -309,15 +291,5 @@ public class Tokenizer {
 
   private boolean moreChars() {
     return ch != '\0';
-  }
-
-  public List<Token> tokenize() {
-    ArrayList<Token> list = new ArrayList<Token>();
-    Token token = next();
-    while(token.getTokenType() != TokenType.EOF) {
-      list.add(token);
-      token = next();
-    }
-    return list;
   }
 }
