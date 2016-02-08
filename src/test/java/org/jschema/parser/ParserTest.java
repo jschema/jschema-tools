@@ -47,7 +47,6 @@ public class ParserTest
       testArray2.add(temp);
       testArray2.add(map2);
       map4.put("array",testArray2);
-      System.out.println("crazy map is "+map4.toString());
       assertEquals( map4, parse( "{\"array\":[[{\"foo\":\"bar\"},{\"bar\":\"baz\"}],{\"foo2\":[1,2,3]}]}"));//,{\"bar\":\"baz\"},{\"foo\":[1,2,3]},{\"test\":{\"foo\":\"bar\"},{\"bar\":\"baz\"}}]" ) );
       //TODO add more
       //object with object as value
@@ -103,7 +102,10 @@ public class ParserTest
   @Test
   public void testErrors() {
     assertTrue( parse( "}{" ) instanceof Error);
-    //TODO add more
+      assertTrue (parse("][") instanceof Error);
+      //assertTrue( parse( "{" ) instanceof Error);
+
+      //TODO add more
   }
 
 

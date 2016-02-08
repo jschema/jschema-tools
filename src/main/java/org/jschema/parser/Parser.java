@@ -51,7 +51,6 @@ public class Parser
       // parse arrays
       if( match( RSQUARE ) )
       {
-          System.out.println("test");
           return _currentToken.getTokenValue();
       }
 
@@ -109,34 +108,7 @@ public class Parser
     return error();
   }
 
-  /*public Object parseObject()
-  {
-    //TODO implement, return a map of name/value pairs, and Error if an error is detected
-    //                pass the map into parseMember to populate
-      HashMap<String, Object> map = new HashMap<>();
-      //for empty object
-      if( match( RCURLY ) )
-      {
-          nextToken();
-          return map;
-      }
-      map=(HashMap<String, Object>) parseMember(map);
-      System.out.println("map is "+map.toString());
-      System.out.println("current token is "+_currentToken.getTokenValue());
-      //make sure it matches right curly brace
-      //keep going if there is a comma
-      while(!match(RCURLY)) {
-          nextToken();
-          if(match(LCURLY)) {
-              nextToken();
-              map = (HashMap<String, Object>) parseMember(map);
-          }else{
-              return error();
-          }
-      }
-      System.out.println("final map is "+map.toString());
-    return map;
-  }*/
+
   public Object parseObject()
   {
       //TODO implement, return a map of name/value pairs, and Error if an error is detected
@@ -148,30 +120,24 @@ public class Parser
           nextToken();
           return map;
       }
-     // map=(HashMap<String, Object>) parseMember(map);
-      //System.out.println("current token is "+_currentToken.getTokenValue());
+
       //make sure it matches right curly brace
       //keep going if there is a comma
-      while(!match(RCURLY)) {
+      while(!match(RCURLY) && !match(EOF)) {
           map = (HashMap<String, Object>) parseMember(map);
-          System.out.println("map is "+map.toString());
           if(!match(RCURLY)) {
               nextToken();
           }
       }
       nextToken();
-      System.out.println("next tok is "+_currentToken.getTokenValue());
-      System.out.println("final map is "+map.toString());
       return map;
   }
 
   private Object parseMember( HashMap map )
   {
-      System.out.println(_currentToken.getTokenValue());
 
       //get the key
       String key=_currentToken.getTokenValue();
-      System.out.println("key is "+key);
       Object val;
       //now check that colon is separator
       nextToken();
@@ -182,20 +148,15 @@ public class Parser
       }else{
           //now get value
           nextToken();
-          System.out.println("next tok is "+_currentToken.getTokenValue());
           val=parseValue();
-          System.out.println("val is "+val.toString());
           map.put(key,val);
-          System.out.print(map.toString());
 
       }
-      System.out.println("next tok is "+_currentToken.getTokenValue());
 
       //check that last curly brace matches
       if( match( RCURLY ) )
       {
           //nextToken();
-          System.out.println("map is now"+map.toString());
           return map;
       }
       else
@@ -216,11 +177,9 @@ public class Parser
       }
 
       while (!match(RSQUARE)) {
-          System.out.println("in parse array "+_currentToken.getTokenValue());
           try {
               //first get item
               Object val=parseValue();
-              System.out.println("value returned is "+val.toString());
 
               //if not comma, add to list since
               if(!val.equals(",")){
@@ -251,7 +210,6 @@ public class Parser
           //TODO implement, parse the elements inline, return Error if any element is error
       }
       nextToken();
-      System.out.println("array is "+list.toString());
       return list;
   }
 
