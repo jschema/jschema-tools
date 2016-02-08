@@ -83,7 +83,7 @@ public class Parser
   }
   public Object parseObject()
   {
-    HashMap<String, Object> map = new HashMap<>();
+    HashMap<String, Object> map = new HashMap<String, Object>();
     while(!match(RCURLY)){
       if(parseMember(map) instanceof Error || match(EOF)){
         return error();
@@ -124,14 +124,11 @@ public class Parser
       if(match(EOF)) {
         return error();
       }
-      if(match(LSQUARE)){
-        nextToken();
-        arrayList.add(parseArray());
+      Object value = parseValue();
+      if((value instanceof Error)){
+        return error();
       }
-      else {
-        arrayList.add(getValue());
-        nextToken();
-      }
+      arrayList.add(value);
       if(match(RSQUARE)){
         break;
       }

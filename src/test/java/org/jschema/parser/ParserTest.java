@@ -57,7 +57,7 @@ public class ParserTest
     assertTrue( parse("[[]") instanceof Error);
     assertTrue( parse("[\"foo\"") instanceof Error);
     assertTrue( parse("[\"foo\",]") instanceof Error);
-    //assertTrue( parse("[,]") instanceof Error);
+    assertTrue( parse("[,]") instanceof Error);
   }
 
 
