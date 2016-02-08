@@ -83,11 +83,11 @@ public class Parser
   }
   public Object parseObject()
   {
-    //TODO implement, return a map of name/value pairs, and Error if an error is detected
-    //                pass the map into parseMember to populate
     HashMap<String, Object> map = new HashMap<>();
     while(!match(RCURLY)){
-      parseMember(map);
+      if(parseMember(map) instanceof Error || match(EOF)){
+        return error();
+      }
     }
     if( match( RCURLY ) )
     {

@@ -47,13 +47,17 @@ public class ParserTest
 
   @Test
   public void testErrors() {
+    // object
     assertTrue( parse( "}{" ) instanceof Error);
+    assertTrue( parse( "{\"foo\" : 1") instanceof Error);
+    assertTrue( parse( "{\"foo\" : 1, \"bar\" : 3,}") instanceof Error);
+    assertTrue( parse( "{[}") instanceof Error);
     // array
     assertTrue( parse("[") instanceof Error);
     assertTrue( parse("[[]") instanceof Error);
     assertTrue( parse("[\"foo\"") instanceof Error);
     assertTrue( parse("[\"foo\",]") instanceof Error);
-    //TODO add more
+    //assertTrue( parse("[,]") instanceof Error);
   }
 
 
