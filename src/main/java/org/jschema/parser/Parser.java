@@ -49,7 +49,7 @@ public class Parser
 
     // parse literals (e.g. true, false, strings, numbers)
     if (match(STRING)) {
-      String tokenValue = _currentToken.getTokenValue();
+      String tokenValue = getValue();
       nextToken();
       return tokenValue;
     }
@@ -70,7 +70,7 @@ public class Parser
     }
 
     if (match(NUMBER)){
-      String tokenValue = _currentToken.getTokenValue();
+      String tokenValue = getValue();
       nextToken();
       if (tokenValue.indexOf('.') >= 0){
         return Double.parseDouble(tokenValue);
@@ -106,7 +106,32 @@ public class Parser
   public Object parseArray()
   {
     //TODO implement, parse the elements inline, return Error if any element is error
-    return new ArrayList();
+    ArrayList arrayList = new ArrayList();
+    while(!match(RSQUARE)){
+      if(match(EOF)) {
+        return error();
+      }
+      if(match(LSQUARE)){
+        nextToken();
+        arrayList.add(parseArray());
+      }
+      else {
+        arrayList.add(getValue());
+        nextToken();
+      }
+      if(match(RSQUARE)){
+        break;
+      }
+      if(!match(COMMA) || match(EOF)){
+        return error();
+      }
+      nextToken();
+      if(match(RSQUARE)){
+        return error();
+      }
+    }
+    nextToken();
+    return arrayList;
   }
 
   //=================================================================================
@@ -120,6 +145,10 @@ public class Parser
   private boolean match( TokenType type )
   {
     return _currentToken.getTokenType() == type;
+  }
+
+  private String getValue(){
+    return _currentToken.getTokenValue();
   }
 
   private Error error()

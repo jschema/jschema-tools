@@ -27,7 +27,10 @@ public class ParserTest
   public void testParseArray()
   {
     assertEquals( new ArrayList(), parse( "[]" ) );
+    assertEquals( Arrays.asList(new ArrayList()), parse("[[]]"));
     assertEquals( Arrays.asList( "foo", "bar" ), parse( "[\"foo\", \"bar\"]" ) );
+    assertEquals( Arrays.asList( "foo", Arrays.asList("baz", "qux") ), parse( "[\"foo\", [\"baz\", \"qux\"]]" ) );
+    assertEquals( Arrays.asList( "foo", Arrays.asList("baz", "qux"), "bar" ), parse( "[\"foo\", [\"baz\", \"qux\"], \"bar\"]" ) );
     //TODO add more
   }
 
@@ -46,6 +49,11 @@ public class ParserTest
   @Test
   public void testErrors() {
     assertTrue( parse( "}{" ) instanceof Error);
+    // array
+    assertTrue( parse("[") instanceof Error);
+    assertTrue( parse("[[]") instanceof Error);
+    assertTrue( parse("[\"foo\"") instanceof Error);
+    assertTrue( parse("[\"foo\",]") instanceof Error);
     //TODO add more
   }
 
