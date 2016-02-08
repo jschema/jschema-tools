@@ -85,18 +85,25 @@ public class Parser
   {
     HashMap<String, Object> map = new HashMap<String, Object>();
     while(!match(RCURLY)){
-      if(parseMember(map) instanceof Error || match(EOF)){
+      if(parseMember(map) instanceof Error){
+        return error();
+      }
+      if(match(RCURLY)){
+        break;
+      }
+      if(!match(COMMA) || match(EOF)){
+        return error();
+      }
+      nextToken();
+      if(match(RCURLY)){
         return error();
       }
     }
-    if( match( RCURLY ) )
-    {
+    if(match(RCURLY)){
       nextToken();
       return map;
     }
-    {
-      return error();
-    }
+    return error();
   }
 
   private Object parseMember( HashMap map )

@@ -20,7 +20,8 @@ public class ParserTest
     HashMap map1 = new HashMap();
     map1.put( "foo", "bar" );
     assertEquals( map1, parse( "{\"foo\":\"bar\"}" ) );
-    //TODO add more
+    map1.put("baz", new HashMap());
+    assertEquals( map1, parse( "{\"foo\":\"bar\", \"baz\":{}}" ) );
   }
 
   @Test
