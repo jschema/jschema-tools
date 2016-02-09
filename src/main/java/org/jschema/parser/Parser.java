@@ -85,13 +85,15 @@ public class Parser
       }
       if (match (NULL)){
           nextToken();
+          System.out.println("here");
           return null;
       }
 
       if (match(NUMBER)){
           double num=_currentToken.getTokenNumberValue();
+          System.out.println(num);
           //check if is an int
-          if(num % 1==0 && !_currentToken.getTokenValue().contains(".")){
+          if(!(_currentToken.getTokenValue().contains(".") ||_currentToken.getTokenValue().contains("e")||_currentToken.getTokenValue().contains("E"))){
               nextToken();
               return ((int)num);
           }
@@ -120,16 +122,22 @@ public class Parser
           nextToken();
           return map;
       }
-
+        int rBrace=0;
       //make sure it matches right curly brace
       //keep going if there is a comma
       while(!match(RCURLY) && !match(EOF)) {
           map = (HashMap<String, Object>) parseMember(map);
-          if(!match(RCURLY)) {
+          if(!match(RCURLY) || match(COMMA)) {
               nextToken();
+          }
+          if(match(RCURLY)){
+              rBrace=1;
           }
       }
       nextToken();
+      if(rBrace!=1){
+          return error();
+      }
       return map;
   }
 
@@ -138,6 +146,7 @@ public class Parser
 
       //get the key
       String key=_currentToken.getTokenValue();
+      System.out.println("key is"+key);
       Object val;
       //now check that colon is separator
       nextToken();
@@ -149,14 +158,15 @@ public class Parser
           //now get value
           nextToken();
           val=parseValue();
+          System.out.println("val added is"+val);
           map.put(key,val);
 
       }
 
-      //check that last curly brace matches
-      if( match( RCURLY ) )
-      {
-          //nextToken();
+      if (match(COMMA)){
+          nextToken();
+          return parseMember(map);
+      } else if (match (RCURLY)){
           return map;
       }
       else
@@ -175,18 +185,20 @@ public class Parser
           nextToken();
           return list;
       }
-
-      while (!match(RSQUARE)) {
+      int rBrace=0;
+      while (!match(RSQUARE) && !match(EOF)) {
           try {
               //first get item
               Object val=parseValue();
-
+                System.out.println("val is"+val);
               //if not comma, add to list since
-              if(!val.equals(",")){
+              if(val==null || !val.equals(",")){
+                  System.out.println("adding");
                   list.add(val);
               }else{
                   //return error if not valid, already on next token
                   //so don't need to switch index
+                  System.out.println("error");
                   error();
                   return new ArrayList();
               }
@@ -202,14 +214,23 @@ public class Parser
               if(match(COMMA)) {
                   nextToken();
               }
+              if(match(RSQUARE)){
+                  System.out.println("here");
+                  rBrace=1;
+              }
           }catch (Exception e){
               error();
+              System.out.println("error");
               nextToken();
               return list;
           }
+
           //TODO implement, parse the elements inline, return Error if any element is error
       }
       nextToken();
+      if(rBrace!=1){
+          return error();
+      }
       return list;
   }
 
