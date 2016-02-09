@@ -1,6 +1,6 @@
 package org.jschema;
 
-public class Tokenizer {
+public final class Tokenizer {
   private String source;
   private int i;
   private int line;

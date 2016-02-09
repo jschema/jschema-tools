@@ -4,13 +4,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
-public class Token {
-  private TokenType type;
-  private String string;
-  private int line;
-  private int column;
-  private int integer;
-  private double real;
+public final class Token {
+  private final TokenType type;
+  private final String string;
+  private final int line;
+  private final int column;
+  private final int integer;
+  private final double real;
   static final Map<String, TokenType> constants = initializeConstants();
 
   public Token(TokenType type, String string, int line, int column, int integer, double real) {

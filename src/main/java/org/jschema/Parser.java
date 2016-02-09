@@ -25,10 +25,10 @@ import java.util.List;
   ws =  { " " | "\t" | "\n" | "\r" }.
  */
 
-public class Parser {
+public final class Parser {
   private final Tokenizer tokenizer;
   private Token T;
-  private List<String> errors;
+  private final List<String> errors;
 
 
   public Parser(Tokenizer tokenizer) {
