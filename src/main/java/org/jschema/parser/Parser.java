@@ -72,7 +72,7 @@ public class Parser
     if (match(NUMBER)){
       String tokenValue = getValue();
       nextToken();
-      if (tokenValue.indexOf('.') >= 0){
+      if (tokenValue.indexOf('.') >= 0 || tokenValue.toLowerCase().indexOf('e') >= 0){
         return Double.parseDouble(tokenValue);
       }
       else{
