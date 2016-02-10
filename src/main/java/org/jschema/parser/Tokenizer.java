@@ -203,6 +203,9 @@ public class Tokenizer {
         nextChar();
       }
       exp = consumeDigits(sb);
+      if(exp == -1){
+        return errorToken(sb.toString());
+      }
       if(negExp) {
         exp = -exp;
       }
