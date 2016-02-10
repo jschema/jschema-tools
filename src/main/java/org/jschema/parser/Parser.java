@@ -110,13 +110,34 @@ public class Parser
     //TODO implement, return a map of name/value pairs, and Error if an error is detected
     //                pass the map into parseMember to populate
     HashMap<String, Object> map = new HashMap<>();
+    String key;
+    Object val;
 
     while ( !match( RCURLY ) ){
-      if( match ( EOF ) || match ( ERROR ) ){
-        return error();
+
+      if( match( STRING ) ){
+        key = (String) parseValue();
+
+        if( match( COLON ) ){
+          nextToken();
+          if( match( RSQUARE ) || match( RCURLY ) ||
+                  match( EOF ) || match( ERROR ) ||
+                  match( COMMA ) || match( COLON ) ){
+            return error();
+          }
+          val = parseValue();
+          map.put(key, val);
+
+        }else{
+          return error();                   //if colon is not found, return error.
+        }
+      }else{
+        return error();                     //if string is not found, return error.
       }
-      map = (HashMap<String, Object>) parseMember(map);
-      nextToken();
+
+      if( match( COMMA ) ){
+        nextToken();
+      }
     }
 
     if( match( RCURLY ) ){
@@ -163,15 +184,21 @@ public class Parser
     Object s;
 
     while( !match( RSQUARE ) ) {
-      if ( match( EOF ) || match( ERROR ) ){
+
+      if ( match( RCURLY ) || match( EOF ) || match( ERROR ) ||
+             match( COLON ) || match( COMMA )){
         return error();
-      }else if( !match( COMMA ) ){
-        s = _currentToken.getTokenValue();
-        mylist.add(s);
       }else{
-        nextToken();
+        //s = _currentToken.getTokenValue();
+        s = parseValue();
+        mylist.add(s);
+        if( match( COMMA ) ){
+          nextToken();
+          if( match( RSQUARE ) ){
+            return error();
+          }
+        }
       }
-      nextToken();                    //if matches comma, not eof and not error, nextToken.
     }
 
     if ( match( RSQUARE ) ){                                   //once it hits the end
