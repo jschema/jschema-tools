@@ -56,24 +56,31 @@ public class Parser
     if( match( STRING ) )
     {
       String tokenValue = _currentToken.getTokenValue();
-      nextToken();
-      return tokenValue;
+        nextToken();
+        return tokenValue;
     }
 
     //TODO implement other literals
-
-
+    
 
     if( match ( NUMBER ) ){
       double tokenNumberValue = _currentToken.getTokenNumberValue();
-      if (!_currentToken.getTokenValue().contains(".")){             //if it's an integer
-       int temp = (int)(_currentToken.getTokenNumberValue());
-        nextToken();
-        return temp;
+
+      if (!_currentToken.getTokenValue().contains(".")) {             //if it's an integer
+        if( _currentToken.getTokenValue().contains("e") ||
+                _currentToken.getTokenValue().contains("E")){
+          nextToken();
+          return tokenNumberValue;
+        }
+          int temp = (int) (_currentToken.getTokenNumberValue());
+          nextToken();
+          return temp;
       }
       nextToken();
       return tokenNumberValue;
     }
+
+
     
     if( match ( TRUE )){
       nextToken();
@@ -110,7 +117,6 @@ public class Parser
         return error();
       }
       map = (HashMap<String, Object>) parseMember(map);
-
       nextToken();
     }
 
