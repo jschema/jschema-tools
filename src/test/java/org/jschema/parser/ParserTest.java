@@ -77,9 +77,14 @@ public class ParserTest {
 
     @Test
     public void testParseArray() {
-        assertEquals(new ArrayList(), parse("[]"));
-        assertEquals(Arrays.asList("foo", "bar"), parse("[\"foo\", \"bar\"]"));
-        int[][] nestedArray = {{1, 2, 3}, {4, 5, 6}};
+        //simple array
+        assertEquals(list("foo"), parse("[\"foo\"]"));
+        assertEquals(list("foo", "bar"), parse("[\"foo\", \"bar\"]"));
+
+        //empty array
+        assertEquals(list(), parse("[]"));
+
+        //nested array
         ArrayList nestArray = new ArrayList();
         ArrayList nest1 = new ArrayList();
         nest1.add(1);
@@ -93,14 +98,14 @@ public class ParserTest {
         nestArray.add(nest2);
         assertEquals(Arrays.asList(1, 2, 3), parse("[1,2,3]"));
         assertEquals(nestArray, parse("[[1,2,3],[4,5,6]]"));
-        //assorted array
+
+        //assorted array with object and array
         HashMap map1 = new HashMap();
         map1.put("foo", "bar");
         nestArray.add(map1);
         assertEquals(nestArray, parse("[[1,2,3],[4,5,6],{\"foo\":\"bar\"}]"));
-        assertEquals(list(), parse("[]"));
-        assertEquals(list("foo"), parse("[\"foo\"]"));
-        assertEquals(list("foo", "bar"), parse("[\"foo\", \"bar\"]"));
+
+        //complex array
         assertEquals(list("string", 1, 1.1, map("foo", "bar"), list("doh"), true, false, null),
                 parse("[\"string\", 1, 1.1, {\"foo\" : \"bar\"}, [\"doh\"], true, false, null]"));
     }
