@@ -8,12 +8,12 @@ import java.util.HashMap;
 
 import static org.jschema.parser.Token.TokenType.*;
 
-public class Parser {
+public class MyParser {
 
     private final Tokenizer _tokenizer;
     private Token _currentToken;
 
-    public Parser( String src ){
+    public MyParser( String src ){
         _tokenizer = new Tokenizer( src );
         nextToken();
     }
@@ -25,10 +25,10 @@ public class Parser {
     public Object parse() {
         Object value = parseValue();
         if( match( EOF ) ) {
-          return value;
+            return value;
         }
         else {
-          return error();
+            return error();
         }
     }
 
@@ -90,7 +90,7 @@ public class Parser {
         }
 
         //TODO implement other literals
-            return error();
+        return error();
     }
 
     public Object parseObject()
