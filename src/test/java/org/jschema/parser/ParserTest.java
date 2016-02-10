@@ -32,7 +32,7 @@ public class ParserTest
 
     // complex single
     assertEquals( map("foo", map( "foo", "bar" )), parse( "{\"foo\" : {\"foo\":\"bar\"}}" ) );
-    assertEquals( map("foo", list( "foo", "bar" )), parse( "{\"foo\" : [\"foo\", \"bar\"}]" ) );
+    assertEquals( map("foo", list( "foo", "bar" )), parse( "{\"foo\" : [\"foo\", \"bar\"]}" ) );
 
     // simple multi
     assertEquals( map( "foo", "bar", "doh", "rey" ), parse( "{\"foo\":\"bar\", \"doh\":\"rey\"}" ) );
