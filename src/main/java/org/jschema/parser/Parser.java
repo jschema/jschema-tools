@@ -37,6 +37,7 @@ public class Parser
     }
   }
 
+
   public Object parseValue()
   {
     if( match( LCURLY ) )
@@ -61,7 +62,6 @@ public class Parser
     }
 
     //TODO implement other literals
-    
 
     if( match ( NUMBER ) ){
       double tokenNumberValue = _currentToken.getTokenNumberValue();
@@ -79,8 +79,6 @@ public class Parser
       nextToken();
       return tokenNumberValue;
     }
-
-
     
     if( match ( TRUE )){
       nextToken();
@@ -98,13 +96,14 @@ public class Parser
     }
 
     if( match ( ERROR )){
-
       nextToken();
       return error();
     }
 
     return error();
   }
+
+
 
   public Object parseObject()
   {
@@ -155,6 +154,7 @@ public class Parser
     return map;
   }
 
+
   public Object parseArray()
   {
     //TODO implement, parse the elements inline, return Error if any element is error
@@ -168,6 +168,8 @@ public class Parser
       }else if( !match( COMMA ) ){
         s = _currentToken.getTokenValue();
         mylist.add(s);
+      }else{
+        nextToken();
       }
       nextToken();                    //if matches comma, not eof and not error, nextToken.
     }
@@ -177,9 +179,11 @@ public class Parser
     }else{
       return error();
     }
-    //return new ArrayList();
+
     return mylist;
   }
+
+
 
   //=================================================================================
   //  Tokenizer helpers

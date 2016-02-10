@@ -115,11 +115,6 @@ public class ParserTest
     assertTrue( parse( "E-1" ) instanceof Error);
     assertTrue( parse( "1E.1" ) instanceof Error);
 
-    // bad objects
-    assertTrue( parse( "{\"foo\"}" ) instanceof Error);
-    assertTrue( parse( "{\"foo\":}" ) instanceof Error);
-    assertTrue( parse( "{\"foo\": badToken}" ) instanceof Error);
-
     // bad arrays
     assertTrue( parse( "[1" ) instanceof Error);
     assertTrue( parse( "[1," ) instanceof Error);
@@ -127,10 +122,18 @@ public class ParserTest
     assertTrue( parse( "[1, badToken]" ) instanceof Error);
     assertTrue( parse( "[1, [badToken]]" ) instanceof Error);
 
+
     // bad literals
     assertTrue( parse( "badToken" ) instanceof Error);
     assertTrue( parse( "True" ) instanceof Error);
     assertTrue( parse( "nil" ) instanceof Error);
+
+
+    // bad objects
+    assertTrue( parse( "{\"foo\"}" ) instanceof Error);
+    assertTrue( parse( "{\"foo\":}" ) instanceof Error);
+    assertTrue( parse( "{\"foo\": badToken}" ) instanceof Error);
+
   }
 
 
