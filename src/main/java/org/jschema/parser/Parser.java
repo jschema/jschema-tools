@@ -40,14 +40,13 @@ public class Parser
       return parseObject();
     }
 
-    // parse arrays
+    // Arrays
     if(match(LSQUARE)) {
-      Object array = parseArray();
       nextToken();
-      return array;
+      return parseArray();
     }
 
-    // parse literals (e.g. true, false, strings, numbers)
+    // Literals (e.g. true, false, strings, numbers)
     if(match(STRING)) {
       String tokenValue = _currentToken.getTokenValue();
       nextToken();
@@ -76,38 +75,51 @@ public class Parser
       return null;
     }
 
-    System.out.println("Returning error in parseValue()!");
     return error();
   }
 
-  public Object parseObject()
-  {
+  public Object parseObject() {
+
     HashMap<String, Object> map = new HashMap<>();
-    Object nextMemberResult = null;
-    while(!(nextMemberResult instanceof Token)) {
-      nextMemberResult = addNextMember(map);
-      if (nextMemberResult instanceof Error) {
-        return nextMemberResult;
-      } else if (nextMemberResult instanceof HashMap) {
-        map = (HashMap<String, Object>) nextMemberResult;
+
+    while (!match(RCURLY)) {
+      if (match(ERROR) || match(EOF)) {
+        return error();
+      } else if (match(COMMA)) {
+        // Step over comma
+        nextToken();
+      } else {
+        // Get the next member
+        Object next = parseMember(map);
+        if (next instanceof Error) {
+          return next;
+        } else {
+          map = (HashMap<String, Object>)next;
+        }
       }
     }
+    nextToken();
+
     return map;
   }
 
-  private Object addNextMember( HashMap map )
+  private Object parseMember( HashMap map )
   {
-    String key;
-    Object value;
-    nextToken();
-    if (match(RCURLY)) { return _currentToken; }
+    // Keys must be strings
     if (!match(STRING)) { return error(); }
-    key = _currentToken.getTokenValue();
+
+    String key = _currentToken.getTokenValue();
+
+    // Step over colon
     nextToken();
     if (!match(COLON)) { return error(); }
     nextToken();
-    value = _currentToken.getTokenValue();
+
+    // Get value and insert into map
+    Object value = parseValue();
+    if (value instanceof Error) { return value; }
     map.put(key, value);
+
     return map;
   }
 
@@ -115,27 +127,26 @@ public class Parser
   {
     ArrayList<Object> array = new ArrayList<>();
 
-    // step over left square bracket
-    nextToken();
-
-    // array contents
     while (!match(RSQUARE)) {
       if (match(ERROR) || match(EOF)) {
-        // Error or reach end of file prematurely
         return error();
-      } else if (match(LSQUARE)) {
-        // sub-array, parse recursively
-        Object inArray = parseArray();
-        if (inArray instanceof Error) {
-          return inArray;
+      } else if (match(COMMA)) {
+        // Step over comma
+        nextToken();
+
+        // Commas must be followed by a value
+        if (match(RSQUARE)) { return error(); }
+      } else {
+        // Add next item
+        Object next = parseValue();
+        if (next instanceof Error) {
+          return next;
         } else {
-          array.add(inArray);
+          array.add(next);
         }
-      } else if (!match(COMMA)) {
-        array.add(_currentToken.getTokenValue());
       }
-      nextToken();
     }
+    nextToken();
 
     return array;
   }
@@ -143,10 +154,7 @@ public class Parser
   //=================================================================================
   //  Tokenizer helpers
   //=================================================================================
-  private void nextToken()
-  {
-    _currentToken = _tokenizer.next();
-  }
+  private void nextToken() { _currentToken = _tokenizer.next(); }
 
   private boolean match( TokenType type )
   {
