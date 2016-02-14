@@ -51,6 +51,7 @@ public class Parser
       nextToken();
       return parseArray();
     }
+
     if( match( TRUE ) )
     {
       nextToken();
@@ -68,7 +69,6 @@ public class Parser
       return null;
     }
 
-    // parse literals (e.g. true, false, strings, numbers)
     if( match( STRING ) )
     {
       String tokenValue = _currentToken.getTokenValue();
@@ -79,6 +79,10 @@ public class Parser
     {
       String tokenValue = _currentToken.getTokenValue();
       double tokenNum = _currentToken.getTokenNumberValue();
+      if(tokenValue.indexOf('e') >= 0 || tokenValue.indexOf('E') >= 0){
+        nextToken();
+        return Double.parseDouble(tokenValue);
+      }
       if(tokenNum % 1 == 0){
         nextToken();
         return Integer.parseInt(tokenValue);
@@ -88,56 +92,103 @@ public class Parser
         return tokenNum;
       }
     }
+
     return error();
   }
 
   public Object parseObject()
   {
-    //TODO implement, return a map of name/value pairs, and Error if an error is detected
-    //                pass the map into parseMember to populate
     HashMap<String, Object> map = new HashMap<>();
-    String key = "";
-    String obj = "";
-    if(match(STRING)){
-      key = _currentToken.getTokenValue();
-      nextToken();
-      if(match(COLON)){
-        nextToken();
-        obj = _currentToken.getTokenValue();
-        map.put(key, obj);
-        nextToken();
-      }
-    }
-    if (match(RCURLY)) {
+    boolean closed = false;
+
+    if(match(RCURLY)){
       nextToken();
       return map;
     }
-    else
-    {
-      return error();
+    while(!match(EOF) && !match(RCURLY)){
+      try {
+        map = (HashMap<String, Object>) parseMember(map);
+
+        if (!match(RCURLY) || match(COMMA)) {
+          nextToken();
+        }
+        if (match(RCURLY)) {
+          closed = true;
+        }
+      }
+      catch (ClassCastException e){
+        return error();
+      }
     }
+    nextToken();
+    if(closed){
+      return map;
+    }
+    return error();
   }
 
   private Object parseMember( HashMap map )
   {
-    //TODO implement, parse the key and value, return the map if it is good, Error otherwise.
-    return map;
+    String key;
+    Object obj;
+
+    key = _currentToken.getTokenValue();
+    nextToken();
+    if(match(COLON)){
+      nextToken();
+      obj = parseValue();
+      if (obj instanceof Error) {
+        return error();
+      }
+      map.put(key, obj);
+    }
+    else{
+      nextToken();
+      return error();
+    }
+    if (match(COMMA)) {
+      nextToken();
+      return parseMember(map);
+    }
+    else if (match(RCURLY)) {
+      return map;
+    }
+    else {
+      return error();
+    }
   }
 
   public Object parseArray()
   {
-    //TODO implement, parse the elements inline, return Error if any element is error
-    ArrayList array = new ArrayList();
-
-    while(!match(EOF) && !match(RSQUARE)){
-      array.add(parseValue());
+    ArrayList list = new ArrayList();
+    boolean closed = false;
+    if (match(RSQUARE)) {
       nextToken();
+      return list;
     }
-    if (match(RSQUARE) || match(EOF)) {
-      nextToken();
-      return array;
+    while (!match(RSQUARE) && !match(EOF)) {
+      Object val = parseValue();
+      if (val == null || !val.equals(",")) {
+        list.add(val);
+      } else {
+        return new ArrayList();
+      }
+      if (match(RSQUARE)) {
+        closed = true;
+      }
+      else if (match(COMMA)) {
+        nextToken();
+      }
+      else {
+        nextToken();
+        return error();
+      }
     }
-    return error();
+    nextToken();
+    if (!closed) {
+      return error();
+    }
+    return list;
   }
 
   //=================================================================================
