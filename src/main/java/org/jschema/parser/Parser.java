@@ -85,6 +85,7 @@ public class Parser
     while (!match(RCURLY)) {
       if (match(ERROR) || match(EOF)) {
         return error();
+        // cgross - what about a leading comma?  {,"foo":"bar"} ?
       } else if (match(COMMA)) {
         // Step over comma
         nextToken();
@@ -94,6 +95,7 @@ public class Parser
         if (next instanceof Error) {
           return next;
         } else {
+          // cgross - Probably not a necessary assignment
           map = (HashMap<String, Object>)next;
         }
       }
@@ -130,6 +132,7 @@ public class Parser
     while (!match(RSQUARE)) {
       if (match(ERROR) || match(EOF)) {
         return error();
+        // cgross - again, leading comma issue
       } else if (match(COMMA)) {
         // Step over comma
         nextToken();
