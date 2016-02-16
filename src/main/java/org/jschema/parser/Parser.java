@@ -105,6 +105,7 @@ public class Parser
       nextToken();
       return map;
     }
+    // cgross - I would expect you to loop on COMMA/EOF, not !RCURLY
     while(!match(EOF) && !match(RCURLY)){
       try {
         map = (HashMap<String, Object>) parseMember(map);
@@ -117,6 +118,7 @@ public class Parser
         }
       }
       catch (ClassCastException e){
+        // cgross - probably better to use instanceof rather than a ClassCastException
         return error();
       }
     }
@@ -146,6 +148,7 @@ public class Parser
       nextToken();
       return error();
     }
+    // cgross - this should be handled in the loop above, not with recursion 
     if (match(COMMA)) {
       nextToken();
       return parseMember(map);
@@ -166,6 +169,7 @@ public class Parser
       nextToken();
       return list;
     }
+    // cgross - again, probably should be looping on the comma, not on !RSQUARE
     while (!match(RSQUARE) && !match(EOF)) {
       Object val = parseValue();
       if (val == null || !val.equals(",")) {
