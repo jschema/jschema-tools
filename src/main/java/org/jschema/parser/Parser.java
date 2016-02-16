@@ -43,6 +43,7 @@ public class Parser {
         if( match( LSQUARE ) ){
             nextToken();
             //each time we find a new array, new array created
+            // cgross - probably better to allocate this in the parseArray() function
             ArrayList<Object> thisArray = new ArrayList<Object>();
             return parseArray(thisArray);
         }
@@ -55,6 +56,7 @@ public class Parser {
         }
 
         if( match( NUMBER ) ){
+            // cgross - what about e-type numbers?
             //check if it is integer or double by looking for a dot in the string that contains the number
             //String tokenValue = _currentToken.getTokenValue();
             int isThereADot = _currentToken.getTokenValue().indexOf('.');
@@ -101,6 +103,7 @@ public class Parser {
         String key;
         Object value;
 
+        // cgross - you want to loop on the COMMA, not on the start of the member production
         while ( match(STRING) ){
             //we will consume one entire pair in each iteration (string:value)
             key = (String)parseValue();//it will be string,
@@ -108,6 +111,7 @@ public class Parser {
                 nextToken();//consume colon
                 if (!match(EOF) && !match(ERROR)){//if i have a value, then i just add it
                     value = parseValue();
+                    // cgross - what if value is an error? 
                 }else{
                     return error(-1);
                 }
@@ -145,6 +149,7 @@ public class Parser {
     public Object parseArray(ArrayList<Object> thisArray){
         //if we find ',' we parse next token, if we find ']' we have finished the array
 
+        // cgross - again, should be looping on COMMA
         while (!match(RSQUARE) && tokenIsCorrectArray() ){
             //either we have a correct value that we have to add to the arrayList or we have a new array/object
             thisArray.add(parseValue());
