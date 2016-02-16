@@ -113,8 +113,11 @@ public class Parser
     String key;
     Object val;
 
+    // cgross - this can be simplified a bit, we will discuss tomorrow.  Basicall you want to loop on the
+    //          COMMA rather than the RCURLY
     while ( !match( RCURLY ) ){
 
+      // cgross - you inlined the parseMember here  :)  Not an error, but worth noting
       if( match( STRING ) ){
         key = (String) parseValue();
 
@@ -183,6 +186,7 @@ public class Parser
     List<Object> mylist = new ArrayList<>();
     Object s;
 
+    // cgross - as above you want the loop to be on COMMA, not the closing element
     while( !match( RSQUARE ) ) {
 
       if ( match( RCURLY ) || match( EOF ) || match( ERROR ) ||
