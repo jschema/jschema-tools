@@ -84,8 +84,10 @@ public class Parser
   public Object parseObject()
   {
     HashMap<String, Object> map = new HashMap<String, Object>();
+    // cgross - should be looping on COMMA, not RCURLY
     while(!match(RCURLY)){
       if(parseMember(map) instanceof Error){
+        // cgross - probably better to return the returned error
         return error();
       }
       if(match(RCURLY)){
@@ -127,6 +129,7 @@ public class Parser
   public Object parseArray()
   {
     ArrayList arrayList = new ArrayList();
+    // cgross - again, should be matching on COMMA, not RSQUARE
     while(!match(RSQUARE)){
       if(match(EOF)) {
         return error();
