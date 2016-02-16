@@ -87,14 +87,17 @@ public class Parser {
         //pass the map into parseMember to populate
         HashMap<String, Object> map = new HashMap<>();
         //for empty object
+        // cgross - can this be rewritten/removed so that the while loop catches it?
         if (match(RCURLY)) {
             nextToken();
             return map;
         }
         int rBrace = 0;
         //keep going if there is a comma
+        // cgross - while loop should be on COMMA/EOF if there is a RCURLY 
         while (!match(RCURLY) && !match(EOF)) {
             try {
+                // cgross - would use an instanceof test, rather than a ClassCastException
                 map = (HashMap<String, Object>) parseMember(map);
 
                 if (!match(RCURLY) || match(COMMA)) {
@@ -105,10 +108,12 @@ public class Parser {
                 }
                 //if a map isn't returned, an error must be returned
             } catch (ClassCastException e) {
+                // cgross - should return the error returned by parseMember
                 return error();
             }
         }
         nextToken();
+        // cgross - if you get the while-loop correct, this check should not be necessary
         //if no matching right brace, return error
         if (rBrace != 1) {
             return error();
@@ -118,6 +123,7 @@ public class Parser {
 
     private Object parseMember(HashMap map) {
         //get the key
+        // cgross - should verify the token is a string?
         String key = _currentToken.getTokenValue();
         Object val;
         //now check that colon is separator
@@ -135,6 +141,8 @@ public class Parser {
             }
             map.put(key, val);
         }
+        
+        // cgross - Ah, interesting that you are recursing here.  I would do this with the loop above to avoid recursive blowout
         if (match(COMMA)) {
             nextToken();
             return parseMember(map);
@@ -154,6 +162,7 @@ public class Parser {
             return list;
         }
         int rBrace = 0;
+        // cgross - as above, I would expect the loop to be on COMMA/EOF, not RSQUARE
         while (!match(RSQUARE) && !match(EOF)) {
             //first get item
                 Object val = parseValue();
