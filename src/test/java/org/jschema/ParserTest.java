@@ -68,7 +68,7 @@ public class ParserTest {
     Tokenizer tokenizer = new Tokenizer(sample);
     Parser p = new Parser(tokenizer);
     Object val = p.parse();
-    assertEquals("[]", p.getErrors().toString());
+    assertEquals(0, p.getErrors().size());
     assertEquals(expected, val);
   }
 
@@ -97,8 +97,8 @@ public class ParserTest {
     Tokenizer tokenizer = new Tokenizer(sample);
     Parser p = new Parser(tokenizer);
     Object val = p.parse();
-    assertEquals(expected, val);
     assertEquals(3, p.getErrors().size());
+    assertEquals(expected, val);
   }
 
   @Test
