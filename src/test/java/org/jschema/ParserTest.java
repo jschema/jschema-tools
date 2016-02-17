@@ -2,6 +2,7 @@ package org.jschema;
 
 import org.junit.Test;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -19,10 +20,10 @@ public class ParserTest {
   public void readBigFile() {
     String bigJson = null;
     try {
-      String path = getClass().getClassLoader().getResource("citylots.json").getPath();
-      bigJson = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+      URI uri = getClass().getClassLoader().getResource("citylots.json").toURI();
+      bigJson = new String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8);
     } catch(Exception e) {
-      fail("Please copy the file 'citylots.json' in the src/main/resources folder");
+      fail("Please copy the file 'citylots.json' in the src/test/resources folder");
     }
     long times = 10;
     long before = System.currentTimeMillis();
