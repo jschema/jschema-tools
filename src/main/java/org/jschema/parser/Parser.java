@@ -86,11 +86,15 @@ public class Parser
 
     if(match(STRING)){
       Object p = parseMember(map);
-      if(p instanceof Error) return p;
-      while (match(COMMA)){
+      if(p instanceof Error) {
+        return p;
+      }
+      while(match(COMMA)){
         nextToken();
         p = parseMember(map);
-        if(p instanceof Error) return p;
+        if(p instanceof Error) {
+          return p;
+        }
       }
     }
     if (match(RCURLY)) {
@@ -118,32 +122,29 @@ public class Parser
     return error();
   }
 
-  public Object parseArray()
-  {
+  public Object parseArray() {
     ArrayList arrayList = new ArrayList();
-    // cgross - again, should be matching on COMMA, not RSQUARE
-    while(!match(RSQUARE)){
-      if(match(EOF)) {
-        return error();
-      }
+
+    if (!match(RSQUARE)) {
       Object value = parseValue();
-      if((value instanceof Error)){
-        return error();
+      if(value instanceof Error){
+        return value;
       }
       arrayList.add(value);
-      if(match(RSQUARE)){
-        break;
-      }
-      if(!match(COMMA) || match(EOF)){
-        return error();
-      }
-      nextToken();
-      if(match(RSQUARE)){
-        return error();
+      while(match(COMMA)){
+        nextToken();
+        value = parseValue();
+        if(value instanceof Error){
+          return value;
+        }
+        arrayList.add(value);
       }
     }
-    nextToken();
-    return arrayList;
+    if(match(RSQUARE)){
+      nextToken();
+      return arrayList;
+    }
+    return error();
   }
 
   //=================================================================================
