@@ -81,27 +81,19 @@ public class Parser
     }
     return error();
   }
-  public Object parseObject()
-  {
+  public Object parseObject() {
     HashMap<String, Object> map = new HashMap<String, Object>();
-    // cgross - should be looping on COMMA, not RCURLY
-    while(!match(RCURLY)){
-      if(parseMember(map) instanceof Error){
-        // cgross - probably better to return the returned error
-        return error();
-      }
-      if(match(RCURLY)){
-        break;
-      }
-      if(!match(COMMA) || match(EOF)){
-        return error();
-      }
-      nextToken();
-      if(match(RCURLY)){
-        return error();
+
+    if(match(STRING)){
+      Object p = parseMember(map);
+      if(p instanceof Error) return p;
+      while (match(COMMA)){
+        nextToken();
+        p = parseMember(map);
+        if(p instanceof Error) return p;
       }
     }
-    if(match(RCURLY)){
+    if (match(RCURLY)) {
       nextToken();
       return map;
     }
