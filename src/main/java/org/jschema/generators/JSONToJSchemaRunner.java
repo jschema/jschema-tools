@@ -4,7 +4,6 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.io.FileReader;
-import java.util.ArrayList;
 
 public class JSONToJSchemaRunner
 {
