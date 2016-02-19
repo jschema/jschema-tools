@@ -1,10 +1,3 @@
-//QUESTION!
-//
-//how can we check the error type?
-//
-
-
-
 package org.jschema.parser;
 
 import junit.framework.Assert;
@@ -13,6 +6,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -20,110 +15,147 @@ import static junit.framework.Assert.assertTrue;
 public class ParserTest
 {
 
-    @Test
-    public void testParseObject(){
-        assertEquals( new HashMap(), parse( "{}" ) );
-        HashMap map1 = new HashMap();
-        map1.put( "foo", "bar" );
-        assertEquals( map1, parse( "{\"foo\":\"bar\"}" ) );
+  @Test
+  public void testParseObject()
+  {
+    // empty
+    assertEquals( map(), parse( "{}" ) );
 
-        //NEW
+    // simple single
+    assertEquals( map( "foo", "bar" ), parse( "{\"foo\":\"bar\"}" ) );
+    assertEquals( map( "foo", 1 ), parse( "{\"foo\":1}" ) );
+    assertEquals( map( "foo", 1.1 ), parse( "{\"foo\":1.1}" ) );
+    assertEquals( map( "foo", true ), parse( "{\"foo\":true}" ) );
+    assertEquals( map( "foo", false ), parse( "{\"foo\":false}" ) );
+    assertEquals( map( "foo", null ), parse( "{\"foo\":null}" ) );
+    assertEquals( map( "foo", list() ), parse( "{\"foo\":[]}" ) );
 
-        //{pair, pair}
-        map1.put( "foo2", "bar2" );
-        assertEquals( map1, parse( "{\"foo\":\"bar\",\"foo2\":\"bar2\"}" ) );
-        //{pair, pair, string:emptyArray}
-        map1.put( "foo3", parse("[]") );
-        assertEquals( map1, parse( "{\"foo\":\"bar\",\"foo2\":\"bar2\", \"foo3\":[]}" ) );
-        HashMap map2 = new HashMap();
-        map2.put( "foo4", parse("[]") );
-        assertEquals( map2, parse( "{\"foo4\":[]}" ));
+    // complex single
+    assertEquals( map("foo", map( "foo", "bar" )), parse( "{\"foo\" : {\"foo\":\"bar\"}}" ) );
+    assertEquals( map("foo", list( "foo", "bar" )), parse( "{\"foo\" : [\"foo\", \"bar\"}]" ) );
 
-
-
-    }
-
-
-
-    @Test
-    public void testParseArray(){
-        assertEquals( new ArrayList(), parse( "[]" ) );
-        assertEquals( Arrays.asList( "foo", "bar" ), parse( "[\"foo\", \"bar\"]" ) );
-
-        //NEW
-        //array within array
-        assertEquals( Arrays.asList( "foo", Arrays.asList( "foo", "bar" ) ), parse( "[\"foo\", [\"foo\", \"bar\"]]" ) );
-        //something pointless maybe?
-//QUESTION!        // [[[]]] == []   OR [[[]]] == [[[]]]
-        //assertEquals( new ArrayList, parse( "[[[1]]]" ) );
-        //["hey",{}]
-        assertEquals(Arrays.asList("hey", new ArrayList()), parse(" [\"hey\", []] ") );
-    }
+    // simple multi
+    assertEquals( map( "foo", "bar", "doh", "rey" ), parse( "{\"foo\":\"bar\", \"doh\":\"rey\"}" ) );
+    assertEquals( map( "foo", "rey" ), parse( "{\"foo\":\"bar\", \"foo\":\"rey\"}" ) );
+  }
 
 
-//TODO mix objects and arrays and things
+  @Test
+  public void testParseArray()
+  {
+    assertEquals( list(), parse( "[]" ) );
+    assertEquals( list( "foo"), parse( "[\"foo\"]" ) );
+    assertEquals( list( "foo", "bar" ), parse( "[\"foo\", \"bar\"]" ) );
+    assertEquals( list( "string", 1, 1.1, map("foo", "bar"), list("doh"), true, false, null ),
+                  parse( "[\"string\", 1, 1.1, {\"foo\" : \"bar\"}, [\"doh\"], true, false, null]" ) );
+  }
+
+  @Test
+  public void testParseLiterals()
+  {
+    // strings
+    assertEquals( "", parse( "\"\"" ) );
+    assertEquals( "foo", parse( "\"foo\"" ) );
+    assertEquals( "foo\"bar", parse( "\"foo\\\"bar\"" ) );
+
+    // numbers
+    assertEquals( 0, parse( "0" ) );
+    assertEquals( 1, parse( "1" ) );
+    assertEquals( 123456789, parse( "123456789" ) );
+    assertEquals( -1, parse( "-1" ) );
+    assertEquals( -0, parse( "-0" ) );
+    assertEquals( -123456789, parse( "-123456789" ) );
+    assertEquals( 1.1, parse( "1.1" ) );
+    assertEquals( 123456789.1, parse( "123456789.1" ) );
+    assertEquals(123456.123456, parse("123456.123456"));
+    assertEquals( -1.1, parse( "-1.1" ) );
+    assertEquals(-123456789.1, parse("-123456789.1"));
+    assertEquals(-123456.123456, parse("-123456.123456"));
+    assertEquals( 1e1, parse( "1e1" ) );
+    assertEquals( 123456789e1, parse( "123456789e1" ) );
+    assertEquals( 1e+1, parse( "1e+1" ) );
+    assertEquals( 1e+1, parse( "1e+1" ) );
+    assertEquals( 1e-1, parse( "1e-1" ) );
+    assertEquals( 1E1, parse( "1E1" ) );
+    assertEquals( 1E+1, parse( "1E+1" ) );
+    assertEquals( 1E-1, parse( "1E-1" ) );
+
+    // literals
+    assertEquals( true, parse( "true" ) );
+    assertEquals( false, parse( "false" ) );
+    assertEquals( null, parse( "null" ) );
+  }
 
 
+  @Test
+  public void testErrors() {
 
-    @Test
-    public void testParseLiterals(){//AKA values?
-        //TODO: objects
+    // bad punctuation
+    assertTrue( parse( "{" ) instanceof Error);
+    assertTrue( parse( "}" ) instanceof Error);
+    assertTrue( parse( "}{" ) instanceof Error);
+    assertTrue( parse( "[" ) instanceof Error);
+    assertTrue( parse( "]" ) instanceof Error);
+    assertTrue( parse( "][" ) instanceof Error);
+    assertTrue( parse( "," ) instanceof Error);
+    assertTrue( parse( ":" ) instanceof Error);
 
+    // bad strings
+    assertTrue( parse( "\"" ) instanceof Error);
+    assertTrue( parse( "\"foo" ) instanceof Error);
 
-        //string
-        assertEquals( "foo", parse( "\"foo\"" ) );
-        //null
-        assertEquals( null, parse( "null" ) );
-        //true
-        assertEquals( true, parse( "true" ) );
-        //false
-        assertEquals( false, parse( "false" ) );
+    // bad numbers
+    assertTrue( parse( ".1" ) instanceof Error);
+    assertTrue( parse( "-.1" ) instanceof Error);
+    assertTrue( parse( "e1" ) instanceof Error);
+    assertTrue( parse( "e+1" ) instanceof Error);
+    assertTrue( parse( "e-1" ) instanceof Error);
+    assertTrue( parse( "E1" ) instanceof Error);
+    assertTrue( parse( "E+1" ) instanceof Error);
+    assertTrue( parse( "E-1" ) instanceof Error);
+    assertTrue( parse( "1E.1" ) instanceof Error);
 
-        //numbers
-        assertEquals( 1, parse( "1" ) );
-        assertEquals( 1.1, parse( "1.1" ) );
+    // bad objects
+    assertTrue( parse( "{\"foo\"}" ) instanceof Error);
+    assertTrue( parse( "{\"foo\":}" ) instanceof Error);
+    assertTrue( parse( "{\"foo\": badToken}" ) instanceof Error);
 
-        //NEW ONES
-        //string
-        assertEquals( "Hey, this is a: test. Are you true to yourself, brother? It is already 5.30pm.", parse( "\"Hey, this is a: test. Are you true to yourself, brother? It is already 5.30pm.\"" ) );
-    }
+    // bad arrays
+    assertTrue( parse( "[1" ) instanceof Error);
+    assertTrue( parse( "[1," ) instanceof Error);
+    assertTrue( parse( "[1,]" ) instanceof Error);
+    assertTrue( parse( "[1, badToken]" ) instanceof Error);
+    assertTrue( parse( "[1, [badToken]]" ) instanceof Error);
 
-
-    @Test
-    public void testErrors() {
-        assertTrue( parse( "}{" ) instanceof Error);
-
-        //NEW
-
-        //array not closed
-        assertTrue( parse( "[\"something\" " ) instanceof Error);
-        //object closed within array
-        assertTrue( parse( "[\"something\" } \"else\"" ) instanceof Error);
-        //colon after [
-        assertTrue( parse( "[:]" ) instanceof Error);
-        //EOF affter [
-        assertTrue( parse( "[" ) instanceof Error);
-        //COMMA after [
-        assertTrue( parse( "[,]" ) instanceof Error);
-        //ERROR whithin []
-        assertTrue( parse( "[g]" ) instanceof Error);
-        //ERROR too many  ]
-        assertTrue( parse( "[]]" ) instanceof Error);
-        //ERROR } with no {
-        assertTrue( parse( "[]}" ) instanceof Error);
-        //ERROR  : not in pair
-        assertTrue( parse( ":" ) instanceof Error);
-        //ERROR , not in elements
-        assertTrue( parse( "," ) instanceof Error);
-
-        assertTrue(parse("[ \"hey\" , ,]") instanceof Error);
-
-    }
+    // bad literals
+    assertTrue( parse( "badToken" ) instanceof Error);
+    assertTrue( parse( "True" ) instanceof Error);
+    assertTrue( parse( "nil" ) instanceof Error);
+  }
 
 
-    private Object parse( String src )
+  //======================================================================
+  //  HELPERS
+  //======================================================================
+  private Object parse( String src )
+  {
+    return new Parser( src ).parse();
+  }
+
+  private List list(Object... listVals)
+  {
+    return Arrays.asList( listVals );
+  }
+
+  private HashMap map(Object... mapVals)
+  {
+    HashMap m = new HashMap();
+    Iterator it = Arrays.asList( mapVals ).iterator();
+    while(it.hasNext())
     {
-        return new Parser( src ).parse();
+      m.put( it.next(), it.next() );
     }
+    return m;
+  }
 
 }

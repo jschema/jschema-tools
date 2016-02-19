@@ -13,7 +13,7 @@ public class MyParser {
     private final Tokenizer _tokenizer;
     private Token _currentToken;
 
-    public MyParser( String src ){
+    public MyParser(String src ){
         _tokenizer = new Tokenizer( src );
         nextToken();
     }
@@ -25,10 +25,10 @@ public class MyParser {
     public Object parse() {
         Object value = parseValue();
         if( match( EOF ) ) {
-            return value;
+          return value;
         }
         else {
-            return error();
+          return error();
         }
     }
 
@@ -58,14 +58,15 @@ public class MyParser {
             //check if it is integer or double by looking for a dot in the string that contains the number
             //String tokenValue = _currentToken.getTokenValue();
             int isThereADot = _currentToken.getTokenValue().indexOf('.');
-            String tokenValue = _currentToken.getTokenValue();
+            int thereIsAnExp_e = _currentToken.getTokenValue().indexOf('e');
+            int thereIsAnExp_E = _currentToken.getTokenValue().indexOf('E');
+            double doubleNumber = _currentToken.getTokenNumberValue();
             nextToken();
-            if (isThereADot == -1){
-                //then it is an integer
-                return Integer.parseInt(tokenValue);
+            if (isThereADot != -1 || thereIsAnExp_e != -1 || thereIsAnExp_E != -1){
+                return doubleNumber;
             }else{
-                //it is a double
-                return Double.parseDouble(tokenValue);
+                //then it is an integer
+                return (int)doubleNumber;
             }
         }
 
@@ -90,7 +91,7 @@ public class MyParser {
         }
 
         //TODO implement other literals
-        return error();
+            return error();
     }
 
     public Object parseObject()
@@ -106,7 +107,7 @@ public class MyParser {
             key = (String)parseValue();//it will be string,
             if (match(COLON)){
                 nextToken();//consume colon
-                if (!match(EOF) && !match(ERROR)){//if i have a value, then i just add it
+                if (!match(EOF) && !match(ERROR) && isCorrectValue() ){//if i have a value, then i just add it
                     value = parseValue();
                 }else{
                     return error(-1);
@@ -121,6 +122,10 @@ public class MyParser {
             if ( match(COMMA) ){
                 //consume coma and iterate to keep adding things
                 nextToken();
+                if (!match(STRING)){
+                    //if after the comma there is not another pair, there is an error
+                    return error(3);
+                }
             }
         }
 
@@ -151,6 +156,9 @@ public class MyParser {
             if ( match(COMMA) ){
                 //consume coma and iterate to keep adding things
                 nextToken();
+                if (!isCorrectValue()){
+                    return error(4);
+                }
             }
         }
 
@@ -168,6 +176,22 @@ public class MyParser {
     //=================================================================================
     //  My Helpers
     //=================================================================================
+
+    public boolean isCorrectValue(){
+        //checks if in an array, next token is what it is supposed to be
+        switch  (_currentToken.getTokenType()){
+            case COMMA:
+            case RCURLY:
+            case COLON:
+            case ERROR:
+            case EOF:
+            case RSQUARE:
+                return false;
+            default://string - object - array - number - true - false - null
+                return true;
+        }
+    }
+
 
     public boolean tokenIsCorrectArray(){
         //checks if in an array, next token is what it is supposed to be
@@ -217,6 +241,10 @@ public class MyParser {
                 return new Error("Object not closed, missing: }");
             case 2:
                 return new Error("Incorrect pair, missing colon");
+            case 3:
+                return new Error("Incorrect pair, missing string after comma");
+            case 4:
+                return new Error("Incorrect array, missing value after [");
             default:
                 return new Error("______Wrong error code in code");
         }
