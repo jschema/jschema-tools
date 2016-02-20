@@ -61,6 +61,7 @@ public class Parser
         return tokenValue;
     }
 
+    
     //TODO implement other literals
 
     if( match ( NUMBER ) ){
@@ -79,6 +80,7 @@ public class Parser
       nextToken();
       return tokenNumberValue;
     }
+
     
     if( match ( TRUE )){
       nextToken();
@@ -105,14 +107,39 @@ public class Parser
 
 
 
-  public Object parseObject()
-  {
+  public Object parseObject() {
     //TODO implement, return a map of name/value pairs, and Error if an error is detected
     //                pass the map into parseMember to populate
     HashMap<String, Object> map = new HashMap<>();
-    String key;
-    Object val;
+    //String key;
+    //Object val;
 
+    parseMember(map);
+
+    if (match(RCURLY)) {
+      nextToken();
+      return map;
+    }
+
+    if (match(STRING)) {
+      parseMember(map);
+    }
+
+    while (match(COMMA)) {
+      nextToken();
+      if (match(ERROR) || match(EOF) || match(COLON) || match(COMMA) || match(RSQUARE)) {
+        return error();
+      }
+      if (match(STRING)) {
+        parseMember(map);
+      }
+    }
+    return map;
+
+
+
+
+/*
     while ( !match( RCURLY ) ){
 
       if( match( STRING ) ){
@@ -139,39 +166,36 @@ public class Parser
         nextToken();
       }
     }
-
-    if( match( RCURLY ) ){
-      nextToken();
-      return map;
-    }else{
-      return error();
-    }
-
+    */
   }
+
+
 
   private Object parseMember( HashMap map )
   {
     //TODO implement, parse the key and value, return the map if it is good, Error otherwise.
     //key value pair
 
-    if( !match( STRING ) ){
-      return error();
-    }
-
     String key = _currentToken.getTokenValue();
-    nextToken();
+    Object val;
 
+    nextToken();
     if( !match( COLON ) ){
       return error();
+    }else{
+      nextToken();             //if match colon
+      val = parseValue();
+      map.put(key, val);
+      if( match( COMMA ) ){
+        return error();
+      }
     }
-
-    Object value = _currentToken.getTokenValue();
     nextToken();
+
 
     if( match( RCURLY ) ){               //end is reached
       return _currentToken;
     }
-    map.put(key, value);
     return map;
   }
 
@@ -186,7 +210,7 @@ public class Parser
     while( !match( RSQUARE ) ) {
 
       if ( match( RCURLY ) || match( EOF ) || match( ERROR ) ||
-             match( COLON ) || match( COMMA )){
+             match( COLON ) || match( COMMA ) ){
         return error();
       }else{
         //s = _currentToken.getTokenValue();
