@@ -12,7 +12,7 @@ public class JSchemaToJavaRunner
     ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
     engine.eval(new FileReader("src/main/resources/js/jschema_to_java.js"));
     Invocable invocable = (Invocable) engine;
-    Object result = invocable.invokeFunction("generateJavaForJSchema", "{}", "foo.barl.Demo");
+    Object result = invocable.invokeFunction("generateJavaForJSchema", "src/test/java/schemas/contact.jschema", "src/main/resources/json/test.json");
     System.out.println(result);
   }
 }

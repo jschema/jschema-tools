@@ -1,8 +1,9 @@
 package org.jschema.parser;
 
 import org.jschema.parser.Token.TokenType;
-import sun.org.mozilla.javascript.ast.WhileLoop;
+//import sun.org.mozilla.javascript.ast.WhileLoop;
 
+import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -99,37 +100,29 @@ public class Parser
   public Object parseObject()
   {
     HashMap<String, Object> map = new HashMap<>();
-    boolean closed = false;
 
-    if(match(RCURLY)){
+    parseMember(map);
+    if (match(EOF)) {
       nextToken();
       return map;
     }
-    // cgross - I would expect you to loop on COMMA/EOF, not !RCURLY
-    while(!match(EOF) && !match(RCURLY)){
-      try {
-        map = (HashMap<String, Object>) parseMember(map);
-
-        if (!match(RCURLY) || match(COMMA)) {
-          nextToken();
-        }
-        if (match(RCURLY)) {
-          closed = true;
-        }
+    while (match(COMMA)) {
+      nextToken();
+      if (match(EOF)) {
+        return map;
       }
-      catch (ClassCastException e){
-        // cgross - probably better to use instanceof rather than a ClassCastException
+      if(match(ERROR)) {
+        nextToken();
         return error();
       }
+      if(match(STRING)) {
+        parseMember(map);
+      }
     }
-    nextToken();
-    if(closed){
-      return map;
+    return map;
     }
-    return error();
-  }
 
-  private Object parseMember( HashMap map )
+  private void parseMember( HashMap map )
   {
     String key;
     Object obj;
@@ -139,59 +132,38 @@ public class Parser
     if(match(COLON)){
       nextToken();
       obj = parseValue();
-      if (obj instanceof Error) {
-        return error();
+      if(obj instanceof Error){
+        nextToken();
+        return;
       }
       map.put(key, obj);
+      if(match(COMMA)){
+        return;
+      }
     }
-    else{
-      nextToken();
-      return error();
-    }
-    // cgross - this should be handled in the loop above, not with recursion 
-    if (match(COMMA)) {
-      nextToken();
-      return parseMember(map);
-    }
-    else if (match(RCURLY)) {
-      return map;
-    }
-    else {
-      return error();
-    }
+    nextToken();
   }
 
   public Object parseArray()
   {
     ArrayList list = new ArrayList();
-    boolean closed = false;
-    if (match(RSQUARE)) {
+    if(match(RSQUARE)){
       nextToken();
       return list;
     }
-    // cgross - again, probably should be looping on the comma, not on !RSQUARE
-    while (!match(RSQUARE) && !match(EOF)) {
-      Object val = parseValue();
-      if (val == null || !val.equals(",")) {
-        list.add(val);
-      } else {
-        return new ArrayList();
-      }
-      if (match(RSQUARE)) {
-        closed = true;
-      }
-      else if (match(COMMA)) {
-        nextToken();
-      }
-      else {
-        nextToken();
-        return error();
-      }
+    list.add(parseValue());
+    //nextToken();
+    if(match(RSQUARE)){
+      nextToken();
+      return list;
+    }
+    while (match(COMMA)) {
+      nextToken();
+      list.add(parseValue());
+      System.out.print(list);
+      //nextToken();
     }
     nextToken();
-    if (!closed) {
-      return error();
-    }
     return list;
   }
 

@@ -9,5 +9,20 @@ function generateJavaForJSchema(jSchema, className) {
 }
 
 function packageFor(className) {
-  return "foo"
+  return className
+}
+
+//Generates Java Object Based on jSchema input. Class will be ClassName
+function generateObject(jSchema, className){
+  return className
+}
+
+//Generate Get methods for the created Java Object
+function generateGet(Object){
+  return Object
+}
+
+//Generate Set methods for the created Java Object
+function generateSet(Object){
+  return Object
 }
