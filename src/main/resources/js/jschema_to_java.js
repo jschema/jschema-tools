@@ -22,8 +22,8 @@ function generateObject(jSchema, className){
   var obj = "public " + className + "{\n";
   for(var i in parsed_schema){
     keys.push(i);
-    obj += "  " + keys[count] + ": ";
-    obj += parsed_schema[i] + "\n";
+    obj += "  _" + parsed_schema[i] + " ";
+    obj += keys[count] + ";\n";
     count++;
   }
 
