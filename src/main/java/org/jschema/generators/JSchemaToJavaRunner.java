@@ -32,7 +32,7 @@ public class JSchemaToJavaRunner
     Object parsed_schema = parse(str);
 
     //pass the parsed jschema into a javascript function. Currently only returns itself.
-    Object attempt = invocable.invokeFunction("generateObject", parsed_schema, "Temporary Classname");
+    Object attempt = invocable.invokeFunction("generateObject", parsed_schema, "Temporary_Classname");
     System.out.print(attempt);
   }
 

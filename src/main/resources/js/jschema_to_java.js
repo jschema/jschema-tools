@@ -19,30 +19,35 @@ function generateObject(jSchema, className){
   var keys = [];
   var count = 0;
 
+  //creates variable fields
   var obj = "Class " + className + "{\n";
   for(var i in parsed_schema){
     keys.push(i);
-    obj += "  " + parsed_schema[i] + " ";
+    obj += "  private " + parsed_schema[i] + " ";
     obj += "_" + keys[count] + ";\n";
     count++;
   }
-  obj += "}\n"
   count = 0;
+  obj += "\n";
 
-  obj += "public " + className + "(";
+  //creates constructor
+  obj += "  public " + className + "(";
   for (var i in parsed_schema){
     obj += parsed_schema[i] + " ";
     obj += keys[count] + ", ";
     count++;
   }
   count = 0;
+
+  //populates constructor
   obj = obj.substring(0, obj.length - 2);
   obj += "){\n";
   for(var i in parsed_schema){
-    obj += "  _" + keys[count] + " = " + keys[count] + ";\n";
+    obj += "    _" + keys[count] + " = " + keys[count] + ";\n";
     count++;
   }
-  obj += "}\n";
+  obj += "  }\n";
+  obj += "}\n"
 
   return obj;
 }
