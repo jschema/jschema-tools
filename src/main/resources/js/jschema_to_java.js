@@ -16,7 +16,19 @@ function packageFor(className) {
 //We will need to parse the jSchema object to return the correct object
 function generateObject(jSchema, className){
   var parsed_schema = jSchema;
-  return parsed_schema
+  var keys = [];
+  var count = 0;
+
+  var obj = "public " + className + "{\n";
+  for(var i in parsed_schema){
+    keys.push(i);
+    obj += "  " + keys[count] + ": ";
+    obj += parsed_schema[i] + "\n";
+    count++;
+  }
+
+  obj += "}"
+  return obj;
 }
 
 //Generate Get methods for the created Java Object
