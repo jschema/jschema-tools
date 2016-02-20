@@ -3,7 +3,6 @@ package org.jschema.parser;
 import org.jschema.parser.Token.TokenType;
 //import sun.org.mozilla.javascript.ast.WhileLoop;
 
-import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -96,57 +95,55 @@ public class Parser
     return error();
   }
 
-  public Object parseObject()
-  {
+  public Object parseObject() {
     HashMap<String, Object> map = new HashMap<>();
 
-    parseMember(map);
-    if (match(EOF)) {
-      nextToken();
-      return map;
+    if(match(STRING)) {
+      parseMember(map);
     }
     while (match(COMMA)) {
       nextToken();
-      if (match(EOF)) {
-        return map;
+      if (match(STRING)) {
+        parseMember(map);
       }
-      if(match(ERROR)) {
+      else{
         nextToken();
         return error();
       }
-      if(match(STRING)) {
-        parseMember(map);
-      }
     }
-    nextToken();
-    return map;
+    if (match(RCURLY)){
+      nextToken();
+      return map;
     }
+    else {
+      nextToken();
+      return error();
+    }
+  }
 
   private void parseMember( HashMap map )
   {
     String key;
     Object obj;
 
-    if(match(STRING)) {
-      key = _currentToken.getTokenValue();
-    }
-    else{
-      nextToken();
-      return;
-    }
+    key = _currentToken.getTokenValue();
     nextToken();
     if(match(COLON)){
       nextToken();
       obj = parseValue();
       if(obj instanceof Error){
-        nextToken();
-        return;
+        parseError();
       }
       map.put(key, obj);
-      if(match(COMMA)){
-        return;
-      }
     }
+    else{
+      parseError();
+    }
+  }
+
+  private Error parseError(){
+    nextToken();
+    return error();
   }
 
   public Object parseArray()
@@ -159,10 +156,19 @@ public class Parser
     list.add(parseValue());
     while (match(COMMA)) {
       nextToken();
+      if(match(RSQUARE)){
+        parseError();
+      }
       list.add(parseValue());
     }
-    nextToken();
-    return list;
+    if(match(RSQUARE)) {
+      nextToken();
+      return list;
+    }
+    else{
+      nextToken();
+      return error();
+    }
   }
 
   //=================================================================================
