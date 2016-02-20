@@ -32,7 +32,7 @@ public class ParserTest
 
     // complex single
     assertEquals( map("foo", map( "foo", "bar" )), parse( "{\"foo\" : {\"foo\":\"bar\"}}" ) );
-    assertEquals( map("foo", list( "foo", "bar" )), parse( "{\"foo\" : [\"foo\", \"bar\"]}" ) );
+    assertEquals( map("foo", list( "foo", "bar" )), parse( "{\"foo\" : [\"foo\", \"bar\"}]" ) );
 
     // simple multi
     assertEquals( map( "foo", "bar", "doh", "rey" ), parse( "{\"foo\":\"bar\", \"doh\":\"rey\"}" ) );
@@ -47,7 +47,7 @@ public class ParserTest
     assertEquals( list( "foo"), parse( "[\"foo\"]" ) );
     assertEquals( list( "foo", "bar" ), parse( "[\"foo\", \"bar\"]" ) );
     assertEquals( list( "string", 1, 1.1, map("foo", "bar"), list("doh"), true, false, null ),
-            parse( "[\"string\", 1, 1.1, {\"foo\" : \"bar\"}, [\"doh\"], true, false, null]" ) );
+                  parse( "[\"string\", 1, 1.1, {\"foo\" : \"bar\"}, [\"doh\"], true, false, null]" ) );
   }
 
   @Test
@@ -115,6 +115,11 @@ public class ParserTest
     assertTrue( parse( "E-1" ) instanceof Error);
     assertTrue( parse( "1E.1" ) instanceof Error);
 
+    // bad objects
+    assertTrue( parse( "{\"foo\"}" ) instanceof Error);
+    assertTrue( parse( "{\"foo\":}" ) instanceof Error);
+    assertTrue( parse( "{\"foo\": badToken}" ) instanceof Error);
+
     // bad arrays
     assertTrue( parse( "[1" ) instanceof Error);
     assertTrue( parse( "[1," ) instanceof Error);
@@ -122,18 +127,10 @@ public class ParserTest
     assertTrue( parse( "[1, badToken]" ) instanceof Error);
     assertTrue( parse( "[1, [badToken]]" ) instanceof Error);
 
-
     // bad literals
     assertTrue( parse( "badToken" ) instanceof Error);
     assertTrue( parse( "True" ) instanceof Error);
     assertTrue( parse( "nil" ) instanceof Error);
-
-
-    // bad objects
-    assertTrue( parse( "{\"foo\"}" ) instanceof Error);
-    assertTrue( parse( "{\"foo\":}" ) instanceof Error);
-    assertTrue( parse( "{\"foo\": badToken}" ) instanceof Error);
-
   }
 
 
