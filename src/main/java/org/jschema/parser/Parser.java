@@ -93,7 +93,6 @@ public class Parser
         return tokenNum;
       }
     }
-
     return error();
   }
 
@@ -119,6 +118,7 @@ public class Parser
         parseMember(map);
       }
     }
+    nextToken();
     return map;
     }
 
@@ -127,7 +127,13 @@ public class Parser
     String key;
     Object obj;
 
-    key = _currentToken.getTokenValue();
+    if(match(STRING)) {
+      key = _currentToken.getTokenValue();
+    }
+    else{
+      nextToken();
+      return;
+    }
     nextToken();
     if(match(COLON)){
       nextToken();
@@ -141,7 +147,6 @@ public class Parser
         return;
       }
     }
-    nextToken();
   }
 
   public Object parseArray()
@@ -152,16 +157,9 @@ public class Parser
       return list;
     }
     list.add(parseValue());
-    //nextToken();
-    if(match(RSQUARE)){
-      nextToken();
-      return list;
-    }
     while (match(COMMA)) {
       nextToken();
       list.add(parseValue());
-      System.out.print(list);
-      //nextToken();
     }
     nextToken();
     return list;
@@ -184,4 +182,5 @@ public class Parser
   {
     return new Error("Unexpected Token: " + _currentToken.toString());
   }
+
 }

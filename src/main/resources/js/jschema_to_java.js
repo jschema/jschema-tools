@@ -12,6 +12,18 @@ function packageFor(className) {
   return className
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 //Generates Java Object Based on jSchema input. Class will be ClassName
 function generateObject(jSchema, className){
   return className
