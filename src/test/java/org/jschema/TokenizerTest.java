@@ -2,6 +2,7 @@ package org.jschema;
 
 import org.junit.Test;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -331,7 +332,7 @@ public class TokenizerTest {
   }
 
   private List<Token> tokenize(String str) {
-    Tokenizer tokenizer = new Tokenizer(str);
+    Tokenizer tokenizer = new Tokenizer(new StringReader(str));
     ArrayList<Token> list = new ArrayList<Token>();
     Token token = tokenizer.next();
     while(token.getType() != TokenType.EOF) {

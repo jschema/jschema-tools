@@ -2,7 +2,12 @@ package org.jschema;
 
 import org.junit.Test;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.StringReader;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -10,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -29,13 +35,50 @@ public class ParserTest {
     long before = System.currentTimeMillis();
     int errors = 0;
     for(int i = 0; i < times; i++) {
-      Tokenizer tokenizer = new Tokenizer(bigJson);
+      Tokenizer tokenizer = new Tokenizer(new StringReader(bigJson));
       Parser p = new Parser(tokenizer);
       p.parse();
       errors = p.getErrors().size();
     }
     long after = System.currentTimeMillis();
-    System.out.println("Time: " + ((after - before) / (double) times) + " ms");
+    System.out.println("readBigFile Time: " + ((after - before) / (double) times) + " ms");
+    assertEquals(0, errors);
+  }
+
+  @Test
+  public void readValueFromBigFile() throws FileNotFoundException {
+    URL url = null;
+    try {
+      url = getClass().getClassLoader().getResource("citylots.json");
+    }
+    catch(Exception e) {
+      fail("Please copy the file 'citylots.json' in the src/test/resources folder");
+    }
+    long times = 10;
+    long before = System.currentTimeMillis();
+    int errors = 0;
+    for(int i = 0; i < times; i++) {
+      Tokenizer tokenizer = new Tokenizer(new BufferedReader(new FileReader(url.getPath())));
+      Parser p = new Parser(tokenizer);
+      p.advance();
+      p.skipMember();
+      for(int k = 0; k < 4; k++) {
+        p.advance();
+      }
+      for(int k = 0; k < 206559; k++) {
+        p.skipValue();
+        p.advance();
+      }
+      p.advance();
+      p.skipMember();
+      p.advance();
+      HashMap val = new HashMap();
+      p.parseMember(val);
+      assertEquals(((Map) val.get("properties")).get("MAPBLKLOT"), "VACSTWIL");
+      assertEquals(0, p.getErrors().size());
+    }
+    long after = System.currentTimeMillis();
+    System.out.println("readValueFromBigFile Time: " + ((after - before) / (double) times) + " ms");
     assertEquals(0, errors);
   }
 
@@ -66,11 +109,40 @@ public class ParserTest {
 
     expected.put("address", address);
     expected.put("etc", Arrays.asList(true, false, null, 3.14, Arrays.asList("a", 8)));
-    Tokenizer tokenizer = new Tokenizer(sample);
+    Tokenizer tokenizer = new Tokenizer(new StringReader(sample));
     Parser p = new Parser(tokenizer);
     Object val = p.parse();
     assertEquals(0, p.getErrors().size());
     assertEquals(expected, val);
+  }
+
+  @Test
+  public void testSampleStreaming() {
+    String sample = "{\n" +
+      "  \"firstName\": \"John\",\n" +
+      "  \"lastName\": \"Smith\",\n" +
+      "  \"age\": 25,\n" +
+      "  \"address\": {\n" +
+      "    \"streetAddress\": \"21 2nd Street\",\n" +
+      "    \"city\": \"New York\",\n" +
+      "    \"state\": \"NY\",\n" +
+      "    \"postalCode\": \"10021\"\n" +
+      "  },\n" +
+      "  \"etc\": [true, false, null, 3.14, [\"a\", 8]]\n" +
+      "}";
+    Tokenizer tokenizer = new Tokenizer(new StringReader(sample));
+    Parser p = new Parser(tokenizer);
+    assertEquals(TokenType.LCURLY, p.currentToken().getType());
+    p.advance();
+    while(!p.currentToken().getString().equals("etc")) { p.skipMember(); p.advance(); }
+    p.advance();
+    assertEquals(TokenType.COLON, p.currentToken().getType());
+    p.advance();
+    assertEquals(TokenType.LSQUARE, p.currentToken().getType());
+    p.advance();
+    for(int i = 0; i < 3; i++) { p.skipValue(); p.advance(); }
+    assertEquals(0, p.getErrors().size());
+    assertEquals(3.14, p.currentToken().getReal(), 0.001);
   }
 
   @Test
@@ -95,7 +167,7 @@ public class ParserTest {
     address.put("streetAddress", null);
     expected.put("address", address);
     expected.put("etc", Arrays.asList(true, false, null, 3.14, Arrays.asList("a", 8)));
-    Tokenizer tokenizer = new Tokenizer(sample);
+    Tokenizer tokenizer = new Tokenizer(new StringReader(sample));
     Parser p = new Parser(tokenizer);
     Object val = p.parse();
     assertEquals(3, p.getErrors().size());
@@ -218,13 +290,13 @@ public class ParserTest {
   }
 
   private boolean hasErrors(String src) {
-    Parser parser = new Parser(new Tokenizer(src));
+    Parser parser = new Parser(new Tokenizer(new StringReader(src)));
     parser.parse();
     return parser.getErrors().size() != 0;
   }
 
   private Object parse(String src) {
-    return new Parser(new Tokenizer(src)).parse();
+    return new Parser(new Tokenizer(new StringReader(src))).parse();
   }
 
   private List list(Object... listVals) {

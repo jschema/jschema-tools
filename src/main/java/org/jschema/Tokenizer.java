@@ -1,15 +1,16 @@
 package org.jschema;
 
+import java.io.IOException;
+import java.io.Reader;
+
 public final class Tokenizer {
-  private String source;
-  private int i;
+  private Reader source;
   private int line;
   private int column;
   private char ch;
 
-  public Tokenizer(String source) {
+  public Tokenizer(Reader source) {
     this.source = source;
-    i = 0;
     line = 1;
     column = 0;
     nextChar();
@@ -66,7 +67,6 @@ public final class Tokenizer {
         break;
       case '\0':
         T = new Token(TokenType.EOF, "EOF", line, column, 0, 0.0);
-        source = "";
         break;
       default:
         T = newToken(TokenType.ERROR, String.valueOf(ch));
@@ -282,18 +282,23 @@ public final class Tokenizer {
   }
 
   private void nextChar() {
-    if(i < source.length()) {
-      ch = source.charAt(i);
-      if(ch == '\n') {
-        line++;
-        column = 0;
-      } else {
-        column++;
-      }
-      i = i + 1;
-    } else {
-      ch = '\0';
+    int c;
+
+    try {
+      c = source.read();
+    } catch (IOException e) {
+      c = -1;
     }
+    if(c == '\n') {
+      column = 1;
+      line++;
+    }
+    else if(c != -1) {
+      column++;
+    } else {
+      c = '\0';
+    }
+    ch = (char)c;
   }
 
   private boolean moreChars() {

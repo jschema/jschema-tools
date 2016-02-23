@@ -56,6 +56,13 @@ public final class Token {
 
   @Override
   public String toString() {
-    return "[" + type + "]" + string;
+    return string + " : " + type;
+  }
+
+  public boolean isValueType() {
+    return type == TokenType.LCURLY || type == TokenType.LSQUARE ||
+           type == TokenType.INTEGER || type == TokenType.REAL ||
+           type == TokenType.STRING || type == TokenType.TRUE ||
+           type == TokenType.FALSE || type == TokenType.NULL;
   }
 }
