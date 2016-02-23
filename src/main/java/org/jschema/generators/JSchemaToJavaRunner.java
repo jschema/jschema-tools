@@ -12,11 +12,32 @@ import java.util.ArrayList;
 
 public class JSchemaToJavaRunner
 {
+  public static Object generateClass(String classname) throws Exception{
+    Object generatedClass = runEngine().invokeFunction("generateClass", classname);
+    return generatedClass;
+  }
+
+  public static Object generateFields(String jschema) throws Exception{
+    Object generatedFields = runEngine().invokeFunction("generateFields", jschema);
+    return generatedFields;
+  }
+
+  public static Object generateObject(String jschema, String classname) throws Exception{
+    Object generatedObject = runEngine().invokeFunction("generateObject", jschema, classname);
+    return generatedObject;
+  }
+
+  public static Object generateGET(String jschema) throws Exception{
+    Object generatedGET = runEngine().invokeFunction("generateGET", jschema);
+    return generatedGET;
+  }
+  public static Object generateSET(String jschema) throws Exception{
+    Object generatedSET = runEngine().invokeFunction("generateSET", jschema);
+    return generatedSET;
+  }
+
   public static void main( String[] args ) throws Exception
   {
-    ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-    engine.eval(new FileReader("src/main/resources/js/jschema_to_java.js"));
-    Invocable invocable = (Invocable) engine;
 
     //opens a .jschema file, reads it into Stringbuilder builder, and converts to String str.
     //if you get a "no such file or directory" error, verify that the FileReader path is correct for you
@@ -28,16 +49,25 @@ public class JSchemaToJavaRunner
     }
     String str = builder.toString();
 
-    //str is parsed into the approprite object
-    Object parsed_schema = parse(str);
+    Object generatedClass = generateClass("Temp_name");
+    //System.out.print(generatedClass);
 
-    //pass the parsed jschema into a javascript function. Currently only returns itself.
-    Object attempt = invocable.invokeFunction("generateObject", parsed_schema, "Temporary_Classname");
-    System.out.print(attempt);
+    Object generatedFields = generateFields(str);
+    //System.out.print(generatedFields);
+
+    Object generatedObject = generateObject(str, "Temp_name");
+    System.out.print(generatedObject);
   }
 
   private static Object parse( String src )
   {
     return new Parser( src ).parse();
+  }
+
+  private static Invocable runEngine() throws Exception{
+    ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+    engine.eval(new FileReader("src/main/resources/js/jschema_to_java.js"));
+    Invocable invocable = (Invocable) engine;
+    return invocable;
   }
 }

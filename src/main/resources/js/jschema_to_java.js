@@ -2,37 +2,24 @@
   This javascript file provides functionality for generating java source code for working with
   JSON documents that satisfy a given jSchema
 */
-
-function generateJavaForJSchema(jSchema, className) {
-  var generatedSource = "package " + packageFor(jSchema)
-  return generatedSource
+//Generates the Class Header line. Does not currently close the object with a "}".
+function generateClass(classname){
+  var className = "Class " + classname + "{\n";
+  return className;
 }
 
-function packageFor(className) {
-  return className
-}
-
-//Generates Java Object Based on jSchema input. Class will be ClassName.
-//We will need to parse the jSchema object to return the correct object
+//Generates Java Object Based on jSchema input. Object name will be className.
 function generateObject(jSchema, className){
-  var parsed_schema = jSchema;
+  var parsed_schema = JSON.parse(jSchema);
   var keys = [];
   var count = 0;
 
-  //creates variable fields
-  var obj = "Class " + className + "{\n";
-  for(var i in parsed_schema){
-    keys.push(i);
-    obj += "  private " + parsed_schema[i] + " ";
-    obj += "_" + keys[count] + ";\n";
-    count++;
-  }
-  count = 0;
-  obj += "\n";
+  var obj = "";
 
   //creates constructor
   obj += "  public " + className + "(";
   for (var i in parsed_schema){
+  keys.push(i);
     obj += parsed_schema[i] + " ";
     obj += keys[count] + ", ";
     count++;
@@ -47,17 +34,18 @@ function generateObject(jSchema, className){
     count++;
   }
   obj += "  }\n";
-  obj += "}\n"
-
   return obj;
 }
 
+function generateFields(Jschema){
+ return Jschema;
+}
 //Generate Get methods for the created Java Object
-function generateGet(Object){
-  return "Get Methods here"
+function generateGeET(Jschema){
+  return Jschema;
 }
 
 //Generate Set methods for the created Java Object
-function generateSet(Object){
-  return "Set Methods here"
+function generateSET(Jschema){
+  return Jschema;
 }
