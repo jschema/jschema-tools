@@ -16,14 +16,6 @@ function generateObject(jSchema, className){
   var count = 0;
   var obj = "";
 
-  for (var i in parsed_schema){
-  keys.push(i);
-    obj += parsed_schema[i] + " ";
-    obj += keys[count] + "\n ";
-    count++;
-  }
-  return obj;
-/*
   //creates constructor
   obj += "  public " + className + "(";
   for (var i in parsed_schema){
@@ -43,7 +35,6 @@ function generateObject(jSchema, className){
   }
   obj += "  }\n";
   return obj;
-*/
 }
 
 function generateFields(Jschema){
