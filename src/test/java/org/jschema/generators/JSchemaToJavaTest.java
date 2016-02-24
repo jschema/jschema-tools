@@ -1,4 +1,4 @@
-package generated;
+package org.jschema.generators;
 
 import org.jschema.generators.JSchemaToJavaRunner;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class JSchemaToJavaTest{
     @Test
     public void testGenerateClass() throws Exception
     {
-        assertEquals("{\"name\":\"@String\",\"age\":\"@int\"}",
+        assertEquals("{\"name\" : \"@String\", \"age\": \"@int\"}",
                 JSchemaToJavaRunner.generateFields(Open("src/test/java/schemas/basic.jschema")));
     }
 
@@ -30,7 +30,7 @@ public class JSchemaToJavaTest{
     private String Open(String PathToFile) throws IOException{
         StringBuilder builder = new StringBuilder();
         String Line;
-        BufferedReader schema = new BufferedReader( new FileReader(PathToFile);
+        BufferedReader schema = new BufferedReader( new FileReader(PathToFile));
         while((Line = schema.readLine()) != null){
             builder.append(Line);
         }
