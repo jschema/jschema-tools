@@ -207,25 +207,27 @@ public class Parser
     List<Object> mylist = new ArrayList<>();
     Object s;
 
-    /*
+
     if ( match( RSQUARE ) ){                                   //once it hits the end
       nextToken();
       return mylist;
     }
-    if( match ( RSQUARE ) ){               //if match a second rsquare
-      return error();
-    }
+    mylist.add(parseValue());
 
     while( match( COMMA ) ){
       nextToken();
+      if( match( RSQUARE ) || match( EOF ) || match( ERROR ) ||
+              match( COMMA ) || match( COLON ) ){       //if a second RSQUARE is matched
+        return error();
+      }
       s = parseValue();
       mylist.add(s);
     }
 
-*/
 
 
 
+/*
     while( !match( RSQUARE ) ) {
 
       if ( match( RCURLY ) || match( EOF ) || match( ERROR ) ||
@@ -242,14 +244,13 @@ public class Parser
           }
         }
       }
-    }
+    }*/
 
     if( match( RSQUARE ) ){
       nextToken();
     }else{
       return error();
     }
-
     return mylist;
   }
 
