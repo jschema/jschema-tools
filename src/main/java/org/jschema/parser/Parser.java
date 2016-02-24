@@ -136,37 +136,6 @@ public class Parser
     }
     return map;
 
-
-
-
-/*
-    while ( !match( RCURLY ) ){
-
-      if( match( STRING ) ){
-        key = (String) parseValue();
-
-        if( match( COLON ) ){
-          nextToken();
-          if( match( RSQUARE ) || match( RCURLY ) ||
-                  match( EOF ) || match( ERROR ) ||
-                  match( COMMA ) || match( COLON ) ){
-            return error();
-          }
-          val = parseValue();
-          map.put(key, val);
-
-        }else{
-          return error();                   //if colon is not found, return error.
-        }
-      }else{
-        return error();                     //if string is not found, return error.
-      }
-
-      if( match( COMMA ) ){
-        nextToken();
-      }
-    }
-    */
   }
 
 
@@ -192,7 +161,6 @@ public class Parser
     }
     nextToken();
 
-
     if( match( RCURLY ) ){               //end is reached
       return _currentToken;
     }
@@ -212,7 +180,9 @@ public class Parser
       nextToken();
       return mylist;
     }
-    mylist.add(parseValue());
+    s = parseValue();
+    mylist.add(s);
+
 
     while( match( COMMA ) ){
       nextToken();
@@ -223,8 +193,6 @@ public class Parser
       s = parseValue();
       mylist.add(s);
     }
-
-
 
 
 /*
