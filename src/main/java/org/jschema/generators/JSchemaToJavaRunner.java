@@ -12,6 +12,13 @@ import java.util.ArrayList;
 
 public class JSchemaToJavaRunner
 {
+
+  private String _testObj;
+
+  public JSchemaToJavaRunner(String Obj){
+    _testObj = Obj;
+  }
+
   public static Object generateClass(String classname) throws Exception{
     Object generatedClass = runEngine().invokeFunction("generateClass", classname);
     return generatedClass;
@@ -56,7 +63,10 @@ public class JSchemaToJavaRunner
     //System.out.print(generatedFields);
 
     Object generatedObject = generateObject(str, "Temp_name");
-    System.out.print(generatedObject);
+
+    System.out.print("Input: " + str);
+    System.out.print("\n");
+    System.out.print("Output: \n" + generatedObject);
   }
 
   private static Object parse( String src )
