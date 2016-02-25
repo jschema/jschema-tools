@@ -17,9 +17,12 @@ function generateObject(jSchema, className){
   var obj = "";
 
   //creates constructor
-  obj += "  public " + className + "(";
+  obj += "public " + className + "(";
   for (var i in parsed_schema){
   keys.push(i);
+    if(parsed_schema[i].charAt(0) == '@'){
+      parsed_schema[i] = parsed_schema[i].substring(1, parsed_schema[i].length);
+    }
     obj += parsed_schema[i] + " ";
     obj += keys[count] + ", ";
     count++;
@@ -28,12 +31,12 @@ function generateObject(jSchema, className){
 
   //populates constructor
   obj = obj.substring(0, obj.length - 2);
-  obj += "){\n";
+  obj += "){";
   for(var i in parsed_schema){
-    obj += "    _" + keys[count] + " = " + keys[count] + ";\n";
+    obj += "_" + keys[count] + " = " + keys[count] + ";";
     count++;
   }
-  obj += "  }\n";
+  obj += "}";
   return obj;
 }
 
