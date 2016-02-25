@@ -18,11 +18,46 @@ import org.junit.Test;
 
 public class JSchemaToJavaTest{
 
+
     @Test
-    public void testGenerateClass() throws Exception
+    public void TestGenerateClass() throws Exception
     {
-        assertEquals("{\"name\" : \"@String\", \"age\": \"@int\"}",
-                JSchemaToJavaRunner.generateFields(Open("src/test/java/schemas/basic.jschema")));
+        assertEquals("Class Temp_Name{\n", JSchemaToJavaRunner.generateClass("Temp_Name"));
+    }
+
+    @Test
+    public void TestGenerateFields() throws Exception
+    {
+        assertEquals("private String _Name;" , JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\"}"));
+
+        assertEquals("private String _Name;\nprivate int _age;",
+                JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\", \"age\": \"@int\"}"));
+    }
+
+    @Test
+    public void TestGenerateObject() throws Exception
+    {
+        assertEquals("public Temp_Name(String Name){_Name = Name;}",JSchemaToJavaRunner.generateObject("{\"Name\" : \"@String\"}", "Temp_Name"));
+
+        assertEquals("public Temp_Name(String Name, int age){_Name = Name;_age = age;}",
+                JSchemaToJavaRunner.generateObject("{\"Name\" : \"@String\", \"age\": \"@int\"}", "Temp_Name"));
+
+    }
+    @Test
+    public void TestGenerateGET() throws Exception
+    {
+        assertEquals("public String getName(){return _Name;}",JSchemaToJavaRunner.generateGET("{\"Name\" : \"@String\"}"));
+
+        assertEquals("public String getName(){return _Name;}\npublic int getage(){return _age;} ",
+                JSchemaToJavaRunner.generateGET("{\"name\" : \"@String\", \"age\": \"@int\"}"));
+    }
+    @Test
+    public void TestGenerateSET() throws Exception
+    {
+        assertEquals("public void setName(String Name){_Name = Name;}",JSchemaToJavaRunner.generateGET("{\"Name\" : \"@String\"}"));
+
+        assertEquals("public String setName(String Name){_Name = Name;}\npublic int setage(int age){_age = age;} ",
+                JSchemaToJavaRunner.generateSET("{\"name\" : \"@String\", \"age\": \"@int\"}"));
     }
 
 
