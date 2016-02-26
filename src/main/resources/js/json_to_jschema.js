@@ -15,10 +15,24 @@ function updateSchema(document, schema) {
 // JSON -> JSchema generator
 function generateJSchemaFromJSON(json) {
     var jschema = JSON.parse(json);
-    for (key in jschema) {
-        jschema[key] = getType(jschema[key]);
+    if (Object.prototype.toString.call(jschema) == "[object Array]") {
+        parseArray(jschema);
+    } else {
+        parseMember(jschema);
     }
     return jschema;
+}
+
+function parseArray(array) {
+    for (member in array) {
+        parseMember(member);
+    }
+}
+
+function parseMember(member) {
+    for (key in member) {
+        member[key] = getType(member[key]);
+    }
 }
 
 function getType(value) {
@@ -39,7 +53,11 @@ function getType(value) {
     } else if (nativeJSType == "boolean") {
         return "@boolean";
     } else if (nativeJSType == "object") {
-        return "@object";
+        if (Object.prototype.toString.call(value) == "[object Array]") {
+            parseArray(value);
+        } else {
+            return "@object";
+        }
     } else {
         return "*";
     }
