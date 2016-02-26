@@ -8,7 +8,7 @@ import java.io.FileReader;
 public class JSONToJSchemaRunner
 {
   public static void main( String[] args ) throws Exception {
-    testEquals(jschemaString("{\"string\":\"String\",\"int\":20,\"boolean\":true}"), "{\"name\":\"@string\",\"age\":\"@int\",\"boolean\":\"@boolean\"}");
+    testEquals(jschemaString("{\"string\":\"String\",\"int\":20,\"boolean\":true, \"date\":\"2016-02-25\"}"), "{\"name\":\"@string\",\"age\":\"@int\",\"boolean\":\"@boolean\", \"date\":\"@date\"}");
   }
 
   private static void testEquals(String first, String second) {

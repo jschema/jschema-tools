@@ -24,6 +24,9 @@ function generateJSchemaFromJSON(json) {
 function getType(value) {
     var nativeJSType = typeof value;
     if (nativeJSType == "string") {
+        if (!isNaN(Date.parse(value))) {
+            return "@date";
+        }
         return "@string";
     } else if (nativeJSType == "number") {
         if (value % 1 === 0) {
