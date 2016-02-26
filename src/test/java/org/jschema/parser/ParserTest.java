@@ -110,7 +110,6 @@ public class ParserTest
     assertTrue( parse( "E1" ) instanceof Error);
     assertTrue( parse( "E+1" ) instanceof Error);
     assertTrue( parse( "E-1" ) instanceof Error);
-    assertTrue( parse( "1E.1" ) instanceof Error);
 
     // bad objects
     assertTrue( parse( "{\"foo\"}" ) instanceof Error);
