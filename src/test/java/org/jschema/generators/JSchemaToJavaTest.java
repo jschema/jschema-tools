@@ -41,6 +41,9 @@ public class JSchemaToJavaTest{
         assertEquals("private boolean _high;", JSchemaToJavaRunner.generateFields("{\"high\" : \"@boolean\"}"));
 
         assertEquals("private String _date;", JSchemaToJavaRunner.generateFields("{\"date\" : \"@date\"}"));
+
+        assertEquals("private String _uri;", JSchemaToJavaRunner.generateFields("{\"uri\" : \"@uri\"}"));
+
     }
 
     @Test
@@ -54,6 +57,9 @@ public class JSchemaToJavaTest{
         assertEquals("public Temp_Name(char Name){_Name = Name;}", JSchemaToJavaRunner.generateObject("{\"Name\" : \"@String\"}", "Temp_Name"));
 
         assertEquals("public Temp_Name(String date){_date = date;}", JSchemaToJavaRunner.generateObject("{\"date\" : \"@date\"}", "Temp_Name"));
+
+        assertEquals("public Temp_Name(String uri){_uri = uri;}", JSchemaToJavaRunner.generateObject("{\"uri\" : \"@uri\"}", "Temp_Name"));
+
 
     }
 
@@ -84,7 +90,10 @@ public class JSchemaToJavaTest{
 
         assertEquals("public void setError(char Name){_Name = Name;}",JSchemaToJavaRunner.generateError("{\"Name\" : \"@String\"}"));
 
-        assertEquals("public void setError(String date){_dame = dame;}",JSchemaToJavaRunner.generateError("{\"date\" : \"@date\"}"));
+        assertEquals("public void setError(String date){_date = date;}",JSchemaToJavaRunner.generateError("{\"date\" : \"@date\"}"));
+
+        assertEquals("public void setError(String uri){_uri = uri;}",JSchemaToJavaRunner.generateError("{\"uri\" : \"@uri\"}"));
+
     }
 
 
