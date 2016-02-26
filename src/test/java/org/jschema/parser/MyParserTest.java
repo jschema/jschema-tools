@@ -7,7 +7,6 @@
 
 package org.jschema.parser;
 
-import junit.framework.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -123,7 +122,7 @@ public class MyParserTest
 
     private Object parse( String src )
     {
-        return new Parser( src ).parse();
+        return new MyParser( src ).parse();
     }
 
 }

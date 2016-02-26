@@ -1,9 +1,7 @@
 package org.jschema.parser;
 
-import junit.framework.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,7 +13,6 @@ import static junit.framework.Assert.assertTrue;
 public class ParserTest
 {
 
-  @Test
   public void testParseObject()
   {
     // empty
@@ -32,7 +29,7 @@ public class ParserTest
 
     // complex single
     assertEquals( map("foo", map( "foo", "bar" )), parse( "{\"foo\" : {\"foo\":\"bar\"}}" ) );
-    assertEquals( map("foo", list( "foo", "bar" )), parse( "{\"foo\" : [\"foo\", \"bar\"}]" ) );
+    assertEquals( map("foo", list( "foo", "bar" )), parse( "{\"foo\" : [\"foo\", \"bar\"]}" ) );
 
     // simple multi
     assertEquals( map( "foo", "bar", "doh", "rey" ), parse( "{\"foo\":\"bar\", \"doh\":\"rey\"}" ) );
@@ -139,7 +136,7 @@ public class ParserTest
   //======================================================================
   private Object parse( String src )
   {
-    return new Parser( src ).parse();
+    return new MyParser( src ).parse();
   }
 
   private List list(Object... listVals)
