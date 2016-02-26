@@ -43,6 +43,13 @@ public class JSchemaToJavaRunner
     return generatedSET;
   }
 
+  public static Object generateError(String jschema) throws Exception{
+    Object generatedError = runEngine().invokeFunction("generateError", jschema);
+    return generatedError;
+  }
+
+
+
   public static void main( String[] args ) throws Exception
   {
 
@@ -63,6 +70,8 @@ public class JSchemaToJavaRunner
     //System.out.print(generatedFields);
 
     Object generatedObject = generateObject(str, "Temp_name");
+
+    Object generatedError = generateError(str);
 
     System.out.print("Input: " + str);
     System.out.print("\n");

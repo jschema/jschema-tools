@@ -1,10 +1,11 @@
 package org.jschema.parser;
 
 import org.jschema.parser.Token.TokenType;
-//import sun.org.mozilla.javascript.ast.WhileLoop;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.lang.*;
+import java.util.*;
 
 import static org.jschema.parser.Token.TokenType.*;
 
@@ -36,9 +37,9 @@ public class Parser
     }
   }
 
+
   public Object parseValue()
   {
-
     if( match( LCURLY ) )
     {
       nextToken();
@@ -52,124 +53,176 @@ public class Parser
       return parseArray();
     }
 
-    if( match( TRUE ) )
+    // parse literals (e.g. true, false, strings, numbers)
+    if( match( STRING ) )
     {
+      String tokenValue = _currentToken.getTokenValue();
+        nextToken();
+        return tokenValue;
+    }
+
+    
+    //TODO implement other literals
+
+    if( match ( NUMBER ) ){
+      double tokenNumberValue = _currentToken.getTokenNumberValue();
+
+      if (!_currentToken.getTokenValue().contains(".")) {             //if it's an integer
+        if( _currentToken.getTokenValue().contains("e") ||
+                _currentToken.getTokenValue().contains("E")){
+          nextToken();
+          return tokenNumberValue;
+        }
+          int temp = (int) (_currentToken.getTokenNumberValue());
+          nextToken();
+          return temp;
+      }
+      nextToken();
+      return tokenNumberValue;
+    }
+
+    
+    if( match ( TRUE )){
       nextToken();
       return true;
     }
 
-    if( match( FALSE ) )
-    {
+    if( match ( FALSE )){
       nextToken();
       return false;
     }
-    if( match( NULL ) )
-    {
+
+    if( match ( NULL )){
       nextToken();
       return null;
     }
 
-    if( match( STRING ) )
-    {
-      String tokenValue = _currentToken.getTokenValue();
+    if( match ( ERROR )){
       nextToken();
-      return tokenValue;
+      return error();
     }
-    if( match( NUMBER ) )
-    {
-      String tokenValue = _currentToken.getTokenValue();
-      double tokenNum = _currentToken.getTokenNumberValue();
-      if(tokenValue.indexOf('e') >= 0 || tokenValue.indexOf('E') >= 0){
-        nextToken();
-        return Double.parseDouble(tokenValue);
-      }
-      if(tokenNum % 1 == 0){
-        nextToken();
-        return Integer.parseInt(tokenValue);
-      }
-      else{
-        nextToken();
-        return tokenNum;
-      }
-    }
+
     return error();
   }
 
-  public Object parseObject() {
-    HashMap<String, Object> map = new HashMap<>();
 
-    if(match(STRING)) {
-      parseMember(map);
-    }
-    while (match(COMMA)) {
-      nextToken();
-      if (match(STRING)) {
-        parseMember(map);
-      }
-      else{
-        nextToken();
-        return error();
-      }
-    }
-    if (match(RCURLY)){
+
+  public Object parseObject() {
+    //TODO implement, return a map of name/value pairs, and Error if an error is detected
+    //                pass the map into parseMember to populate
+    HashMap<String, Object> map = new HashMap<>();
+    //String key;
+    //Object val;
+
+    parseMember(map);
+
+    if (match(RCURLY)) {
       nextToken();
       return map;
     }
-    else {
-      nextToken();
-      return error();
+
+    if (match(STRING)) {
+      parseMember(map);
     }
-  }
 
-  private void parseMember( HashMap map )
-  {
-    String key;
-    Object obj;
-
-    key = _currentToken.getTokenValue();
-    nextToken();
-    if(match(COLON)){
+    while (match(COMMA)) {
       nextToken();
-      obj = parseValue();
-      if(obj instanceof Error){
-        parseError();
+      if (match(ERROR) || match(EOF) || match(COLON) || match(COMMA) || match(RSQUARE)) {
+        return error();
       }
-      map.put(key, obj);
+      if (match(STRING)) {
+        parseMember(map);
+      }
     }
-    else{
-      parseError();
-    }
+    return map;
+
   }
 
-  private Error parseError(){
+
+
+  private Object parseMember( HashMap map )
+  {
+    //TODO implement, parse the key and value, return the map if it is good, Error otherwise.
+    //key value pair
+
+    String key = _currentToken.getTokenValue();
+    Object val;
+
     nextToken();
-    return error();
+    if( !match( COLON ) ){
+      return error();
+    }else{
+      nextToken();             //if match colon
+      val = parseValue();
+      map.put(key, val);
+      if( match( COMMA ) ){
+        return error();
+      }
+    }
+    nextToken();
+
+    if( match( RCURLY ) ){               //end is reached
+      return _currentToken;
+    }
+    return map;
   }
+
 
   public Object parseArray()
   {
-    ArrayList list = new ArrayList();
-    if(match(RSQUARE)){
+    //TODO implement, parse the elements inline, return Error if any element is error
+
+    List<Object> mylist = new ArrayList<>();
+    Object s;
+
+
+    if ( match( RSQUARE ) ){                                   //once it hits the end
       nextToken();
-      return list;
+      return mylist;
     }
-    list.add(parseValue());
-    while (match(COMMA)) {
+    s = parseValue();
+    mylist.add(s);
+
+
+    while( match( COMMA ) ){
       nextToken();
-      if(match(RSQUARE)){
-        parseError();
+      if( match( RSQUARE ) || match( EOF ) || match( ERROR ) ||
+              match( COMMA ) || match( COLON ) ){       //if a second RSQUARE is matched
+        return error();
       }
-      list.add(parseValue());
+      s = parseValue();
+      mylist.add(s);
     }
-    if(match(RSQUARE)) {
+
+
+/*
+    while( !match( RSQUARE ) ) {
+
+      if ( match( RCURLY ) || match( EOF ) || match( ERROR ) ||
+             match( COLON ) || match( COMMA ) ){
+        return error();
+      }else{
+        //s = _currentToken.getTokenValue();
+        s = parseValue();
+        mylist.add(s);
+        if( match( COMMA ) ){
+          nextToken();
+          if( match( RSQUARE ) ){
+            return error();
+          }
+        }
+      }
+    }*/
+
+    if( match( RSQUARE ) ){
       nextToken();
-      return list;
-    }
-    else{
-      nextToken();
+    }else{
       return error();
     }
+    return mylist;
   }
+
+
 
   //=================================================================================
   //  Tokenizer helpers
@@ -188,5 +241,4 @@ public class Parser
   {
     return new Error("Unexpected Token: " + _currentToken.toString());
   }
-
 }

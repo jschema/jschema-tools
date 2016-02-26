@@ -61,6 +61,14 @@ public class JSchemaToJavaTest{
     }
 
 
+    @Test
+    public void TestGenerateError() throws Exception{
+        assertEquals("public void setError(String Name){_Name = Name;}",JSchemaToJavaRunner.generateError("{\"Name\" : \"@String\"}"));
+    }
+
+
+
+
     //Helpers
     private String Open(String PathToFile) throws IOException{
         StringBuilder builder = new StringBuilder();
