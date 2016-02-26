@@ -20,9 +20,6 @@ function generateObject(jSchema, className){
   obj += "public " + className + "(";
   for (var i in parsed_schema){
   keys.push(i);
-    if(parsed_schema[i].charAt(0) == '@'){
-      parsed_schema[i] = parsed_schema[i].substring(1, parsed_schema[i].length);
-    }
     obj += parsed_schema[i] + " ";
     obj += keys[count] + ", ";
     count++;
@@ -51,4 +48,8 @@ function generateGET(Jschema){
 //Generate Set methods for the created Java Object
 function generateSET(Jschema){
   return Jschema;
+}
+
+function generateError(jschema){
+  return jschema;
 }

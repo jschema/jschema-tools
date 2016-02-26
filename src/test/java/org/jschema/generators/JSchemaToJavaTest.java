@@ -32,6 +32,16 @@ public class JSchemaToJavaTest{
 
         assertEquals("private String _Name;\nprivate int _age;",
                 JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\", \"age\": \"@int\"}"));
+
+        //simple array case
+        assertEquals("private String[] _emails;" ,
+                JSchemaToJavaRunner.generateFields("{\"emails\" : [\"@String\"]}"));
+
+        //simple enum case
+        assertEquals("public enum type{ red, green, blue};\nprivate type _type",
+                JSchemaToJavaRunner.generateFields("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
+
+
     }
 
     @Test
@@ -42,14 +52,31 @@ public class JSchemaToJavaTest{
         assertEquals("public Temp_Name(String Name, int age){_Name = Name;_age = age;}",
                 JSchemaToJavaRunner.generateObject("{\"Name\" : \"@String\", \"age\": \"@int\"}", "Temp_Name"));
 
+        //array case --this requires more thought, not sure if you can simply equate arrays
+        assertEquals("public Temp_Name(String[] emails){_emails = emails;}",
+                JSchemaToJavaRunner.generateObject("{\"emails\" : [\"@String\"]}", "Temp_Name"));
+
+        //enum case --we will need to watch our variable capitalization
+        assertEquals("public Temp_Name(type Type){_type = Type;}",
+                JSchemaToJavaRunner.generateObject("{\"type\" : [\"red\", \"green\", \"blue\"]}" ,"Temp_Name"));
+
     }
     @Test
     public void TestGenerateGET() throws Exception
     {
-        assertEquals("public String getName(){return _Name;}",JSchemaToJavaRunner.generateGET("{\"Name\" : \"@String\"}"));
+        assertEquals("public String getName(){return _Name;}",
+                JSchemaToJavaRunner.generateGET("{\"Name\" : \"@String\"}"));
 
         assertEquals("public String getName(){return _Name;}\npublic int getage(){return _age;} ",
                 JSchemaToJavaRunner.generateGET("{\"name\" : \"@String\", \"age\": \"@int\"}"));
+
+        //array case
+        assertEquals("public String[] getemails(){return _emails;}",
+                JSchemaToJavaRunner.generateGET("{{\"emails\" : [\"@String\"]}}"));
+
+        //enum case --will have to watch our variable capitalization
+        assertEquals("public type getType(){return _type;}",
+                JSchemaToJavaRunner.generateGET("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
     }
     @Test
     public void TestGenerateSET() throws Exception
@@ -58,7 +85,16 @@ public class JSchemaToJavaTest{
 
         assertEquals("public String setName(String Name){_Name = Name;}\npublic int setage(int age){_age = age;} ",
                 JSchemaToJavaRunner.generateSET("{\"name\" : \"@String\", \"age\": \"@int\"}"));
+
+        //array case --this requires more thought, not sure if you can simply equate arrays
+        assertEquals("public void setemails(String[] emails){_emails = emails;}",
+                JSchemaToJavaRunner.generateGET("{{\"emails\" : [\"@String\"]}}"));
+
+        //enum case --we will need error checking to make sure the input is a valid enum type
+        assertEquals("public void setType(type Type){_type = Type}",
+                JSchemaToJavaRunner.generateGET("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
     }
+
 
 
     @Test
