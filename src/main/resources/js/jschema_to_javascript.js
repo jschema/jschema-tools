@@ -61,11 +61,12 @@ function generateGetter(key){
          "}";
 }
 
-function generateSetter(key, type){
+function generateSetter(key, type) {
   return "set " + key + "(value){\n" +
-         "if (" + generateValidator(type) + "){\n" +
-         "return _" + key + " = value;\n" +
-         "}\n" +
-         "return console.log(value + \" does not conform to " + type + "\");\n" +
-         "}";
+      "if (" + generateValidator(type) + "){\n" +
+      "_" + key + " = value;\n" +
+      "}else{\n" +
+      "console.log(value + \" does not conform to " + type + "\");\n" +
+      "}return;\n" +
+      "}";
 }
