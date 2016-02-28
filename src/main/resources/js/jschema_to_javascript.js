@@ -5,7 +5,12 @@
 
 // TODO: array, enum, struct, nested schema
 function generateJavascriptForJSchema(jSchema, className) {
-  var schema = JSON.parse(jSchema);
+  try{
+    var schema = JSON.parse(jSchema);
+  } catch(e){
+    return "Invalid jSchema format"
+  }
+
   var generatedSource =
       "var " + className + " = {\n" +
       "parse: function(jsonData){\n";
