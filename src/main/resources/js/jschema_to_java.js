@@ -8,6 +8,19 @@ function generateClass(classname){
   return className;
 }
 
+
+//gets keys from input jschema. May not be necessary
+function makeKeys(jschema){
+  var parsed_schema = JSON.parse(jschema);
+  return Object.keys(parsed_schema).toString();
+  }
+
+//gets values from input jschema. May not be necessary
+function makeValues(jschema){
+  var parsed_schema = JSON.parse(jschema);
+  return parsed_schema;
+}
+
 //Generates Java Object Based on jSchema input. Object name will be className.
 function generateObject(jSchema, className){
   var parsed_schema = JSON.parse(jSchema);
