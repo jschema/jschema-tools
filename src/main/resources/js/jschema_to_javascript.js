@@ -3,18 +3,20 @@
   JSON documents that satisfy a given jSchema
 */
 
+/* this function will check if the string can be used as a variable in json
+   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Keywords
+   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types
+*/
+function isValidKey(){
+
+}
+
 // TODO: array, enum, struct, nested schema
 function generateJavascriptForJSchema(jSchema, className) {
-  try{
-    var schema = JSON.parse(jSchema);
-  } catch(e){
-    return "Invalid jSchema format"
-  }
-
   var generatedVariables = "";
   var generatedFunctions = "";
   var generatedSetters = "";
-  var generateParser = "if(typeof jsonData != 'undefined'){\n" +
+  var jsonDataParser = "if(typeof jsonData != 'undefined'){\n" +
                        "try{ var json = JSON.parse(jsonData);\n" +
                        "}catch(e){\n" +
                        "console.log(\"Invalid JSON format\");\n" +
@@ -26,6 +28,12 @@ function generateJavascriptForJSchema(jSchema, className) {
                        "console.log('\"' + key + '\" does not conform to schema ');\n" +
                        "return;}}}}";
 
+  try{
+    var schema = JSON.parse(jSchema);
+  } catch(e){
+    return "Invalid jSchema format";
+  }
+  // TODO: check valid JS variable names
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
       generatedVariables +=
@@ -41,7 +49,7 @@ function generateJavascriptForJSchema(jSchema, className) {
           "var validators = {};\n" +
           generatedVariables +
           generatedSetters + "\n" +
-          generateParser + "\n" +
+          jsonDataParser + "\n" +
           "return {\n  " +
           generatedFunctions +
           "};\n}};";
