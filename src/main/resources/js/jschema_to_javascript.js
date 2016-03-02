@@ -3,7 +3,7 @@
   JSON documents that satisfy a given jSchema
 */
 
-// TODO: array, enum, struct, nested schema, JSON initialization
+// TODO: array, enum, struct, nested schema
 function generateJavascriptForJSchema(jSchema, className) {
   try{
     var schema = JSON.parse(jSchema);
@@ -13,23 +13,34 @@ function generateJavascriptForJSchema(jSchema, className) {
 
   var generatedVariables = "";
   var generatedFunctions = "";
+  var generatedSetters = "";
+  var generateParser = "try{ var json = JSON.parse(jsonData);\n" +
+                       "}catch(e){\n" +
+                       "console.log(\"Invalid JSON format\");\n" +
+                       "return;\n}\n" +
+                       "for(var key in json){\n" +
+                       "if(json.hasOwnProperty(key)){\n" +
+                       "try{validators[key](json[key]);\n" +
+                       "}catch(e){\n" +
+                       "console.log('\"' + key + '\" does not conform to schema ');\n" +
+                       "return;}}}";
 
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
       generatedVariables +=
           "var _" + key + ";\n";
 
-      generatedFunctions +=
-          generateGetter(key) +
-          ",\n" +
-          generateSetter(key, schema[key]) +
-          ",\n";
+      generatedSetters += generateSetter(key, schema[key]) + "\n";
+      generatedFunctions += generateFunctions(key) + ",\n";
     }
   }
 
   return  "var " + className + " = {\n" +
           "parse: function(jsonData){\n" +
+          "var validators = {};\n" +
           generatedVariables +
+          generatedSetters + "\n" +
+          generateParser + "\n" +
           "return {\n  " +
           generatedFunctions +
           "};\n}};";
@@ -55,14 +66,13 @@ function generateValidator(type){
     return "True";
   }
 }
-function generateGetter(key){
-  return "get " + key + "(){\n" +
-         "return _" + key + ";\n" +
-         "}";
+function generateFunctions(key){
+  return "get " + key + "(){return _" + key + ";}," + "\n" +
+         "set " + key + "(value){return validators[\"" + key + "\"](value)}";
 }
 
 function generateSetter(key, type) {
-  return "set " + key + "(value){\n" +
+  return "validators[\"" + key + "\"] = function(value){\n" +
       "if (" + generateValidator(type) + "){\n" +
       "_" + key + " = value;\n" +
       "}else{\n" +
