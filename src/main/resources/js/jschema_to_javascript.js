@@ -14,7 +14,8 @@ function generateJavascriptForJSchema(jSchema, className) {
   var generatedVariables = "";
   var generatedFunctions = "";
   var generatedSetters = "";
-  var generateParser = "try{ var json = JSON.parse(jsonData);\n" +
+  var generateParser = "if(typeof jsonData != 'undefined'){\n" +
+                       "try{ var json = JSON.parse(jsonData);\n" +
                        "}catch(e){\n" +
                        "console.log(\"Invalid JSON format\");\n" +
                        "return;\n}\n" +
@@ -23,7 +24,7 @@ function generateJavascriptForJSchema(jSchema, className) {
                        "try{validators[key](json[key]);\n" +
                        "}catch(e){\n" +
                        "console.log('\"' + key + '\" does not conform to schema ');\n" +
-                       "return;}}}";
+                       "return;}}}}";
 
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
