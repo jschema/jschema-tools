@@ -10,31 +10,51 @@ class name: `Person`
 ```javascript
 var Person = {
   parse: function(jsonData){
+    var validators = {};
     var _name;
     var _age;
+    
+    validators["name"] = function(value){
+      if (Object.prototype.toString.call(value).slice(8, -1) === 'String'){
+        _name = value;
+      }else{
+        console.log(value + " does not conform to @string");
+      }
+      return;
+    }
+    validators["age"] = function(value){
+      if (Number.isInteger(value)){
+        _age = value;
+      }else{
+        console.log(value + " does not conform to @int");
+      }
+      return;
+    }
+    
+    if(typeof jsonData != 'undefined'){
+      try{ 
+        var json = JSON.parse(jsonData);
+      }catch(e){
+        console.log("Invalid JSON format");
+      return;
+      }
+      for(var key in json){
+        if(json.hasOwnProperty(key)){
+          try{
+            validators[key](json[key]);
+          }catch(e){
+            console.log('"' + key + '" does not conform to schema ');
+            return;
+          }
+        }
+      }
+    }
+    
     return {
-      get name(){
-        return _name;
-      },
-      set name(value){
-        if (Object.prototype.toString.call(value).slice(8, -1) === 'String'){
-          _name = value;
-        } else{
-          console.log(value + " does not conform to @string");
-        }
-        return;
-      },
-      get age(){
-        return _age;
-      },
-      set age(value){
-        if (Number.isInteger(value)){
-          _age = value;
-        } else{
-          console.log(value + " does not conform to @int");
-        }
-        return;
-      },
+      get name(){return _name;},
+      set name(value){return validators["name"](value)},
+      get age(){return _age;},
+      set age(value){return validators["age"](value)},
     };
   }
 };
@@ -48,8 +68,3 @@ var Person = {
   p.name = "Ashley";
   console.log(p.name); // "Ashley"
 ```
-## Issues
-The parse method does not initialize with jsonData. I cannot figure out how to accomplish this while also returning getters and setters. We need to use our setter's validation. I have tried:
-
-- Establishing the setter as a variable and then returning it later. 
-- Creating a new setter function (`set_name`) and running that after reading its JSON key as a string, so somehow creating the string `"set_name"` and then running it with something like `window["set_name"]`. This doesn't seem to be possible because this function is in a closed space.
