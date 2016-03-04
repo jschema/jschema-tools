@@ -84,7 +84,8 @@ function generateCreate(schema){
       // TODO: check valid key
       generatedVariables += "var " + key + ";\n";
       generatedSetters += generateSetter(key, schema[key]) + "\n";
-
+    }
+  }
       return  "create: function(){" +
               "return{" +
               "validate : function(){" +
@@ -97,15 +98,14 @@ function generateCreate(schema){
               "_jschemaMsg += _jschemaVal[key](this[key]);" +
               "}}"+
               "if(_jschemaMsg === \"\") return \"Valid\";" +
-              "return _jschemaMsg}," +
+              "return _jschemaMsg;}," +
               "toJSON : function(){" +
               "var toJson = {};" +
               "for (var key in this){\n" +
               "if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {\n" +
               "toJson[key] = this[key];\n" +
               "}}return toJson;}};},\n"
-    }
-  }
+
 }
 
 function generateValidator(type){
