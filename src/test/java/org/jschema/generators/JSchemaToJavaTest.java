@@ -30,13 +30,13 @@ public class JSchemaToJavaTest{
     {
         assertEquals("private String _Name;" , JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\"}"));
 
+        assertEquals("private String _Name;" , JSchemaToJavaRunner.generateFields("[{\"Name\" : \"@String\"}]"));
+
         assertEquals("private String _Name;\nprivate int _age;",
                 JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\", \"age\": \"@int\"}"));
 
-        assertEquals("private char _Name;", JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\"}"));
-
-        assertEquals("private char _Name;\nprivate int _age;",
-                JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\", \"age\": \"@number\"}"));
+        assertEquals("private String _Name;\nprivate int _age;",
+                JSchemaToJavaRunner.generateFields("[{\"Name\" : \"@String\", \"age\": \"@int\"}]"));
 
         assertEquals("private boolean _high;", JSchemaToJavaRunner.generateFields("{\"high\" : \"@boolean\"}"));
 
@@ -51,10 +51,14 @@ public class JSchemaToJavaTest{
     {
         assertEquals("public Temp_Name(String Name){_Name = Name;}", JSchemaToJavaRunner.generateObject("{\"Name\" : \"@String\"}", "Temp_Name"));
 
+        assertEquals("public Temp_Name(String Name)[{_Name = Name;}]", JSchemaToJavaRunner.generateObject("[{\"Name\" : \"@String\"}]", "Temp_Name"));
+
+
         assertEquals("public Temp_Name(String Name, int age){_Name = Name;_age = age;}",
                 JSchemaToJavaRunner.generateObject("{\"Name\" : \"@String\", \"age\": \"@int\"}", "Temp_Name"));
 
-        assertEquals("public Temp_Name(char Name){_Name = Name;}", JSchemaToJavaRunner.generateObject("{\"Name\" : \"@String\"}", "Temp_Name"));
+        assertEquals("public Temp_Name(String Name, int age)[{_Name = Name;_age = age;}]",
+                JSchemaToJavaRunner.generateObject("[{\"Name\" : \"@String\", \"age\": \"@int\"}]", "Temp_Name"));
 
         assertEquals("public Temp_Name(String date){_date = date;}", JSchemaToJavaRunner.generateObject("{\"date\" : \"@date\"}", "Temp_Name"));
 
@@ -63,21 +67,27 @@ public class JSchemaToJavaTest{
 
     }
 
-
+//returns a variable (string, date, int etc)
     @Test
     public void TestGenerateGET() throws Exception
     {
         assertEquals("public String getName(){return _Name;}",JSchemaToJavaRunner.generateGET("{\"Name\" : \"@String\"}"));
 
+        assertEquals("public String getName()[{return _Name;}]",JSchemaToJavaRunner.generateGET("[{\"Name\" : \"@String\"}]"));
+
+
         assertEquals("public String getName(){return _Name;}\npublic int getage(){return _age;} ",
                 JSchemaToJavaRunner.generateGET("{\"name\" : \"@String\", \"age\": \"@int\"}"));
     }
 
-
+//does not return anything. sets value.
     @Test
     public void TestGenerateSET() throws Exception
     {
         assertEquals("public void setName(String Name){_Name = Name;}",JSchemaToJavaRunner.generateGET("{\"Name\" : \"@String\"}"));
+
+        assertEquals("public void setName(String Name)[{_Name = Name;}]",JSchemaToJavaRunner.generateGET("[{\"Name\" : \"@String\"}]"));
+
 
         assertEquals("public String setName(String Name){_Name = Name;}\npublic int setage(int age){_age = age;} ",
                 JSchemaToJavaRunner.generateSET("{\"name\" : \"@String\", \"age\": \"@int\"}"));
@@ -88,7 +98,8 @@ public class JSchemaToJavaTest{
     public void TestGenerateError() throws Exception{
         assertEquals("public void setError(String Name){_Name = Name;}",JSchemaToJavaRunner.generateError("{\"Name\" : \"@String\"}"));
 
-        assertEquals("public void setError(char Name){_Name = Name;}",JSchemaToJavaRunner.generateError("{\"Name\" : \"@String\"}"));
+        assertEquals("public void setError(String Name)[{_Name = Name;}]",JSchemaToJavaRunner.generateError("[{\"Name\" : \"@String\"}]"));
+
 
         assertEquals("public void setError(String date){_date = date;}",JSchemaToJavaRunner.generateError("{\"date\" : \"@date\"}"));
 
