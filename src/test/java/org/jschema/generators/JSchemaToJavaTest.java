@@ -28,7 +28,7 @@ public class JSchemaToJavaTest{
     @Test
     public void TestGenerateFields() throws Exception
     {
-        assertEquals("private String _Name;" , JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\"}"));
+        assertEquals("private String _Name;\n" , JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\"}"));
 
         assertEquals("private String _Name;\nprivate int _age;",
                 JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\", \"age\": \"@int\"}"));

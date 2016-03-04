@@ -57,6 +57,11 @@ public class JSchemaToJavaRunner
     return makeValues;
   }
 
+  public static Object check_jschema_value(String jschema) throws Exception{
+    Object checked_value = runEngine().invokeFunction("jschema_parser", jschema);
+    return checked_value;
+  }
+
 
 
   public static void main( String[] args ) throws Exception
@@ -66,32 +71,14 @@ public class JSchemaToJavaRunner
     //if you get a "no such file or directory" error, verify that the FileReader path is correct for you
     StringBuilder builder = new StringBuilder();
     String Line;
-    BufferedReader schema = new BufferedReader( new FileReader("src/test/java/schemas/contact.jschema"));
+    BufferedReader schema = new BufferedReader( new FileReader("src/test/java/schemas/basic.jschema"));
     while((Line = schema.readLine()) != null){
       builder.append(Line);
     }
     String str = builder.toString();
 
-    Object generatedClass = generateClass("Temp_name");
-    //System.out.print(generatedClass);
-
-    Object generatedFields = generateFields(str);
-    //System.out.print(generatedFields);
-
-    Object generatedObject = generateObject(str, "Temp_name");
-
-    Object generatedError = generateError(str);
-
-    Object keys = makeValues(str);
-    System.out.print(keys);
-
-
-
-  }
-
-  private static Object parse( String src )
-  {
-    return new Parser( src ).parse();
+    Object obj = generateFields(str);
+    System.out.print(obj);
   }
 
   private static Invocable runEngine() throws Exception{
