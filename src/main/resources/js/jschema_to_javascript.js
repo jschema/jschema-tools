@@ -3,56 +3,109 @@
   JSON documents that satisfy a given jSchema
 */
 
-/* this function will check if the string can be used as a variable in json
-   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Keywords
+
+
+//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Keywords
+var RESERVED_KEYS = [
+    "break",
+    "case",
+    "class",
+    "catch",
+    "const",
+    "continue",
+    "debugger",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "export",
+    "extends",
+    "finally",
+    "for",
+    "function",
+    "if",
+    "import",
+    "in",
+    "instanceof",
+    "new",
+    "return",
+    "super",
+    "switch",
+    "this",
+    "throw",
+    "try",
+    "typeof",
+    "var",
+    "while",
+    "with",
+    "yield",
+    "_jschemaVal",
+    "_jschemaMsg",
+];
+
+
+/* this function will check if the string is a valid keyword per ECMAScript 6
    https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types
 */
-function isValidKey(){
+function isValidKey(key){
 
+    return true
 }
 
 // TODO: array, enum, struct, nested schema
 function generateJavascriptForJSchema(jSchema, className) {
-  var generatedVariables = "";
-  var generatedFunctions = "";
-  var generatedSetters = "";
-  var jsonDataParser = "if(typeof jsonData != 'undefined'){\n" +
-                       "try{ var json = JSON.parse(jsonData);\n" +
+  var parseFunction =  "parse: function(jsonData){" +
+                       "var json;" +
+                       "if(typeof jsonData != 'undefined'){\n" +
+                       "try{var json = JSON.parse(jsonData);\n" +
                        "}catch(e){\n" +
-                       "console.log(\"Invalid JSON format\");\n" +
-                       "return;\n}\n" +
-                       "for(var key in json){\n" +
-                       "if(json.hasOwnProperty(key)){\n" +
-                       "try{validators[key](json[key]);\n" +
-                       "}catch(e){\n" +
-                       "console.log('\"' + key + '\" does not conform to schema ');\n" +
-                       "return;}}}}";
+                       "return \"Invalid JSON format\";\n" +
+                       "}return Object.assign(json, this.create());}}"
+
 
   try{
     var schema = JSON.parse(jSchema);
   } catch(e){
     return "Invalid jSchema format";
   }
-  // TODO: check valid JS variable names
-  for(var key in schema){
-    if (schema.hasOwnProperty(key)){
-      generatedVariables +=
-          "var _" + key + ";\n";
-
-      generatedSetters += generateSetter(key, schema[key]) + "\n";
-      generatedFunctions += generateFunctions(key) + ",\n";
-    }
-  }
 
   return  "var " + className + " = {\n" +
-          "parse: function(jsonData){\n" +
-          "var validators = {};\n" +
-          generatedVariables +
-          generatedSetters + "\n" +
-          jsonDataParser + "\n" +
-          "return {\n  " +
-          generatedFunctions +
-          "};\n}};";
+          generateCreate(schema) +
+          parseFunction +
+          "};";
+}
+
+function generateCreate(schema){
+  var generatedVariables = "";
+  var generatedSetters = "";
+
+  for(var key in schema){
+    if (schema.hasOwnProperty(key)){
+      // TODO: check valid key
+      generatedVariables += "var " + key + ";\n";
+      generatedSetters += generateSetter(key, schema[key]) + "\n";
+
+      return  "create: function(){" +
+              "return{" +
+              "validate : function(){" +
+              "var _jschemaVal = {};" +
+              "var _jschemaMsg = \"\";" +
+              generatedVariables +
+              generatedSetters +
+              "for(var key in _jschemaVal){" +
+              "if (this[key]){" +
+              "_jschemaMsg += _jschemaVal[key](this[key]);" +
+              "}}"+
+              "if(_jschemaMsg === \"\") return \"Valid\";" +
+              "return _jschemaMsg}," +
+              "toJSON : function(){" +
+              "var toJson = {};" +
+              "for (var key in this){\n" +
+              "if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {\n" +
+              "toJson[key] = this[key];\n" +
+              "}}return toJson;}};},\n"
+    }
+  }
 }
 
 function generateValidator(type){
@@ -75,17 +128,15 @@ function generateValidator(type){
     return "True";
   }
 }
-function generateFunctions(key){
-  return "get " + key + "(){return _" + key + ";}," + "\n" +
-         "set " + key + "(value){return validators[\"" + key + "\"](value)}";
-}
+
 
 function generateSetter(key, type) {
-  return "validators[\"" + key + "\"] = function(value){\n" +
-      "if (" + generateValidator(type) + "){\n" +
-      "_" + key + " = value;\n" +
-      "}else{\n" +
-      "console.log(value + \" does not conform to " + type + "\");\n" +
-      "}return;\n" +
-      "}";
+  return "_jschemaVal[\"" + key + "\"] = function(value){\n" +
+    "if (" + generateValidator(type) + "){\n" +
+    key + " = value;\n" +
+    "return \"\"\n" +
+    "} else{\n" +
+    "return value + \" does not conform to " + type + "\";\n" +
+    "}return;\n" +
+    "};";
 }
