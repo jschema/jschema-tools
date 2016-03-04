@@ -1,66 +1,64 @@
-function jsonToJSchema(doc1, doc2, doc3, doc4, doc5) {
-  var schema = null;
-  for(var arg = 0; arg < arguments.length; ++ arg)
-  {
-    schema = updateSchema(schema, arguments[arg])
-  }
+var shouldConvertStringsToEnums = false;
 
-  return printSchema(schema)
-}
-
-function updateSchema(document, schema) {
-  return schema
-}
+var CoreTypes = {
+    String: "@string",
+    Boolean: "@boolean",
+    Date: "@date",
+    URI: "@uri",
+    Int: "@int",
+    Number: "@number",
+    Wildcard: "*",
+};
 
 // JSON -> JSchema generator
-function generateJSchemaFromJSON(json) {
-    var jschema = JSON.parse(json);
-    if (Object.prototype.toString.call(jschema) == "[object Array]") {
-        parseArray(jschema);
-    } else {
-        parseMember(jschema);
+function jsonToJSchema(json) {
+    return parse(JSON.parse(json));
+}
+
+function parse(value) {
+    var nativeJSType = typeof value;
+    if (nativeJSType == "string") {
+        if (!isNaN(Date.parse(value))) {
+            return CoreTypes.Date;
+        } else if (testURI(value)) {
+            return CoreTypes.URI;
+        }
+        return CoreTypes.String;
+    } else if (nativeJSType == "number") {
+        if (value % 1 === 0) {
+            return CoreTypes.Int;
+        } else {
+            return CoreTypes.Number;
+        }
+    } else if (nativeJSType == "boolean") {
+        return CoreTypes.Boolean;
+    } else if (nativeJSType == "object") {
+        if (Object.prototype.toString.call(value) == "[object Array]") {
+            return parseArray(value);
+        } else {
+            return parseMember(value);
+        }
     }
-    return jschema;
+    return CoreTypes.Wildcard;
 }
 
 function parseArray(array) {
-    for (member in array) {
-        parseMember(member);
+    var arrayType = undefined;
+    for (var i = 0; i < array.length; i++) {
+        if (arrayType == undefined) {
+            arrayType = parse(array[i]);
+        } else if (equal(arrayType, parse(array[i])) == false) {
+            return "@error";
+        }
     }
+    return arrayType == undefined ? "@error" : [arrayType];
 }
 
 function parseMember(member) {
     for (key in member) {
-        member[key] = getType(member[key]);
+        member[key] = parse(member[key]);
     }
-}
-
-function getType(value) {
-    var nativeJSType = typeof value;
-    if (nativeJSType == "string") {
-        if (!isNaN(Date.parse(value))) {
-            return "@date";
-        } else if (testURI(value)) {
-            return "@uri";
-        }
-        return "@string";
-    } else if (nativeJSType == "number") {
-        if (value % 1 === 0) {
-            return "@int";
-        } else {
-            return "@number";
-        }
-    } else if (nativeJSType == "boolean") {
-        return "@boolean";
-    } else if (nativeJSType == "object") {
-        if (Object.prototype.toString.call(value) == "[object Array]") {
-            parseArray(value);
-        } else {
-            return "@object";
-        }
-    } else {
-        return "*";
-    }
+    return member;
 }
 
 function testURI(value) {
@@ -69,7 +67,111 @@ function testURI(value) {
     return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test( value );
 }
 
-// Debugging
-function generateJSchemaStringFromJSON(json) {
-    return JSON.stringify(generateJSchemaFromJSON(json));
+
+
+// EQUALITY TESTING
+// Used to deep compare objects in Javascript.
+// https://gist.github.com/stamat/5841593
+
+// Returns the object's class, Array, Date, RegExp, Object are of interest to us
+var getClass = function(val) {
+	return Object.prototype.toString.call(val)
+		.match(/^\[object\s(.*)\]$/)[1];
+};
+
+// Defines the type of the value, extended typeof
+var whatis = function(val) {
+
+	if (val === undefined)
+		return 'undefined';
+	if (val === null)
+		return 'null';
+
+	var type = typeof val;
+
+	if (type === 'object')
+		type = getClass(val).toLowerCase();
+
+	if (type === 'number') {
+		if (val.toString().indexOf('.') > 0)
+			return 'float';
+		else
+			return 'integer';
+	}
+
+	return type;
+};
+
+var compareObjects = function(a, b) {
+	if (a === b)
+		return true;
+	for (var i in a) {
+		if (b.hasOwnProperty(i)) {
+			if (!equal(a[i],b[i])) return false;
+		} else {
+			return false;
+		}
+	}
+
+	for (var i in b) {
+		if (!a.hasOwnProperty(i)) {
+			return false;
+		}
+	}
+	return true;
+};
+
+var compareArrays = function(a, b) {
+	if (a === b)
+		return true;
+	if (a.length !== b.length)
+		return false;
+	for (var i = 0; i < a.length; i++){
+		if(!equal(a[i], b[i])) return false;
+	};
+	return true;
+};
+
+/*
+ * Are two values equal, deep compare for objects and arrays.
+ * @param a {any}
+ * @param b {any}
+ * @return {boolean} Are equal?
+ */
+var equal = function(a, b) {
+	if (a !== b) {
+		var atype = whatis(a), btype = whatis(b);
+
+		if (atype === btype)
+			return _equal.hasOwnProperty(atype) ? _equal[atype](a, b) : a==b;
+
+		return false;
+	}
+
+	return true;
+};
+
+var _equal = {};
+_equal.array = compareArrays;
+_equal.object = compareObjects;
+_equal.date = function(a, b) {
+	return a.getTime() === b.getTime();
+};
+_equal.regexp = function(a, b) {
+	return a.toString() === b.toString();
+};
+
+
+
+// DEBUGGING
+function formatJSONString(jsonString) {
+    return JSON.stringify(JSON.parse(jsonString));
+}
+
+function jsonToJSchemaString(json) {
+    return JSON.stringify(jsonToJSchema(json));
+}
+
+function testEquals(json, expectedJschema) {
+    return equal(jsonToJSchema(json), JSON.parse(expectedJschema));
 }

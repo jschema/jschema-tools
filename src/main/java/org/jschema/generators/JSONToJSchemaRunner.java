@@ -1,5 +1,7 @@
 package org.jschema.generators;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -8,24 +10,26 @@ import java.io.FileReader;
 public class JSONToJSchemaRunner
 {
   public static void main( String[] args ) throws Exception {
-    testEquals(jschemaString("{\"string\":\"String\",\"int\":20,\"boolean\":true,\"date\":\"2016-02-25\",\"uri\":\"http://google.com\"}"),
+    test("{\"string\":\"String\",\"int\":20,\"boolean\":true,\"date\":\"2016-02-25\",\"uri\":\"http://google.com\"}",
             "{\"string\":\"@string\",\"int\":\"@int\",\"boolean\":\"@boolean\",\"date\":\"@date\",\"uri\":\"@uri\"}");
+    test("{ \"name\" : \"Joe\", \"age\" : 42 }",
+            "{ \"name\" : \"@string\", \"age\" : \"@int\" }");
+    test("[ { \"name\" : \"Joe\", \"age\" : 42 }, { \"name\" : \"Paul\", \"age\" : 28 }, { \"name\" : \"Mack\", \"age\" : 55 } ]",
+            "[ { \"name\" : \"@string\", \"age\" : \"@int\"} ]");
   }
 
-  private static void testEquals(String first, String second) {
-    if (first.equals(second)) { return; }
-    System.out.println("Assertion failed: " + first + " does not equal " + second);
-  }
+  private static Boolean test(String json, String expectedJschema) throws Exception {
 
-  private static String jschemaString(String json) throws Exception {
-
-    return (String) executeJS("generateJSchemaStringFromJSON", json);
-  }
-
-  private static Object executeJS(String functionName, Object argument) throws Exception {
     ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
     engine.eval(new FileReader("src/main/resources/js/json_to_jschema.js"));
     Invocable invocable = (Invocable) engine;
-    return invocable.invokeFunction(functionName, argument);
+    Boolean result = (Boolean)invocable.invokeFunction("testEquals", json, expectedJschema);
+    if (result == false) {
+      String formattedJSON = (String)invocable.invokeFunction("formatJSONString", json);
+      String formattedExpected = (String)invocable.invokeFunction("formatJSONString", expectedJschema);
+      String actual = (String)invocable.invokeFunction("jsonToJSchemaString", json);
+      System.out.println("Test failed: " + formattedJSON + "\n\tExpected: " + formattedExpected + "\n\tActual: " + actual + "\n");
+    }
+    return result;
   }
 }
