@@ -3,33 +3,53 @@
   JSON documents that satisfy a given jSchema
 */
 
-// TODO: array, enum, struct, nested schema, JSON initialization
+/* this function will check if the string can be used as a variable in json
+   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Keywords
+   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types
+*/
+function isValidKey(){
+
+}
+
+// TODO: array, enum, struct, nested schema
 function generateJavascriptForJSchema(jSchema, className) {
+  var generatedVariables = "";
+  var generatedFunctions = "";
+  var generatedSetters = "";
+  var jsonDataParser = "if(typeof jsonData != 'undefined'){\n" +
+                       "try{ var json = JSON.parse(jsonData);\n" +
+                       "}catch(e){\n" +
+                       "console.log(\"Invalid JSON format\");\n" +
+                       "return;\n}\n" +
+                       "for(var key in json){\n" +
+                       "if(json.hasOwnProperty(key)){\n" +
+                       "try{validators[key](json[key]);\n" +
+                       "}catch(e){\n" +
+                       "console.log('\"' + key + '\" does not conform to schema ');\n" +
+                       "return;}}}}";
+
   try{
     var schema = JSON.parse(jSchema);
   } catch(e){
-    return "Invalid jSchema format"
+    return "Invalid jSchema format";
   }
-
-  var generatedVariables = "";
-  var generatedFunctions = "";
-
+  // TODO: check valid JS variable names
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
       generatedVariables +=
           "var _" + key + ";\n";
 
-      generatedFunctions +=
-          generateGetter(key) +
-          ",\n" +
-          generateSetter(key, schema[key]) +
-          ",\n";
+      generatedSetters += generateSetter(key, schema[key]) + "\n";
+      generatedFunctions += generateFunctions(key) + ",\n";
     }
   }
 
   return  "var " + className + " = {\n" +
           "parse: function(jsonData){\n" +
+          "var validators = {};\n" +
           generatedVariables +
+          generatedSetters + "\n" +
+          jsonDataParser + "\n" +
           "return {\n  " +
           generatedFunctions +
           "};\n}};";
@@ -55,14 +75,13 @@ function generateValidator(type){
     return "True";
   }
 }
-function generateGetter(key){
-  return "get " + key + "(){\n" +
-         "return _" + key + ";\n" +
-         "}";
+function generateFunctions(key){
+  return "get " + key + "(){return _" + key + ";}," + "\n" +
+         "set " + key + "(value){return validators[\"" + key + "\"](value)}";
 }
 
 function generateSetter(key, type) {
-  return "set " + key + "(value){\n" +
+  return "validators[\"" + key + "\"] = function(value){\n" +
       "if (" + generateValidator(type) + "){\n" +
       "_" + key + " = value;\n" +
       "}else{\n" +
