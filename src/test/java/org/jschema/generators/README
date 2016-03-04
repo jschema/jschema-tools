@@ -1,0 +1,47 @@
+About JSchemaToJavaTest:
+
+The Java Team's current task is to generate java code based on an input .jschema file.
+An example of a simple input and output is shown here:
+
+Input: {"Name" : "@String", "age" : "@int" }
+
+Output:
+
+public class Class_Name{                                //1. generateClass
+
+    private String _Name;                               //2. generateFields
+    private int _age;                                   //
+
+    public Object_Name(String Name, int age){           //3. generateObject
+        _Name = Name;                                   //
+        _age = age;                                     //
+    }
+
+    public String getName(){return _Name;}              //4. generateGET
+    public int getAge(){return _age;}                   //
+
+    public void setName(String Name){_Name = Name;}     //5. generateSET
+    public void setAge(int age){_age = age;}            //
+}
+
+In order to generate this output, we broke it into components.
+
+1. generateClass takes as input a string "Class_Name", and outputs the line
+                "public class 'Class_Name'{"
+
+2. generateFields takes the stringified jschema as input, and outputs each variable
+  as the appropriate (private) type.
+
+3. generateObject takes both an "Object_Name" and a stringified jschema as input, and outputs
+   the appropriate constructor.
+
+4. generateGET takes the stringified jschema as input and outputs the required GET methods.
+
+5. generateSET takes the stringified jschema as input and outputs the required SET methods.
+
+Java methods for these five generators can be found in JschemaToJavaRunner, and each of them
+invoke corresponding javascript methods found in jschema_to_java.js.
+
+By breaking our output into separate components, we can effectively test each method
+in isolation. JSchemaToJavaTest currently has separate tests for all five methods,
+and will soon have tests involving combinations of methods.

@@ -48,6 +48,15 @@ public class JSchemaToJavaRunner
     return generatedError;
   }
 
+  public static Object makeKeys(String jschema) throws Exception{
+    Object makeKeys = runEngine().invokeFunction("makeKeys", jschema);
+    return makeKeys;
+  }
+  public static Object makeValues(String jschema) throws Exception{
+    Object makeValues = runEngine().invokeFunction("makeValues", jschema);
+    return makeValues;
+  }
+
 
 
   public static void main( String[] args ) throws Exception
@@ -73,9 +82,11 @@ public class JSchemaToJavaRunner
 
     Object generatedError = generateError(str);
 
-    System.out.print("Input: " + str);
-    System.out.print("\n");
-    System.out.print("Output: \n" + generatedObject);
+    Object keys = makeValues(str);
+    System.out.print(keys);
+
+
+
   }
 
   private static Object parse( String src )

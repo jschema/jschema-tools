@@ -8,6 +8,19 @@ function generateClass(classname){
   return className;
 }
 
+
+//gets keys from input jschema. May not be necessary
+function makeKeys(jschema){
+  var parsed_schema = JSON.parse(jschema);
+  return Object.keys(parsed_schema).toString();
+  }
+
+//gets values from input jschema. May not be necessary
+function makeValues(jschema){
+  var parsed_schema = JSON.parse(jschema);
+  return parsed_schema;
+}
+
 //Generates Java Object Based on jSchema input. Object name will be className.
 function generateObject(jSchema, className){
   var parsed_schema = JSON.parse(jSchema);
@@ -20,9 +33,6 @@ function generateObject(jSchema, className){
   obj += "public " + className + "(";
   for (var i in parsed_schema){
   keys.push(i);
-    if(parsed_schema[i].charAt(0) == '@'){
-      parsed_schema[i] = parsed_schema[i].substring(1, parsed_schema[i].length);
-    }
     obj += parsed_schema[i] + " ";
     obj += keys[count] + ", ";
     count++;
@@ -51,4 +61,8 @@ function generateGET(Jschema){
 //Generate Set methods for the created Java Object
 function generateSET(Jschema){
   return Jschema;
+}
+
+function generateError(jschema){
+  return jschema;
 }
