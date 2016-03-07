@@ -10,7 +10,7 @@ public class JSchemaToJavascriptRunner
   public static void main( String[] args ) throws Exception
   {
     String test1 = "{ \"name\" : \"@string\", \"age\" : \"@int\", \"birthday\" : \"@date\", \"website\" : \"@uri\", \"student\" : \"@boolean\", \"favorite_number\":\"@number\" }";
-    String test2 = "{ \"else\" : \"@string\", \"age\" : \"@int\"}";
+    String test2 = "{ \"name\" : \"@string\", \"age\" : \"@int\"}";
     ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
     engine.eval(new FileReader("src/main/resources/js/jschema_to_javascript.js"));
     Invocable invocable = (Invocable) engine;
