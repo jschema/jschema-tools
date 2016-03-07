@@ -3,65 +3,15 @@
   JSON documents that satisfy a given jSchema
 */
 
-
-
-//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Keywords
-var RESERVED_KEYS = [
-    "break",
-    "case",
-    "class",
-    "catch",
-    "const",
-    "continue",
-    "debugger",
-    "default",
-    "delete",
-    "do",
-    "else",
-    "export",
-    "extends",
-    "finally",
-    "for",
-    "function",
-    "if",
-    "import",
-    "in",
-    "instanceof",
-    "new",
-    "return",
-    "super",
-    "switch",
-    "this",
-    "throw",
-    "try",
-    "typeof",
-    "var",
-    "while",
-    "with",
-    "yield",
-    "_jschemaVal",
-    "_jschemaMsg",
-];
-
-
-/* this function will check if the string is a valid keyword per ECMAScript 6
-   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types
-*/
-function isValidKey(key){
-
-    return true
-}
-
-// TODO: array, enum, struct, nested schema
+// TODO: array, enum, struct
 function generateJavascriptForJSchema(jSchema, className) {
   var parseFunction =  "parse: function(jsonData){" +
                        "var json;" +
-                       "if(typeof jsonData != 'undefined'){\n" +
-                       "try{var json = JSON.parse(jsonData);\n" +
-                       "}catch(e){\n" +
-                       "return \"Invalid JSON format\";\n" +
+                       "if(typeof jsonData != 'undefined'){" +
+                       "try{var json = JSON.parse(jsonData);" +
+                       "}catch(e){" +
+                       "return \"Invalid JSON format\";" +
                        "}return Object.assign(json, this.create());}}"
-
 
   try{
     var schema = JSON.parse(jSchema);
@@ -69,43 +19,38 @@ function generateJavascriptForJSchema(jSchema, className) {
     return "Invalid jSchema format";
   }
 
-  return  "var " + className + " = {\n" +
+  return  "var " + className + " = {" +
           generateCreate(schema) +
           parseFunction +
           "};";
 }
 
 function generateCreate(schema){
-  var generatedVariables = "";
   var generatedSetters = "";
 
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
-      // TODO: check valid key
-      generatedVariables += "var " + key + ";\n";
       generatedSetters += generateSetter(key, schema[key]) + "\n";
     }
   }
-      return  "create: function(){" +
-              "return{" +
-              "validate : function(){" +
-              "var _jschemaVal = {};" +
-              "var _jschemaMsg = \"\";" +
-              generatedVariables +
-              generatedSetters +
-              "for(var key in _jschemaVal){" +
-              "if (this[key]){" +
-              "_jschemaMsg += _jschemaVal[key](this[key]);" +
-              "}}"+
-              "if(_jschemaMsg === \"\") return \"Valid\";" +
-              "return _jschemaMsg;}," +
-              "toJSON : function(){" +
-              "var toJson = {};" +
-              "for (var key in this){\n" +
-              "if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {\n" +
-              "toJson[key] = this[key];\n" +
-              "}}return toJson;}};},\n"
-
+  return  "create: function(){" +
+          "return{" +
+          "validate : function(){" +
+          "var validators = {};" +
+          "var msg = \"\";" +
+          generatedSetters +
+          "for(var key in validators){" +
+          "if (this[key]){" +
+          "msg += validators[key](this[key]);" +
+          "}}"+
+          "if(msg === \"\") return \"Valid\";" +
+          "return msg;}," +
+          "toJSON : function(){" +
+          "var toJson = {};" +
+          "for (var key in this){\n" +
+          "if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {\n" +
+          "toJson[key] = this[key];\n" +
+          "}}return toJson;}};},\n"
 }
 
 function generateValidator(type){
@@ -129,14 +74,13 @@ function generateValidator(type){
   }
 }
 
-
 function generateSetter(key, type) {
-  return "_jschemaVal[\"" + key + "\"] = function(value){\n" +
+  return "validators[\"" + key + "\"] = function(value){\n" +
     "if (" + generateValidator(type) + "){\n" +
-    key + " = value;\n" +
+    "this." + key + " = value;\n" +
     "return \"\"\n" +
     "} else{\n" +
-    "return value + \" does not conform to " + type + "\";\n" +
+    "return \"" + key + "=\" + value + \" does not conform to " + type + "\\n\";\n" +
     "}return;\n" +
     "};";
 }
