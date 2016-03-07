@@ -30,14 +30,14 @@ public class JSchemaToJavascriptTest {
                 "\"student\" : \"@boolean\", \"favorite_number\":\"@number\" }";
     }
     public static String testCoreTypesExp(){
-        return (genHeader("Person")+"var name;var age;var birthday;var website;var student;var favorite_number;"+
+        return (genHeader("Person")+
                 genValid("name","string")+
                 genValid("age","int")+
                 genValid("birthday","date")+
                 genValid("website","uri")+
                 genValid("student","boolean")+
                 genValid("favorite_number","number")+
-                genValidLoop()+"},"+genToJSON()+"};},"+genParse()+"};");
+                genValidLoop()+genToJSON()+genParse());
 
     }
 
@@ -91,22 +91,22 @@ public class JSchemaToJavascriptTest {
     private static String genParse(){
         return ("parse: function(jsonData){var json;if(typeof jsonData != \'undefined\'){try{var json = JSON.parse(jsonData);"+
                 "}catch(e){return \"Invalid JSON format\";}" +
-                 "return Object.assign(json, this.create());}}");
+                 "return Object.assign(json, this.create());}}};");
     }
     private static String genToJSON(){
-        return("toJSON : function(){" +
+        return("toJSON: function(){" +
                 "var toJson = {};" +
                 "for (var key in this){" +
                 "if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {" +
                 "toJson[key] = this[key];" +
-                "}}return toJson;}");
+                "}}return toJson;}};},");
     }
     private static String genValidLoop(){
-        return("for(var key in _jschemaVal){if (this[key]){"+
-                "_jschemaMsg += _jschemaVal[key](this[key]);}}if(_jschemaMsg === \"\") return \"Valid\";return _jschemaMsg;");
+        return("for(var key in validators){if(this[key]){"+
+                "msg += validators[key](this[key]);}}if(msg === \"\"){return \"Valid\"};return msg;},");
     }
     private static String genValid(String key,String type){
-        StringBuilder valid=new StringBuilder("_jschemaVal[\""+key+"\"] = function(value){if (");
+        StringBuilder valid=new StringBuilder("validators[\""+key+"\"] = function(value){if(");
         switch(type){
             case "string":valid.append( "Object.prototype.toString.call(value).slice(8, -1) === \'String\'"); break;
             case "boolean" :valid.append("Object.prototype.toString.call(value).slice(8, -1) === \'Boolean\'");break;
@@ -116,16 +116,14 @@ public class JSchemaToJavascriptTest {
             case "number" :valid.append("!Number.isNaN(value)");break;
             default:valid.append("True");
         }
-        valid.append("){"+key+" = value;return \"\"");
-        valid.append("} else{" +
-                "return value + \" does not conform to @" + type + "\";" +
-                "}return;};");
+        valid.append("){this."+key+" = value;return \"\"}");
+        valid.append("return \"" +key+"=\" + value + \" does not conform to @" + type + "\\n\";};");
         return valid.toString();
     }
 
     private static String genHeader(String className){
         return("var Person = {create: function(){return{validate : function(){"+
-                "var _jschemaVal = {};var _jschemaMsg = \"\";");
+                "var validators = {};var msg = \"\";");
     }
 
 }
