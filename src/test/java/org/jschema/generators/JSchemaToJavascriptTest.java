@@ -89,7 +89,7 @@ public class JSchemaToJavascriptTest {
     {
             ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
         try {
-            engine.eval(new FileReader("../../src/main/resources/js/jschema_to_javascript.js"));
+            engine.eval(new FileReader("src/main/resources/js/jschema_to_javascript.js"));
         }catch(Exception e){
             System.out.println("error finding js file: "+e.toString());
         }
@@ -142,7 +142,7 @@ public class JSchemaToJavascriptTest {
     }
 
     private static String genHeader(String className){
-        return("var Person = {create: function(){return{validate : function(){"+
+        return("var Person = {create: function(){return{validate: function(){"+
                 "var validators = {};var msg = \"\";");
     }
 
