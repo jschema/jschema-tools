@@ -19,6 +19,8 @@ public class JSchemaToJavascriptTest {
     public void runTests(){
        // System.out.println(generate(testObject()));
         assertEquals(testCoreTypesExp(),generate(testCoreTypes()).toString().replace("\n",""));
+        assertEquals(testNestedObjectExp(),generate(testNestedObject()).toString().replace("\n",""));
+        //assertEquals(testArrayStringExp(),generate(testArrayString()).toString().replace("\n",""));
        // System.out.println(testObjectExp());
 
     }
@@ -46,9 +48,23 @@ public class JSchemaToJavascriptTest {
     public static String testArrayString(){
         return "{ \"name\" : [\"@string\"]}";
     }
+    public static String testArrayStringExp(){
+        return (genHeader("Person")+
+                genValid("name","string")+
+                genValidLoop()+genToJSON()+genParse());
+    }
 
+    //nested object
     public static String testNestedObject(){
         return "{ \"name\" : \"@string\", \"age\" : {\"month\" : \"@string\", \"day\" : \"@int\", \"year\" : \"@int\"} }";
+    }
+
+    public static String testNestedObjectExp(){
+        return (genHeader("Person")+
+                genValid("name","string")+
+                genValid("age","[object Object]")+
+                genValidLoop()+genToJSON()+genParse()
+        );
     }
 
     public static String testNestedObject2(){
@@ -117,7 +133,11 @@ public class JSchemaToJavascriptTest {
             default:valid.append("True");
         }
         valid.append("){this."+key+" = value;return \"\"}");
-        valid.append("return \"" +key+"=\" + value + \" does not conform to @" + type + "\\n\";};");
+        if(type.compareTo("[object Object]")==0){
+            valid.append("return \"" + key + "=\" + value + \" does not conform to " + type + "\\n\";};");
+        }else {
+            valid.append("return \"" + key + "=\" + value + \" does not conform to @" + type + "\\n\";};");
+        }
         return valid.toString();
     }
 
