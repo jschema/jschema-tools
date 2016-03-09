@@ -61,7 +61,7 @@ public class JSchemaToJavaRunner
 
   public static void main( String[] args ) throws Exception
   {
-
+/*
     //opens a .jschema file, reads it into Stringbuilder builder, and converts to String str.
     //if you get a "no such file or directory" error, verify that the FileReader path is correct for you
     StringBuilder builder = new StringBuilder();
@@ -84,10 +84,16 @@ public class JSchemaToJavaRunner
 
     Object keys = makeValues(str);
     System.out.print(keys);
-
-
+*/
+      Object test1 = test("{\"Name\" : \"@String\"}");
+      System.out.println(test1);
 
   }
+
+    public static Object test(String classname) throws Exception{
+        Object generatedClass = runEngine().invokeFunction("myTest", classname);
+        return generatedClass;
+    }
 
   private static Object parse( String src )
   {

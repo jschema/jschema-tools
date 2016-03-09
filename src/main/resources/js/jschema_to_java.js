@@ -3,9 +3,45 @@
   JSON documents that satisfy a given jSchema
 */
 //Generates the Class Header line. Does not currently close the object with a "}".
+function myTest(jSchema){
+    //var parsed_schema = JSON.parse(jschema);
+    //return parsed_schema[0];
+
+var parsed_schema = JSON.parse(jSchema);
+var aux = "hh_ " + parsed_schema;
+return aux;
+  var keys = [];
+  var count = 0;
+  var obj = "";
+
+  //creates constructor
+  obj += "public " + " ALGO " + "(";
+  for (var i in parsed_schema){
+  keys.push(i);
+    obj += parsed_schema[i] + " ";
+    obj += keys[count] + ", ";
+    count++;
+  }
+  count = 0;
+
+  //populates constructor
+  obj = obj.substring(0, obj.length - 2);
+  obj += "){";
+  for(var i in parsed_schema){
+    obj += "_" + keys[count] + " = " + keys[count] + ";";
+    count++;
+  }
+  obj += "}";
+  return obj;
+}
+
 function generateClass(classname){
-  var className = "Class " + classname + "{\n";
+  var className = "class " + classname + "{\n";
   return className;
+}
+
+function generateFields(Jschema){
+ return Jschema;
 }
 
 
@@ -50,9 +86,7 @@ function generateObject(jSchema, className){
   return obj;
 }
 
-function generateFields(Jschema){
- return Jschema;
-}
+
 //Generate Get methods for the created Java Object
 function generateGET(Jschema){
   return Jschema;
