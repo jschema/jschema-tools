@@ -11,6 +11,10 @@ class name: `Person`
 var Person = {
   create: function(){
     return{
+      jschema: {
+        name: "@string",
+        age: "@int",
+      },
       validate: function(){
         var validators = {};
         var msg = "";
@@ -65,8 +69,18 @@ var Person = {
 
 ## Usage
 ```javascript
-  var p = Person.parse();
-  p.name = 4; // "4 does not conform to @string"
+  var p = Person.create();
+  p.name = 4; // 
+  console.log(p.validate()); // "name=4 does not conform to @string"
   p.name = "Ashley";
+  console.log(p.validate()); // "Valid"
   console.log(p.name); // "Ashley"
 ```
+
+## TO DO
+
+* arrays
+* enums
+* structs
+* strict validation: `p.validate(true)` 
+* file input/output
