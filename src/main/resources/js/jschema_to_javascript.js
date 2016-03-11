@@ -31,14 +31,18 @@ function generateJavascriptForJSchema(jSchema, className) {
 
 function generateCreate(schema){
   var generatedSetters = "";
+  var generatedSchema = "      jschema: {"
 
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
       generatedSetters += generateSetter(key, schema[key]);
+      generatedSchema += "\n        " + key + ": \"" + schema[key] + "\",";
     }
   }
+  generatedSchema += "\n      },\n"
   return  "  create: function(){\n" +
           "    return{\n" +
+          generatedSchema +
           "      validate: function(){\n" +
           "        var validators = {};\n" +
           "        var msg = \"\";\n" +
