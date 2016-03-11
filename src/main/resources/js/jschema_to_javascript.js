@@ -5,13 +5,17 @@
 
 // TODO: array, enum, struct
 function generateJavascriptForJSchema(jSchema, className) {
-  var parseFunction = "parse: function(jsonData){" +
-                      "var json;" +
-                      "if(typeof jsonData != 'undefined'){" +
-                      "try{var json = JSON.parse(jsonData);" +
-                      "}catch(e){" +
-                      "return \"Invalid JSON format\";" +
-                      "}return Object.assign(json, this.create());}}"
+  var parseFunction = "  parse: function(jsonData){\n" +
+                      "    var json;\n" +
+                      "    if(typeof jsonData != 'undefined'){\n" +
+                      "    try{\n" +
+                      "      json = JSON.parse(jsonData);\n" +
+                      "    }catch(e){\n" +
+                      "      return \"Invalid JSON format\";\n" +
+                      "    }\n" +
+                      "    return Object.assign(json, this.create());\n" +
+                      "    }\n" +
+                      "  }\n";
 
   try{
     var schema = JSON.parse(jSchema);
@@ -19,10 +23,10 @@ function generateJavascriptForJSchema(jSchema, className) {
     return "Invalid jSchema format";
   }
 
-  return  "var " + className + " = {" +
-      generateCreate(schema) +
-      parseFunction +
-      "};";
+  return  "var " + className + " = {\n" +
+          generateCreate(schema) +
+          parseFunction +
+          "};\n";
 }
 
 function generateCreate(schema){
@@ -30,27 +34,36 @@ function generateCreate(schema){
 
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
-      generatedSetters += generateSetter(key, schema[key]) + "\n";
+      generatedSetters += generateSetter(key, schema[key]);
     }
   }
-  return  "create: function(){" +
-      "return{" +
-      "validate: function(){" +
-      "var validators = {};" +
-      "var msg = \"\";" +
-      generatedSetters +
-      "for(var key in validators){" +
-      "if(this[key]){" +
-      "msg += validators[key](this[key]);" +
-      "}}"+
-      "if(msg === \"\"){return \"Valid\"};" +
-      "return msg;}," +
-      "toJSON: function(){" +
-      "var toJson = {};" +
-      "for (var key in this){\n" +
-      "if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {\n" +
-      "toJson[key] = this[key];\n" +
-      "}}return toJson;}};},\n"
+  return  "  create: function(){\n" +
+          "    return{\n" +
+          "      validate: function(){\n" +
+          "        var validators = {};\n" +
+          "        var msg = \"\";\n" +
+          generatedSetters +
+          "        for(var key in validators){\n" +
+          "          if(this[key]){\n" +
+          "            msg += validators[key](this[key]);\n" +
+          "          }\n" +
+          "        }\n" +
+          "        if(msg === \"\"){\n" +
+          "          return \"Valid\";\n"+
+          "        }\n" +
+          "        return msg;\n"+
+          "      },\n" +
+          "      toJSON: function(){\n" +
+          "        var toJson = {};\n" +
+          "        for (var key in this){\n" +
+          "          if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {\n" +
+          "            toJson[key] = this[key];\n" +
+          "          }\n" +
+          "        }\n" +
+          "        return toJson;\n" +
+          "      }\n" +
+          "    };\n" +
+          "  },\n";
 }
 
 function generateValidator(type){
@@ -75,10 +88,11 @@ function generateValidator(type){
 }
 
 function generateSetter(key, type) {
-  return "validators[\"" + key + "\"] = function(value){\n" +
-      "if(" + generateValidator(type) + "){\n" +
-      "this." + key + " = value;\n" +
-      "return \"\"\n" +
-      "}return \"" + key + "=\" + value + \" does not conform to " + type + "\\n\";\n" +
-      "};";
+  return  "        validators[\"" + key + "\"] = function(value){\n" +
+          "          if(" + generateValidator(type) + "){\n" +
+          "            this." + key + " = value;\n" +
+          "            return \"\";\n" +
+          "          }\n" +
+          "          return \"" + key + "=\" + value + \" does not conform to " + type + "\\n\";\n" +
+          "        };\n";
 }
