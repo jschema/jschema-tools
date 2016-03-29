@@ -30,6 +30,8 @@ public class JSchemaToJavaTest{
     {
         assertEquals("private String _Name;\n" , JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\"}"));
 
+        assertEquals("private String _Name;" , JSchemaToJavaRunner.generateFields("[{\"Name\" : \"@String\"}]"));
+
         assertEquals("private String _Name;\nprivate int _age;",
                 JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\", \"age\": \"@int\"}"));
 
@@ -61,6 +63,8 @@ public class JSchemaToJavaTest{
                 JSchemaToJavaRunner.generateObject("{\"type\" : [\"red\", \"green\", \"blue\"]}" ,"Temp_Name"));
 
     }
+
+//returns a variable (string, date, int etc)
     @Test
     public void TestGenerateGET() throws Exception
     {
@@ -78,6 +82,8 @@ public class JSchemaToJavaTest{
         assertEquals("public type getType(){return _type;}",
                 JSchemaToJavaRunner.generateGET("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
     }
+
+//does not return anything. sets value.
     @Test
     public void TestGenerateSET() throws Exception
     {
@@ -100,6 +106,14 @@ public class JSchemaToJavaTest{
     @Test
     public void TestGenerateError() throws Exception{
         assertEquals("public void setError(String Name){_Name = Name;}",JSchemaToJavaRunner.generateError("{\"Name\" : \"@String\"}"));
+
+        assertEquals("public void setError(String Name)[{_Name = Name;}]",JSchemaToJavaRunner.generateError("[{\"Name\" : \"@String\"}]"));
+
+
+        assertEquals("public void setError(String date){_date = date;}",JSchemaToJavaRunner.generateError("{\"date\" : \"@date\"}"));
+
+        assertEquals("public void setError(String uri){_uri = uri;}",JSchemaToJavaRunner.generateError("{\"uri\" : \"@uri\"}"));
+
     }
 
 
