@@ -57,13 +57,20 @@ function generateObject(jSchema, className){
 
 function generateFields(jschema){
   var parsed_schema = JSON.parse(jschema);
+  var keys = [];
+  var count = 0;
   var String = "";
   for(var i in parsed_schema){
     var str = parsed_schema[i];
-    String += "private " + jschema_parser(str);
-    String += "_" + Object.keys(parsed_schema);
+
+    keys.push(i);
+    String += "private " + jschema_parser(str.toString());  //todo -- fix this crap
+    String += "_" + keys[count] + ";\n";
+    count++;
   }
-  String += ";\n";
+  count = 0;
+
+  String = String.substring(0, String.length - 1);
   return String;
 
 }
