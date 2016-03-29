@@ -2,6 +2,6 @@
   "first_name" : "@string",
   "last_name" : "@string",
   "age" : "@int",
-  "type" : ["friend", "customer", "supplier"]
+  "type" : ["friend", "customer", "supplier"],
   "emails" : ["@string"]
 }
