@@ -76,12 +76,12 @@ function jschema_parser(str){
                break;
     case '{' : return parse_struct_type(str);
                break;
-    default  : return "* ";
+    default  : return "* 99";
   }
 }
 
 function parse_core_type(str){
-  switch(str){
+  switch(str.toString()){
     case "@String" : return "String ";
                      break;
     case "@boolean": return "boolean ";
@@ -94,7 +94,7 @@ function parse_core_type(str){
                      break;
     case "@number" : return "double ";
                      break;
-    default        : return "* ";
+    default        : return str + " ";
   }
 }
 
@@ -106,6 +106,9 @@ function parse_array_type(str){
   var String = "";
   for(var i in str){
     String += jschema_parser(str[i]);
+    if(str[i].toString().startsWith("[")){
+      String += "[]";
+    }
     String += "_" + i + ";\n";
   }
   return String;
