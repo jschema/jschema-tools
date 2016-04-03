@@ -10,22 +10,6 @@ function generateClass(classname){
   return className;
 }
 
-//gets keys from input jschema. May not be necessary
-function makeKeys(jschema){
-  var parsed_schema = JSON.parse(jschema);
-  return Object.keys(parsed_schema).toString();
-}
-
-//gets values from input jschema. May not be necessary
-function makeValues(jschema){
-  var parsed_schema = JSON.parse(jschema);
-  var str = "";
-  for(var i in parsed_schema){
-    str += parsed_schema[i] + ", ";
-  }
-  return str;
-}
-
 //Generates Java Object Based on jSchema input. Object name will be className.
 function generateObject(jSchema, className){
   var parsed_schema = JSON.parse(jSchema);
@@ -57,20 +41,15 @@ function generateObject(jSchema, className){
 
 function generateFields(jschema){
   var parsed_schema = JSON.parse(jschema);
-  var keys = [];
-  var count = 0;
   var String = "";
+
   for(var i in parsed_schema){
-    var str = parsed_schema[i];
-
-    keys.push(i);
-    String += "private " + jschema_parser(str.toString());  //todo -- fix this crap
-    String += "_" + keys[count] + ";\n";
-    count++;
+    String += "private " + jschema_parser(parsed_schema[i]);
+    if(i != 0){
+      String += "_" + i + ";\n";
+    }
   }
-  count = 0;
 
-  String = String.substring(0, String.length - 1);
   return String;
 
 }
@@ -89,7 +68,7 @@ function generateError(jschema){
 }
 
 function jschema_parser(str){
-  str_1 = str.charAt(0);
+  str_1 = str.toString().charAt(0);
   switch(str_1){
     case '@' : return parse_core_type(str);
                break;
@@ -124,5 +103,10 @@ function parse_struct_type(str){
 }
 
 function parse_array_type(str){
-  return "array";
+  var String = "";
+  for(var i in str){
+    String += jschema_parser(str[i]);
+    String += "_" + i + ";\n";
+  }
+  return String;
 }

@@ -30,9 +30,9 @@ public class JSchemaToJavaTest{
     {
         assertEquals("private String _Name;\n" , JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\"}"));
 
-        assertEquals("private String _Name;" , JSchemaToJavaRunner.generateFields("[{\"Name\" : \"@String\"}]"));
+        assertEquals("private String _Name;\n" , JSchemaToJavaRunner.generateFields("[{\"Name\" : \"@String\"}]"));
 
-        assertEquals("private String _Name;\nprivate int _age;",
+        assertEquals("private String _Name;\nprivate int _age;\n",
                 JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\", \"age\": \"@int\"}"));
 
         //simple array case
