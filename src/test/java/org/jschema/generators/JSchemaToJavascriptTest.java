@@ -16,69 +16,89 @@ import static junit.framework.Assert.assertTrue;
 public class JSchemaToJavascriptTest {
 
     @Test
-    public void runTests(){
-       // System.out.println(generate(testObject()));
-        assertEquals(testCoreTypesExp(),generate(testCoreTypes()).toString().replace("\n",""));
-        assertEquals(testNestedObjectExp(),generate(testNestedObject()).toString().replace("\n",""));
-        //assertEquals(testArrayStringExp(),generate(testArrayString()).toString().replace("\n",""));
-       // System.out.println(testObjectExp());
-
+    public void runCoreTest(){
+        String expected=testCoreTypesExp();
+        String actual=generate(testCoreTypes()).toString().replace("\n","");
+        assertEquals(expected,actual);
+    }
+    @Test
+    public void runNestedObjectTest(){
+        String expected=testNestedObjectExp();
+        String actual=generate(testNestedObject()).toString().replace("\n","");
+        assertEquals(expected,actual);
     }
 
     /*****************************Test Cases and Their Expected Outputs**********************************/
     //test core types
-    public static String testCoreTypes(){
+    public String testCoreTypes(){
         return "{ \"name\" : \"@string\", \"age\" : \"@int\", \"birthday\" : \"@date\", \"website\" : \"@uri\", " +
                 "\"student\" : \"@boolean\", \"favorite_number\":\"@number\" }";
     }
-    public static String testCoreTypesExp(){
-        return (genHeader("Person")+
-                genValid("name","string")+
-                genValid("age","int")+
-                genValid("birthday","date")+
-                genValid("website","uri")+
-                genValid("student","boolean")+
-                genValid("favorite_number","number")+
-                genValidLoop()+genToJSON()+genParse());
+    public String testCoreTypesExp(){
+        StringBuilder expected=new StringBuilder();
+        expected.append(genHeader("Person"));
+        expected.append(genVars("name","string"));
+        expected.append(genVars("age","int"));
+        expected.append(genVars("birthday","date"));
+        expected.append(genVars("website","uri"));
+        expected.append(genVars("student","boolean"));
+        expected.append(genVars("favorite_number","number"));
+        expected.append(genValidHeader());
+        expected.append(genValid("name","string"));
+        expected.append(genValid("age","int"));
+        expected.append(genValid("birthday","date"));
+        expected.append(genValid("website","uri"));
+        expected.append(genValid("student","boolean"));
+        expected.append(genValid("favorite_number","number"));
+        expected.append(genValidLoop());
+        expected.append(genToJSON());
+        expected.append(genParse());
+        return expected.toString();
 
     }
 
 
     //test basic arrays
-    public static String testArrayString(){
+    public String testArrayString(){
         return "{ \"name\" : [\"@string\"]}";
     }
-    public static String testArrayStringExp(){
+    /*public String testArrayStringExp(){
         return (genHeader("Person")+
                 genValid("name","string")+
                 genValidLoop()+genToJSON()+genParse());
-    }
+    }*/
 
     //nested object
-    public static String testNestedObject(){
+    public String testNestedObject(){
         return "{ \"name\" : \"@string\", \"age\" : {\"month\" : \"@string\", \"day\" : \"@int\", \"year\" : \"@int\"} }";
     }
 
-    public static String testNestedObjectExp(){
-        return (genHeader("Person")+
-                genValid("name","string")+
-                genValid("age","[object Object]")+
-                genValidLoop()+genToJSON()+genParse()
-        );
+    public String testNestedObjectExp(){
+        StringBuilder expected=new StringBuilder();
+        expected.append(genHeader("Person"));
+        expected.append(genVars("name","string"));
+        expected.append(genVars("age","[object Object]"));
+        expected.append(genValidHeader());
+        expected.append(genValid("name","string"));
+        expected.append(genValid("age","[object Object]"));
+        expected.append(genValidLoop());
+        expected.append(genToJSON());
+        expected.append(genParse());
+        return expected.toString();
     }
 
-    public static String testNestedObject2(){
+    public String testNestedObject2(){
         return "{ \"name\" : \"@string\", \"age\" : {\"month\" : \"@string\", \"day\" : \"@int\", \"year\" : {\"decade\" :\"@int\"} }}";
     }
 
 
 
-    public static String testEnum(){
+    public String testEnum(){
         return "{ \"name\" : [\"first\",\"last\"]}";
 
     }
 
-    public static String testAssort1(){
+    public String testAssort1(){
         return "{  \"first_name\" : \"@string\",\n" +
                 "  \"last_name\" : \"@string\",\n" +
                 "  \"age\" : \"@int\",\n"+
@@ -104,25 +124,33 @@ public class JSchemaToJavascriptTest {
 
     /////////////////////////////Helper Functions for Testing//////////////////////////////
     //Generate start of output
-    private static String genParse(){
-        return ("parse: function(jsonData){var json;if(typeof jsonData != \'undefined\'){try{var json = JSON.parse(jsonData);"+
-                "}catch(e){return \"Invalid JSON format\";}" +
-                 "return Object.assign(json, this.create());}}};");
+    private String genParse(){
+        return ("  parse: function(jsonData){" +
+                "    var json;" +
+                "    if(typeof jsonData != \'undefined\'){" +
+                "    try{" +
+                "      json = JSON.parse(jsonData);"+
+                "    }catch(e){" +
+                "      return \"Invalid JSON format\";" +
+                "    }" +
+                "    return Object.assign(json, this.create());    }" +
+                "  }};");
     }
-    private static String genToJSON(){
-        return("toJSON: function(){" +
-                "var toJson = {};" +
-                "for (var key in this){" +
-                "if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {" +
-                "toJson[key] = this[key];" +
-                "}}return toJson;}};},");
+    private String genToJSON(){
+        return("      toJSON: function(){" +
+                "        var toJson = {};" +
+                "        for (var key in this){" +
+                "          if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {" +
+                "            toJson[key] = this[key];" +
+                "          }        }        return toJson;      }    };  },");
     }
-    private static String genValidLoop(){
-        return("for(var key in validators){if(this[key]){"+
-                "msg += validators[key](this[key]);}}if(msg === \"\"){return \"Valid\"};return msg;},");
+    private String genValidLoop(){
+        return("        for(var key in validators){          if(this[key]){"+
+                "            msg += validators[key](this[key]);          }        }" +
+                "        if(msg === \"\"){          return \"Valid\";        }        return msg;      },");
     }
-    private static String genValid(String key,String type){
-        StringBuilder valid=new StringBuilder("validators[\""+key+"\"] = function(value){if(");
+    private String genValid(String key,String type){
+        StringBuilder valid=new StringBuilder("        validators[\""+key+"\"] = function(value){          if(");
         switch(type){
             case "string":valid.append( "Object.prototype.toString.call(value).slice(8, -1) === \'String\'"); break;
             case "boolean" :valid.append("Object.prototype.toString.call(value).slice(8, -1) === \'Boolean\'");break;
@@ -132,18 +160,27 @@ public class JSchemaToJavascriptTest {
             case "number" :valid.append("!Number.isNaN(value)");break;
             default:valid.append("True");
         }
-        valid.append("){this."+key+" = value;return \"\"}");
+        valid.append("){            this."+key+" = value;            return \"\";          }");
         if(type.compareTo("[object Object]")==0){
-            valid.append("return \"" + key + "=\" + value + \" does not conform to " + type + "\\n\";};");
+            valid.append("          return \"" + key + "=\" + value + \" does not conform to " + type + "\\n\";        };");
         }else {
-            valid.append("return \"" + key + "=\" + value + \" does not conform to @" + type + "\\n\";};");
+            valid.append("          return \"" + key + "=\" + value + \" does not conform to @" + type + "\\n\";        };");
         }
         return valid.toString();
     }
 
-    private static String genHeader(String className){
-        return("var Person = {create: function(){return{validate: function(){"+
-                "var validators = {};var msg = \"\";");
+    private String genHeader(String className){
+        return("var Person = {  create: function(){    return{      jschema: {");
+    }
+    private String genVars(String name, String type){
+        if(!type.contains("object")) {
+            return ("        " + name + ": " + "\"@" + type + "\",");
+        }
+        return ("        " + name + ": " + "\"" + type + "\",");
+    }
+    private String genValidHeader(){
+         return("      },      validate: function(){"+
+                "        var validators = {};        var msg = \"\";");
     }
 
 }
