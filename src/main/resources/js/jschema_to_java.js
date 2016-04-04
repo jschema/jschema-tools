@@ -16,9 +16,6 @@ function generateAll(classname, jschema){
 }
 
 
-
-
-
 //for errors, throw runtime exception
 //Generates the Class Header line. Does not currently close the object with a "}".
 function generateClass(classname){
@@ -41,11 +38,11 @@ function generateObject(jSchema, className){
 
   //populates constructor
   obj = obj.substring(0, obj.length - 2);
-  obj += "){";
+  obj += "){\n";
   for(var i in parsed_schema){
-    obj += "_" + i + " = " + i + ";";
+    obj += "_" + i + " = " + i + ";\n";
   }
-  obj += "}";
+  obj += "}\n";
   return obj;
 }
 

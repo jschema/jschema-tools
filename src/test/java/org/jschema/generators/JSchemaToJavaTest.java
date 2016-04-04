@@ -21,7 +21,7 @@ public class JSchemaToJavaTest{
 
     @Test
     public void TestGenerateAll() throws Exception{
-        assertEquals("public class Class_Name{\nprivate String _Name;\nprivate int _Age;\npublic classname(String Name, int Age){\n_Name = Name;\n_Age = Age;\n}\npublic String getName(){return _Name;}\npublic int getAge(){return _Age;}\n public void setName(String Name){_Name = Name;}\npublic void setAge(int Age){_Age = Age;}\n}", JSchemaToJavaRunner.generateAll("classname", "{\"Name\" : \"@String\", \"Age\": \"@int\"}"));
+        assertEquals("public class classname{\nprivate String _Name;\nprivate int _Age;\npublic classname(String Name, int Age){\n_Name = Name;\n_Age = Age;\n}\npublic String getName(){return _Name;}\npublic int getAge(){return _Age;}\npublic void setName(String Name){_Name = Name;}\npublic void setAge(int Age){_Age = Age;}\n}", JSchemaToJavaRunner.generateAll("classname", "{\"Name\" : \"@String\", \"Age\": \"@int\"}"));
     }
 
     @Test
