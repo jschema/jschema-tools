@@ -13,27 +13,21 @@ function generateClass(classname){
 //Generates Java Object Based on jSchema input. Object name will be className.
 function generateObject(jSchema, className){
   var parsed_schema = JSON.parse(jSchema);
-
-  var keys = [];
-  var count = 0;
   var obj = "";
 
-  //creates constructor
+  //creates constructor. the for loop loops through each key/value pair. Each parsed_schema[i]
+  //is the value corresponding to its key i.
   obj += "public " + className + "(";
   for (var i in parsed_schema){
-  keys.push(i);
-    var str = parsed_schema[i];
-    obj += keys[count] + ", ";
-    count++;
+    obj += jschema_parser(parsed_schema[i]);
+    obj += i + ", ";
   }
-  count = 0;
 
   //populates constructor
   obj = obj.substring(0, obj.length - 2);
   obj += "){";
   for(var i in parsed_schema){
-    obj += "_" + keys[count] + " = " + keys[count] + ";";
-    count++;
+    obj += "_" + i + " = " + i + ";";
   }
   obj += "}";
   return obj;
@@ -43,15 +37,15 @@ function generateFields(jschema){
   var parsed_schema = JSON.parse(jschema);
   var String = "";
 
+  //loops through each key/value pair. Each parsed_schema[i]
+  //is the value corresponding to its key i.
   for(var i in parsed_schema){
     String += "private " + jschema_parser(parsed_schema[i]);
     if(i != 0){
       String += "_" + i + ";\n";
     }
   }
-
   return String;
-
 }
 //Generate Get methods for the created Java Object
 function generateGET(Jschema){
@@ -67,6 +61,9 @@ function generateError(jschema){
   return jschema;
 }
 
+
+//Main jschema parser method. Takes in a jschema array, and checks the
+//first character.
 function jschema_parser(str){
   str_1 = str.toString().charAt(0);
   switch(str_1){
@@ -76,12 +73,35 @@ function jschema_parser(str){
                break;
     case '{' : return parse_struct_type(str);
                break;
-    default  : return "* 99";
+    default  : return "* ";
   }
 }
 
+//Checks for core types, returns appropriate value.
 function parse_core_type(str){
-  switch(str.toString()){
+  var val = "";
+
+  //Case 1: if str is an array, return appropriate Java variable
+  if(str instanceof Array){
+    switch(str.toString()){
+      case "@String" : return "String[] ";
+                       break;
+      case "@boolean": return "boolean[] ";
+                       break;
+      case "@date"   : return "Date[] ";
+                       break;
+      case "@uri"    : return "uri[] ";
+                       break;
+      case "@int"    : return "int[] ";
+                       break;
+      case "@number" : return "double[] ";
+                       break;
+      default        : return typeof str + " ";
+    }
+  }
+
+  //Generic case: if type is just a variable, return the variable name
+  switch(str){
     case "@String" : return "String ";
                      break;
     case "@boolean": return "boolean ";
@@ -94,21 +114,19 @@ function parse_core_type(str){
                      break;
     case "@number" : return "double ";
                      break;
-    default        : return str + " ";
+    default        : return typeof str + " ";
   }
 }
 
 function parse_struct_type(str){
-  return "Struct";
+  return generateObject(str, str);
 }
 
+//Parses a jschema array. For loop behaves like those above.
 function parse_array_type(str){
   var String = "";
   for(var i in str){
     String += jschema_parser(str[i]);
-    if(str[i].toString().startsWith("[")){
-      String += "[]";
-    }
     String += "_" + i + ";\n";
   }
   return String;

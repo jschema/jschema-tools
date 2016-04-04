@@ -36,8 +36,11 @@ public class JSchemaToJavaTest{
                 JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\", \"age\": \"@int\"}"));
 
         //simple array case
-        assertEquals("private String[] _emails;" ,
+        assertEquals("private String[] _emails;\n" ,
                 JSchemaToJavaRunner.generateFields("{\"emails\" : [\"@String\"]}"));
+
+        assertEquals("private Object _person{\n private String _name;\n private int _age;\n}\n" ,
+                JSchemaToJavaRunner.generateFields("{\"person\" : {\"name\" : \"@String\", \"age\" : \"@int\"}}"));
 
         //simple enum case
         assertEquals("public enum type{ red, green, blue};\nprivate type _type",
