@@ -48,8 +48,15 @@ function generateFields(jschema){
   return String;
 }
 //Generate Get methods for the created Java Object
-function generateGET(Jschema){
-  return Jschema;
+function generateGET(jschema){
+    var parsed_schema = JSON.parse(jschema);
+    var String = "";
+
+    for(var i in parsed_schema){
+        String += "public " + jschema_parser(parsed_schema[i]) + "get" + i + "()"; //first half of output
+        String += "{return _" + i + ";}\n";      //second half of output
+    }
+    return String;
 }
 
 //Generate Set methods for the created Java Object

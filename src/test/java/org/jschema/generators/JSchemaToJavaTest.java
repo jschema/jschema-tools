@@ -71,18 +71,18 @@ public class JSchemaToJavaTest{
     @Test
     public void TestGenerateGET() throws Exception
     {
-        assertEquals("public String getName(){return _Name;}",
+        assertEquals("public String getName(){return _Name;}\n",
                 JSchemaToJavaRunner.generateGET("{\"Name\" : \"@String\"}"));
 
-        assertEquals("public String getName(){return _Name;}\npublic int getage(){return _age;} ",
-                JSchemaToJavaRunner.generateGET("{\"name\" : \"@String\", \"age\": \"@int\"}"));
+        assertEquals("public String getName(){return _Name;}\npublic int getage(){return _age;}\n",
+                JSchemaToJavaRunner.generateGET("{\"Name\" : \"@String\", \"age\": \"@int\"}"));
 
         //array case
-        assertEquals("public String[] getemails(){return _emails;}",
-                JSchemaToJavaRunner.generateGET("{{\"emails\" : [\"@String\"]}}"));
+        assertEquals("public String[] getemails(){return _emails;}\n",
+                JSchemaToJavaRunner.generateGET("{\"emails\" : [\"@String\"]}"));
 
         //enum case --will have to watch our variable capitalization
-        assertEquals("public type getType(){return _type;}",
+        assertEquals("public type getType(){return _type;}\n",
                 JSchemaToJavaRunner.generateGET("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
     }
 
