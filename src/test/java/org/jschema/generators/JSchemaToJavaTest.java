@@ -20,6 +20,11 @@ public class JSchemaToJavaTest{
 
 
     @Test
+    public void TestGenerateAll() throws Exception{
+        assertEquals("public class Class_Name{\nprivate String _Name;\nprivate int _Age;\npublic classname(String Name, int Age){\n_Name = Name;\n_Age = Age;\n}\npublic String getName(){return _Name;}\npublic int getAge(){return _Age;}\n public void setName(String Name){_Name = Name;}\npublic void setAge(int Age){_Age = Age;}\n}", JSchemaToJavaRunner.generateAll("classname", "{\"Name\" : \"@String\", \"Age\": \"@int\"}"));
+    }
+
+    @Test
     public void TestGenerateClass() throws Exception
     {
         assertEquals("Class Temp_Name{\n", JSchemaToJavaRunner.generateClass("Temp_Name"));
@@ -90,18 +95,18 @@ public class JSchemaToJavaTest{
     @Test
     public void TestGenerateSET() throws Exception
     {
-        assertEquals("public void setName(String Name){_Name = Name;}",JSchemaToJavaRunner.generateGET("{\"Name\" : \"@String\"}"));
+        assertEquals("public void setName(String Name){_Name = Name;}\n",JSchemaToJavaRunner.generateSET("{\"Name\" : \"@String\"}"));
 
-        assertEquals("public String setName(String Name){_Name = Name;}\npublic int setage(int age){_age = age;} ",
-                JSchemaToJavaRunner.generateSET("{\"name\" : \"@String\", \"age\": \"@int\"}"));
+        assertEquals("public void setName(String Name){_Name = Name;}\npublic void setage(int age){_age = age;}\n",
+                JSchemaToJavaRunner.generateSET("{\"Name\" : \"@String\", \"age\": \"@int\"}"));
 
         //array case --this requires more thought, not sure if you can simply equate arrays
-        assertEquals("public void setemails(String[] emails){_emails = emails;}",
-                JSchemaToJavaRunner.generateGET("{{\"emails\" : [\"@String\"]}}"));
+        assertEquals("public void setemails(String[] emails){_emails = emails;}\n",
+                JSchemaToJavaRunner.generateSET("{\"emails\" : [\"@String\"]}"));
 
         //enum case --we will need error checking to make sure the input is a valid enum type
-        assertEquals("public void setType(type Type){_type = Type}",
-                JSchemaToJavaRunner.generateGET("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
+        assertEquals("public void setType(type Type){_type = Type}\n",
+                JSchemaToJavaRunner.generateSET("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
     }
 
 

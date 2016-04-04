@@ -19,6 +19,11 @@ public class JSchemaToJavaRunner
     _testObj = Obj;
   }
 
+  public static Object generateAll(String classname, String jschema) throws Exception{
+    Object generatedAll = runEngine().invokeFunction("generateAll", classname, jschema);
+    return generatedAll;
+  }
+
   public static Object generateClass(String classname) throws Exception{
     Object generatedClass = runEngine().invokeFunction("generateClass", classname);
     return generatedClass;
