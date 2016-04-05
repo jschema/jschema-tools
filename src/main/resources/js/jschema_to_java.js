@@ -27,7 +27,12 @@ function generateClass(classname){
 
 function generateEnums(jschema){
   var enums_present = check_for_enums(jschema);
-  return enums_present;
+  if(!enums_present){
+    return "";
+  }
+  else{
+    //make enum ouput here!
+  }
 }
 //Generates Java Object Based on jSchema input. Object name will be className.
 function generateObject(jSchema, className){
