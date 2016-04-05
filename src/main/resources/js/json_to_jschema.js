@@ -16,42 +16,60 @@ function jsonToJSchema(json) {
 }
 
 function parse(value) {
+    // Try to infer the type using `typeof`
     var nativeJSType = typeof value;
+
     if (nativeJSType == "string") {
-        if (!isNaN(Date.parse(value))) {
+        // Check to see if string matches date or URI
+        var isDate = !isNaN(Date.parse(value));
+        var isURI = testURI(value);
+
+        // Return appropriate type
+        if (isDate) {
             return CoreTypes.Date;
-        } else if (testURI(value)) {
+        } else if (isURI) {
             return CoreTypes.URI;
         }
         return CoreTypes.String;
+
     } else if (nativeJSType == "number") {
-        if (value % 1 === 0) {
-            return CoreTypes.Int;
-        } else {
-            return CoreTypes.Number;
-        }
+        // Check if integer or float value
+        return value % 1 === 0 ? CoreTypes.Int : CoreTypes.Number;
+
     } else if (nativeJSType == "boolean") {
         return CoreTypes.Boolean;
+
     } else if (nativeJSType == "object") {
-        if (Object.prototype.toString.call(value) == "[object Array]") {
+        // Check if object is an array or standard object
+        var isArray = Object.prototype.toString.call(value) == "[object Array]";
+        if (isArray) {
             return parseArray(value);
         } else {
             return parseMember(value);
         }
     }
+
     return CoreTypes.Wildcard;
 }
 
 function parseArray(array) {
-    var arrayType = undefined;
+    // For empty arrays, return wildcard array
+    if (array.length == 0) {
+        return ["*"];
+    }
+
+    // Infer the type from the first element
+    var arrayType = parse(array[0]);
+
+    // Iterate over all items, ensuring type matches
     for (var i = 0; i < array.length; i++) {
-        if (arrayType == undefined) {
-            arrayType = parse(array[i]);
-        } else if (equal(arrayType, parse(array[i])) == false) {
+        // Return error if type doesn't match expected type
+        if (equal(arrayType, parse(array[i])) == false) {
             return "@error";
         }
     }
-    return arrayType == undefined ? "@error" : [arrayType];
+
+    return [arrayType];
 }
 
 function parseMember(member) {
@@ -66,8 +84,6 @@ function testURI(value) {
     // https://github.com/jzaefferer/jquery-validation/blob/master/src/core.js#L1306
     return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test( value );
 }
-
-
 
 // EQUALITY TESTING
 // Used to deep compare objects in Javascript.
@@ -160,8 +176,6 @@ _equal.date = function(a, b) {
 _equal.regexp = function(a, b) {
 	return a.toString() === b.toString();
 };
-
-
 
 // DEBUGGING
 function formatJSONString(jsonString) {
