@@ -8,6 +8,7 @@ function generateAll(classname, jschema){
     var String = "";
     String += generateClass(classname);
     String += generateFields(jschema);
+    String += generateEnums(jschema);
     String += generateObject(jschema, classname);
     String += generateGET(jschema);
     String += generateSET(jschema);
@@ -23,6 +24,11 @@ function generateClass(classname){
   return className;
 }
 
+
+function generateEnums(jschema){
+  var enums_present = check_for_enums(jschema);
+  return enums_present;
+}
 //Generates Java Object Based on jSchema input. Object name will be className.
 function generateObject(jSchema, className){
   var parsed_schema = JSON.parse(jSchema);
@@ -159,6 +165,21 @@ function parse_array_type(str){
   return String;
 }
 
+function check_for_enums(jschema){
+   var str = JSON.parse(jschema);
+   for(var i in str){
+     var str_1 = str.toString().charAt(0);
+     if(str_1 == '['){
+        for(var j in str[i]){
+          var strj_1 = str[i].toString().charAt(0);
+          if(strj_1 != '@'){
+            return true;
+          }
+        }
+     }
+   }
+   return false;
+}
 
 function generate_enum(str){
   return "hello!";

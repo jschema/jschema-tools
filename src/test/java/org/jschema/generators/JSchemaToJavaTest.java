@@ -31,6 +31,13 @@ public class JSchemaToJavaTest{
     }
 
     @Test
+    public void TestGenerateEnums() throws Exception
+    {
+        assertEquals(false, JSchemaToJavaRunner.generateEnums("{\"name\" : \"@String\"}"));
+        assertEquals("public enum color{blue, brown, red}\nprivate color _color;\n}", JSchemaToJavaRunner.generateEnums("{\"color\" : [\"blue\", \"brown\", \"red\"]}"));
+    }
+
+    @Test
     public void TestGenerateFields() throws Exception
     {
         assertEquals("private String _Name;\n" , JSchemaToJavaRunner.generateFields("{\"Name\" : \"@String\"}"));

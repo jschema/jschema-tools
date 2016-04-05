@@ -29,6 +29,11 @@ public class JSchemaToJavaRunner
     return generatedClass;
   }
 
+  public static Object generateEnums(String jschema) throws Exception{
+    Object generatedEnum = runEngine().invokeFunction("generateEnums", jschema);
+    return generatedEnum;
+  }
+
   public static Object generateFields(String jschema) throws Exception{
     Object generatedFields = runEngine().invokeFunction("generateFields", jschema);
     return generatedFields;
