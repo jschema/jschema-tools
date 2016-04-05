@@ -35,8 +35,14 @@ function generateCreate(schema){
 
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
-      generatedSetters += generateSetter(key, schema[key]);
-      generatedSchema += "\n        " + key + ": \"" + schema[key] + "\",";
+        //check if array
+         if(Object.prototype.toString.call(schema[key]).slice(8, -1) === 'Array'){
+            generatedSetters += generateArray(key, schema[key]);
+            generatedSchema += "\n        " + key + ": [\"" + schema[key] + "\"],";
+         }else{
+            generatedSetters += generateSetter(key, schema[key]);
+            generatedSchema += "\n        " + key + ": \"" + schema[key] + "\",";
+      }
     }
   }
   generatedSchema += "\n      },\n"
@@ -87,7 +93,34 @@ function generateValidator(type){
     case "@number" :
       return "!Number.isNaN(value)";
     default: // wildcard
-      return "True";
+        //check if it is an array
+        //if(type.charAt(0)=="[")// && type.charAt(type.length-1)==="]"){
+           // return type.charAt(0);
+        //}
+        /*if(Object.prototype.toString.call(type).slice(8, -1) === 'Array'){
+            generateArray(type);
+        }*/
+        return "True";
+  }
+}
+function generateArrayValidator(type){
+  switch(type){
+    case "@string" :
+      // https://toddmotto.com/understanding-javascript-types-and-reliable-type-checking/
+      return "Object.prototype.toString.call(value[elem]).slice(8, -1) !== 'String'";
+    case "@boolean" :
+      return "Object.prototype.toString.call(value[elem]).slice(8, -1) !== 'Boolean'";
+    case "@date" :
+      return "isNaN(Date.parse(value[elem]))";
+    case "@uri" :
+      // json_to_schema.js
+      return "!( /^(?:(?:(?:https?|ftp):)?\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})).?)(?::\\d{2,5})?(?:[/?#]\\S*)?$/i.test( value[elem] ))"
+    case "@int" :
+      return "!Number.isInteger(value[elem])";
+    case "@number" :
+      return "Number.isNaN(value[elem])";
+    default: // wildcard
+        return "True";
   }
 }
 
@@ -99,4 +132,18 @@ function generateSetter(key, type) {
           "          }\n" +
           "          return \"" + key + "=\" + value + \" does not conform to " + type + "\\n\";\n" +
           "        };\n";
+}
+
+function generateArray(key,type){
+    if(type.length>1) return "ERROR: Invalid JSchema Format";
+    return  "        validators[\"" + key + "\"] = function(value){\n" +
+            "          for (var elem in value){\n" +
+            "            if(" + generateArrayValidator(type[0]) + "){\n" +
+            "            return \"" + key + " =[\" + value + \"] does not conform to " + type + "\\n\";\n" +
+            "            }\n" +
+            "          }\n" +
+            "              this." + key + " = value;\n" +
+            "              return \"\";\n" +
+            "        };\n";
+
 }
