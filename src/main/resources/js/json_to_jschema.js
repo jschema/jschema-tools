@@ -59,13 +59,16 @@ function parseArray(array) {
     }
 
     // Infer the type from the first element
-    var arrayType = parse(array[0]);
+    var arrayType = undefined;
 
     // Iterate over all items, ensuring type matches
     for (var i = 0; i < array.length; i++) {
         // Return error if type doesn't match expected type
-        if (equal(arrayType, parse(array[i])) == false) {
-            return "@error";
+        var currentType = parse(array[i]);
+        if (arrayType == undefined) {
+            arrayType = currentType;
+        } else if (equal(arrayType, currentType) == false) {
+            return "@error " + JSON.stringify(arrayType) + " " + JSON.stringify(parse(array[i]));
         }
     }
 
