@@ -100,7 +100,7 @@ function jschema_parser(str){
                break;
     case '{' : return parse_struct_type(str);
                break;
-    default  : return "* ";
+    default  : return generate_enum(str);
   }
 }
 
@@ -157,4 +157,9 @@ function parse_array_type(str){
     String += "_" + i + ";\n";
   }
   return String;
+}
+
+
+function generate_enum(str){
+  return "hello!";
 }
