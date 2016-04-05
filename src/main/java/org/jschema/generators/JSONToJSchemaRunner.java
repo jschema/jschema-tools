@@ -11,23 +11,25 @@ public class JSONToJSchemaRunner
 {
   public static void main( String[] args ) throws Exception {
     test("{\"string\":\"String\",\"int\":20,\"boolean\":true,\"date\":\"2016-02-25\",\"uri\":\"http://google.com\"}",
-            "{\"string\":\"@string\",\"int\":\"@int\",\"boolean\":\"@boolean\",\"date\":\"@date\",\"uri\":\"@uri\"}");
+            "{\"string\":\"@string\",\"int\":\"@int\",\"boolean\":\"@boolean\",\"date\":\"@date\",\"uri\":\"@uri\"}", false);
     test("{ \"name\" : \"Joe\", \"age\" : 42 }",
-            "{ \"name\" : \"@string\", \"age\" : \"@int\" }");
+            "{ \"name\" : \"@string\", \"age\" : \"@int\" }", false);
     test("[ { \"name\" : \"Joe\", \"age\" : 42 }, { \"name\" : \"Paul\", \"age\" : 28 }, { \"name\" : \"Mack\", \"age\" : 55 } ]",
-            "[ { \"name\" : \"@string\", \"age\" : \"@int\"} ]");
+            "[ { \"name\" : \"@string\", \"age\" : \"@int\"} ]", false);
+    test("[\"red\", \"orange\", \"yellow\"]", "[\"@string\"]", false);
+    test("[\"red\", \"orange\", \"yellow\"]", "[\"red\", \"orange\", \"yellow\"]", true);
   }
 
-  private static Boolean test(String json, String expectedJschema) throws Exception {
+  private static Boolean test(String json, String expectedJschema, Boolean preferEnums) throws Exception {
 
     ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
     engine.eval(new FileReader("src/main/resources/js/json_to_jschema.js"));
     Invocable invocable = (Invocable) engine;
-    Boolean result = (Boolean)invocable.invokeFunction("testEquals", json, expectedJschema);
+    Boolean result = (Boolean)invocable.invokeFunction("testEquals", json, expectedJschema, preferEnums);
     if (result == false) {
       String formattedJSON = (String)invocable.invokeFunction("formatJSONString", json);
-      String formattedExpected = (String)invocable.invokeFunction("formatJSONString", expectedJschema);
-      String actual = (String)invocable.invokeFunction("jsonToJSchemaString", json);
+      String formattedExpected = (String)invocable.invokeFunction("formatJSONString", expectedJschema, preferEnums);
+      String actual = (String)invocable.invokeFunction("jsonToJSchemaString", json, preferEnums);
       System.out.println("Test failed: " + formattedJSON + "\n\tExpected: " + formattedExpected + "\n\tActual: " + actual + "\n");
     }
     return result;

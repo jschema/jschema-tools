@@ -1,5 +1,9 @@
-var shouldConvertStringsToEnums = false;
+// json_to_jschema.js
+//
+// A tool to generate a jschema document from an input JSON document.
+// See jschema.org for more information.
 
+// JSchema Core Types
 var CoreTypes = {
     String: "@string",
     Boolean: "@boolean",
@@ -10,12 +14,18 @@ var CoreTypes = {
     Wildcard: "*",
 };
 
-// JSON -> JSchema generator
-function jsonToJSchema(json) {
-    return parse(JSON.parse(json));
+// jsonToJSchema: Method for calling the JSON to JSchema transformer.
+//
+// Parameters:
+// - json: The input JSON.
+// - preferEnums: This value should be set to `true` if string arrays in the
+//                input JSON should be interpreted as enums in the output JSchema.
+//
+function jsonToJSchema(json, preferEnums) {
+    return parse(JSON.parse(json), preferEnums);
 }
 
-function parse(value) {
+function parse(value, preferEnums) {
     // Try to infer the type using `typeof`
     var nativeJSType = typeof value;
 
@@ -43,7 +53,7 @@ function parse(value) {
         // Check if object is an array or standard object
         var isArray = Object.prototype.toString.call(value) == "[object Array]";
         if (isArray) {
-            return parseArray(value);
+            return parseArray(value, preferEnums);
         } else {
             return parseMember(value);
         }
@@ -52,7 +62,7 @@ function parse(value) {
     return CoreTypes.Wildcard;
 }
 
-function parseArray(array) {
+function parseArray(array, preferEnums) {
     // For empty arrays, return wildcard array
     if (array.length == 0) {
         return ["*"];
@@ -68,8 +78,13 @@ function parseArray(array) {
         if (arrayType == undefined) {
             arrayType = currentType;
         } else if (equal(arrayType, currentType) == false) {
-            return "@error " + JSON.stringify(arrayType) + " " + JSON.stringify(parse(array[i]));
+            return "@error: Array with mismatched object types.";
         }
+    }
+
+    // Handle preferred enum case
+    if (preferEnums && arrayType == "@string") {
+        return array;
     }
 
     return [arrayType];
@@ -181,14 +196,14 @@ _equal.regexp = function(a, b) {
 };
 
 // DEBUGGING
-function formatJSONString(jsonString) {
-    return JSON.stringify(JSON.parse(jsonString));
+function formatJSONString(jsonString, preferEnums) {
+    return JSON.stringify(JSON.parse(jsonString, preferEnums));
 }
 
-function jsonToJSchemaString(json) {
-    return JSON.stringify(jsonToJSchema(json));
+function jsonToJSchemaString(json, preferEnums) {
+    return JSON.stringify(jsonToJSchema(json, preferEnums));
 }
 
-function testEquals(json, expectedJschema) {
-    return equal(jsonToJSchema(json), JSON.parse(expectedJschema));
+function testEquals(json, expectedJschema, preferEnums) {
+    return equal(jsonToJSchema(json, preferEnums), JSON.parse(expectedJschema));
 }
