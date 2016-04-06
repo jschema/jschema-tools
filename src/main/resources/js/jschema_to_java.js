@@ -40,12 +40,11 @@ function generateEnums(jschema){
      for(var i in str){
        var str_1 = str.toString().charAt(0);
        if(str_1 == '['){
-          var strj_1 = str[i].toString().charAt(0);
-          if(strj_1 == '@'){
-            enum_check = true;
-          }
-          else{
-            enum_names += i;
+         for(var j in str[i]){
+           var strj_1 = str[i].toString().charAt(0);
+             if(strj_1 == '@'){
+               enum_check = true;
+             }
           }
           if(!enum_check){
             members += str[i].toString();
