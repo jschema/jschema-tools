@@ -31,7 +31,7 @@ function generateEnums(jschema){
     return "";
   }
   else{
-    //make enum ouput here!
+    //make enum output here!
   }
 }
 //Generates Java Object Based on jSchema input. Object name will be className.
@@ -41,6 +41,7 @@ function generateObject(jSchema, className){
 
   //creates constructor. the for loop loops through each key/value pair. Each parsed_schema[i]
   //is the value corresponding to its key i.
+
   obj += "public " + className + "(";
   for (var i in parsed_schema){
     obj += jschema_parser(parsed_schema[i]);
@@ -111,7 +112,7 @@ function jschema_parser(str){
                break;
     case '{' : return parse_struct_type(str);
                break;
-    default  : return generate_enum(str);
+    default  : return "* 88 ";
   }
 }
 
@@ -184,8 +185,4 @@ function check_for_enums(jschema){
      }
    }
    return false;
-}
-
-function generate_enum(str){
-  return "hello!";
 }
