@@ -33,26 +33,29 @@ function generateEnums(jschema){
   else{
      var str = JSON.parse(jschema);
      var String = "";
+     var enum_check = false;
 
      var enum_names = [];
      var members = [];
      for(var i in str){
        var str_1 = str.toString().charAt(0);
        if(str_1 == '['){
-          enum_names += i;
-          String += "public enum " + enum_names + "(";
-          for(var j in str[i]){
-            var strj_1 = str[i].toString().charAt(0);
-            if(strj_1 != '@'){
-              String += str[i][j] + " ,";
-            }
+          var strj_1 = str[i].toString().charAt(0);
+          if(strj_1 == '@'){
+            enum_check = true;
           }
-          members += str[i].toString();
-          String = String.substring(0, String.length - 2);
-          String += "){\n";
-          String += "  " + members.split(',').join(",\n  ");
-          String += "\n}\n";
-          String += "private " + i + " _" + i + ";\n";
+          else{
+            enum_names += i;
+          }
+          if(!enum_check){
+            members += str[i].toString();
+            String += "public enum " + enum_names;
+            String += "{\n";
+            String += "  " + members.split(',').join(",\n  ");
+            String += "\n}\n";
+            String += "private " + i + " _" + i + ";\n";
+          }
+          enum_check = false;
        }
      }
      return String;

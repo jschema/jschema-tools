@@ -33,8 +33,10 @@ public class JSchemaToJavaTest{
     @Test
     public void TestGenerateEnums() throws Exception
     {
-        //assertEquals(false, JSchemaToJavaRunner.generateEnums("{\"name\" : \"@String\"}"));
-        assertEquals("public enum color{blue, brown, red}\nprivate color _color;\n}", JSchemaToJavaRunner.generateEnums("{\"color\" : [\"blue\", \"brown\", \"red\"]}"));
+        assertEquals("", JSchemaToJavaRunner.generateEnums("{\"name\" : \"@String\"}"));
+        assertEquals("public enum color{\n  blue,\n  brown,\n  red\n}\nprivate color _color;\n", JSchemaToJavaRunner.generateEnums("{\"color\" : [\"blue\", \"brown\", \"red\"]}"));
+        assertEquals("public enum color{\n  blue,\n  brown,\n  red\n}\nprivate color _color;\n",
+                JSchemaToJavaRunner.generateEnums("{\"name\" : \"@String\",\"color\" : [\"blue\", \"brown\", \"red\"]}"));
     }
 
     @Test
@@ -132,6 +134,7 @@ public class JSchemaToJavaTest{
     }
 
     //Helpers
+    /*
     private String Open(String PathToFile) throws IOException{
         StringBuilder builder = new StringBuilder();
         String Line;
@@ -142,5 +145,5 @@ public class JSchemaToJavaTest{
         String str = builder.toString();
         return str;
     }
-
+*/
 }
