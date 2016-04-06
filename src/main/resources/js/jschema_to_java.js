@@ -44,14 +44,16 @@ function generateEnums(jschema){
           for(var j in str[i]){
             var strj_1 = str[i].toString().charAt(0);
             if(strj_1 != '@'){
-              //members += str[i][j];
               String += str[i][j] + " ,";
             }
           }
+          members += str[i].toString();
+          String = String.substring(0, String.length - 2);
+          String += "){\n";
+          String += "  " + members.split(',').join(",\n  ");
+          String += "\n}\n";
        }
      }
-     String = String.substring(0, String.length - 2);
-     String += "){\n";
      return String;
   }
 }
