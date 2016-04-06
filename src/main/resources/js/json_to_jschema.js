@@ -25,7 +25,10 @@ function jsonToJSchema(json, preferEnums) {
     return parse(JSON.parse(json), preferEnums);
 }
 
-function parse(value, preferEnums) {
+function parse(original, preferEnums) {
+    // Never modify the original values
+    var value = clone(original);
+
     // Try to infer the type using `typeof`
     var nativeJSType = typeof value;
 
@@ -62,38 +65,78 @@ function parse(value, preferEnums) {
     return CoreTypes.Wildcard;
 }
 
-function parseArray(array, preferEnums) {
+function parseArray(original, preferEnums) {
+    // Never modify the original value
+    var array = clone(original);
+
     // For empty arrays, return wildcard array
     if (array.length == 0) {
         return ["*"];
     }
 
-    // Infer the type from the first element
-    var arrayType = undefined;
+    var type = undefined;
+    var enumValues = {};
 
     // Iterate over all items, ensuring type matches
     for (var i = 0; i < array.length; i++) {
         // Return error if type doesn't match expected type
         var currentType = parse(array[i]);
-        if (arrayType == undefined) {
-            arrayType = currentType;
-        } else if (equal(arrayType, currentType) == false) {
+
+        // Check type to ensure every member conforms to same type
+        if (type == undefined) {
+            type = currentType;
+
+            // If preferEnums is true and the array type is an object
+            if (preferEnums && typeof original[i] == "object") {
+                // Add the arrays for each key associated with a string to `enumValues`
+                for (key in original[i]) {
+                    if (currentType[key] == "@string") {
+                        enumValues[key] = [];
+                    }
+                }
+            }
+        } else if (equal(type, currentType) == false) {
             return "@error: Array with mismatched object types.";
+        }
+
+        // If the array contains objects, find enum values
+        if (preferEnums == true && typeof original[i] == "object") {
+            // Iterate over the object's keys
+            for (key in enumValues) {
+                // Get the actual value and parsed type
+                var currentValue = original[i][key];
+
+                // Ensure the value doesn't already exist in the enum
+                var valueExists = enumValues[key].indexOf(currentValue) > -1;
+
+                // Add the new enum value
+                if (valueExists == false) {
+                    enumValues[key].push(currentValue);
+                }
+            }
         }
     }
 
     // Handle preferred enum case
-    if (preferEnums && arrayType == "@string") {
-        return array;
+    if (preferEnums) {
+        for (key in enumValues) {
+            type[key] = enumValues[key];
+        }
     }
 
-    return [arrayType];
+    return [type];
 }
 
-function parseMember(member) {
+function parseMember(original) {
+    // Never modify the original value
+    var member = original;
+
+    // Iterate over keys and replace
     for (key in member) {
-        member[key] = parse(member[key]);
+        var type = parse(member[key]);
+        member[key] = type;
     }
+
     return member;
 }
 
@@ -194,6 +237,11 @@ _equal.date = function(a, b) {
 _equal.regexp = function(a, b) {
 	return a.toString() === b.toString();
 };
+
+// HELPER METHODS
+function clone(object) {
+    return JSON.parse(JSON.stringify(object));
+}
 
 // DEBUGGING
 function formatJSONString(jsonString, preferEnums) {

@@ -17,7 +17,10 @@ public class JSONToJSchemaRunner
     test("[ { \"name\" : \"Joe\", \"age\" : 42 }, { \"name\" : \"Paul\", \"age\" : 28 }, { \"name\" : \"Mack\", \"age\" : 55 } ]",
             "[ { \"name\" : \"@string\", \"age\" : \"@int\"} ]", false);
     test("[\"red\", \"orange\", \"yellow\"]", "[\"@string\"]", false);
-    test("[\"red\", \"orange\", \"yellow\"]", "[\"red\", \"orange\", \"yellow\"]", true);
+    test("[ { \"name\" : \"Joe\", \"age\" : 42, \"eye_color\" : \"brown\" }, " +
+            "{ \"name\" : \"Paul\", \"age\" : 28, \"eye_color\" : \"brown\" }, " +
+            "{ \"name\" : \"Mack\", \"age\" : 55, \"eye_color\" : \"blue\" } ]",
+            "[ { \"name\" : [\"Joe\", \"Paul\", \"Mack\"], \"age\" : \"@int\", \"eye_color\" : [\"brown\", \"blue\"] } ]", true);
   }
 
   private static Boolean test(String json, String expectedJschema, Boolean preferEnums) throws Exception {
