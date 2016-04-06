@@ -32,19 +32,27 @@ function generateEnums(jschema){
   }
   else{
      var str = JSON.parse(jschema);
+     var String = "";
+
+     var enum_names = [];
      var members = [];
      for(var i in str){
        var str_1 = str.toString().charAt(0);
        if(str_1 == '['){
+          enum_names += i;
+          String += "public enum " + enum_names + "(";
           for(var j in str[i]){
             var strj_1 = str[i].toString().charAt(0);
             if(strj_1 != '@'){
-              members += str[i][j];
+              //members += str[i][j];
+              String += str[i][j] + " ,";
             }
           }
        }
      }
-     return members;
+     String = String.substring(0, String.length - 2);
+     String += "){\n";
+     return String;
   }
 }
 //Generates Java Object Based on jSchema input. Object name will be className.
