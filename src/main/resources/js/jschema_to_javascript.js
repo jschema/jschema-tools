@@ -37,8 +37,22 @@ function generateCreate(schema){
     if (schema.hasOwnProperty(key)){
         //check if array
          if(Object.prototype.toString.call(schema[key]).slice(8, -1) === 'Array'){
-            generatedSetters += generateArray(key, schema[key]);
-            generatedSchema += "\n        " + key + ": [\"" + schema[key] + "\"],";
+            //check if enum or regular array
+            if(schema[key] == "@string"){
+                generatedSetters += generateArray(key, schema[key]);
+                generatedSchema += "\n        " + key + ": [\"" + schema[key] + "\"],";
+            }else{
+                generatedSetters += generateEnum(key, schema[key]);
+                generatedSchema += "\n        " + key + ": [";
+                for (var elem in schema[key]){
+                    if(elem!=0){
+                    generatedSchema += ", ";
+                    }
+                    generatedSchema += "\"" + schema[key][elem] + "\"";
+
+                }
+                 generatedSchema += "],";
+            }
          }else{
             generatedSetters += generateSetter(key, schema[key]);
             generatedSchema += "\n        " + key + ": \"" + schema[key] + "\",";
@@ -93,13 +107,6 @@ function generateValidator(type){
     case "@number" :
       return "!Number.isNaN(value)";
     default: // wildcard
-        //check if it is an array
-        //if(type.charAt(0)=="[")// && type.charAt(type.length-1)==="]"){
-           // return type.charAt(0);
-        //}
-        /*if(Object.prototype.toString.call(type).slice(8, -1) === 'Array'){
-            generateArray(type);
-        }*/
         return "True";
   }
 }
@@ -120,6 +127,10 @@ function generateArrayValidator(type){
     case "@number" :
       return "Number.isNaN(value[elem])";
     default: // wildcard
+        //check if enumeration
+        if(Object.prototype.toString.call(type).slice(8, -1) === 'String'){
+            return "enum";
+        }
         return "True";
   }
 }
@@ -135,7 +146,7 @@ function generateSetter(key, type) {
 }
 
 function generateArray(key,type){
-    if(type.length>1) return "ERROR: Invalid JSchema Format";
+    if(type.length<1) return "ERROR: Invalid JSchema Format";
     return  "        validators[\"" + key + "\"] = function(value){\n" +
             "          for (var elem in value){\n" +
             "            if(" + generateArrayValidator(type[0]) + "){\n" +
@@ -145,5 +156,21 @@ function generateArray(key,type){
             "              this." + key + " = value;\n" +
             "              return \"\";\n" +
             "        };\n";
+}
+function generateEnum(key,type){
+    if(type.length<1) return "ERROR: Invalid JSchema Format";
+    var genEnum = "        validators[\"" + key + "\"] = function(value){\n" +
+               //  "          for (var elem in value){\n" +
+                 "            switch(value){\n";
+    for (var el in type){
+        genEnum+="              case \""+type[el]+"\":\n";
+        genEnum+="                break;\n"
+    }
+        genEnum+="              default: return \"" + key + " =\" + value + \" does not conform to [" + type + "]\\n\";\n";
+        genEnum+="              }\n";
+        genEnum+="              this." + key + " = value;\n";
+        genEnum+="              return \"\";\n";
+        genEnum+="        };\n";
 
+    return genEnum;
 }
