@@ -52,6 +52,7 @@ function generateEnums(jschema){
           String += "){\n";
           String += "  " + members.split(',').join(",\n  ");
           String += "\n}\n";
+          String += "private " + i + " _" + i + ";\n";
        }
      }
      return String;
