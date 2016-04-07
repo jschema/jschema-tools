@@ -28,38 +28,43 @@ function generateJavascriptForJSchema(jSchema, className) {
           parseFunction +
           "};\n";
 }
-
-function generateCreate(schema){
   var generatedSetters = "";
-  var generatedSchema = "      jschema: {"
+  var generatedSchema = "      jschema: {";
+function generateCreate(schema){
+
 
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
         //check if array
          if(Object.prototype.toString.call(schema[key]).slice(8, -1) === 'Array'){
+            /*edge case->empty arrays*/
             //check if enum or regular array
-            if(schema[key] == "@string"){
-                generatedSetters += generateArray(key, schema[key]);
-                generatedSchema += "\n        " + key + ": [\"" + schema[key] + "\"],";
-            }else{
+            if((schema[key][0]).charAt(0) !== '@' && Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'String'){
                 generatedSetters += generateEnum(key, schema[key]);
                 generatedSchema += "\n        " + key + ": [";
                 for (var elem in schema[key]){
-                    if(elem!=0){
-                    generatedSchema += ", ";
-                    }
-                    generatedSchema += "\"" + schema[key][elem] + "\"";
-
+                   if(elem!=0){
+                      generatedSchema += ", ";
+                   }
+                   generatedSchema += "\"" + schema[key][elem] + "\"";
                 }
-                 generatedSchema += "],";
+                generatedSchema += "],";
+            }else{
+                  generatedSetters += generateArray(key, schema[key]);
+                  generatedSchema += "\n        " + key + ": [\"" + schema[key] + "\"],";
             }
-         }else{
+         }else if (Object.prototype.toString.call(schema[key]).slice(8, -1) === 'Object'){
+            //generatedSetters += generateObject(key, schema[key]);
+            generateObject(key,schema[key]);
+           // generatedSchema += "\n        " + key + ": \"" + schema[key] + "\",";
+         }
+         else{
             generatedSetters += generateSetter(key, schema[key]);
             generatedSchema += "\n        " + key + ": \"" + schema[key] + "\",";
       }
     }
   }
-  generatedSchema += "\n      },\n"
+  generatedSchema += "\n      },\n";
   return  "  create: function(){\n" +
           "    return{\n" +
           generatedSchema +
@@ -148,19 +153,22 @@ function generateSetter(key, type) {
 function generateArray(key,type){
     if(type.length<1) return "ERROR: Invalid JSchema Format";
     return  "        validators[\"" + key + "\"] = function(value){\n" +
-            "          for (var elem in value){\n" +
-            "            if(" + generateArrayValidator(type[0]) + "){\n" +
-            "            return \"" + key + " =[\" + value + \"] does not conform to " + type + "\\n\";\n" +
+            "          if(Object.prototype.toString.call(value).slice(8, -1) === \'Array\'){\n" +
+            "            for (var elem in value){\n" +
+            "              if(" + generateArrayValidator(type[0]) + "){\n" +
+            "                return \"" + key + " =[\" + value + \"] does not conform to " + type + "\\n\";\n" +
+            "              }\n" +
             "            }\n" +
-            "          }\n" +
-            "              this." + key + " = value;\n" +
-            "              return \"\";\n" +
+            "            this." + key + " = value;\n" +
+            "            return \"\";\n" +
+            "          }else{\n"+
+            "            return \"name =\" + value + \" does not conform to ["+ type+"]\\n\";\n"+
+            "          }"+
             "        };\n";
 }
 function generateEnum(key,type){
     if(type.length<1) return "ERROR: Invalid JSchema Format";
     var genEnum = "        validators[\"" + key + "\"] = function(value){\n" +
-               //  "          for (var elem in value){\n" +
                  "            switch(value){\n";
     for (var el in type){
         genEnum+="              case \""+type[el]+"\":\n";
@@ -173,4 +181,53 @@ function generateEnum(key,type){
         genEnum+="        };\n";
 
     return genEnum;
+}
+
+function generateObject(name,type){
+  generatedSchema +="\n        " + name + ": {";
+  generatedSetters +="        validators[\"" + name + "\"] = function(value){\n";
+  generatedSetters +="          var validators={};\n"
+  for(var key in type){
+    if (type.hasOwnProperty(key)){
+       // generatedSchema += "\n          " + key + ": \"" + type[key] + "\",";
+       if(Object.prototype.toString.call(type[key]).slice(8, -1) === 'Array'){
+                /*edge case->empty arrays*/
+                 //check if enum or regular array
+          if((type[key][0]).charAt(0) !== '@' && Object.prototype.toString.call(type[key][0]).slice(8, -1) === 'String'){
+             generatedSetters += generateEnum(key, type[key]);
+             generatedSchema += "\n        " + key + ": [";
+             for (var elem in type[key]){
+                if(elem!=0){
+                   generatedSchema += ", ";
+                }
+                generatedSchema += "\"" + type[key][elem] + "\"";
+             }
+             generatedSchema += "],";
+
+          }else{
+             generatedSetters += generateArray(key, type[key]);
+             generatedSchema += "\n        " + key + ": [\"" + type[key] + "\"],";
+          }
+       }else if (Object.prototype.toString.call(type[key]).slice(8, -1) === 'Object'){
+                generatedSetters += generateObject(key, type[key]);
+               // generatedSchema += "\n        " + key + ": \"" + schema[key] + "\",";
+       }else{
+                generatedSetters += generateSetter(key, type[key]);
+                generatedSchema += "\n        " + key + ": \"" + type[key] + "\",";
+       }
+    }
+  }
+generatedSchema+="\n        },";
+   generatedSetters+=         "        for(var key in validators){\n" +
+            "          if(value[key]){\n" +
+            "            msg += validators[key](value[key]);\n" +
+            "          }\n" +
+            "        }\n" +
+            "        if(msg === \"\"){\n" +
+            "          return \"Valid\";\n"+
+            "        }\n" +
+            "        return msg;\n"+
+            "      };\n" ;
+  //generatedSetters+="\n        },";
+
 }
