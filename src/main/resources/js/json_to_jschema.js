@@ -54,8 +54,7 @@ function parse(original, preferEnums) {
 
     } else if (nativeJSType == "object") {
         // Check if object is an array or standard object
-        var isArray = Object.prototype.toString.call(value) == "[object Array]";
-        if (isArray) {
+        if (isArray(value)) {
             return parseArray(value, preferEnums);
         } else {
             return parseMember(value);
@@ -83,6 +82,7 @@ function parseArray(original, preferEnums) {
         var currentType = parse(array[i]);
 
         // Check type to ensure every member conforms to same type
+        var commonType = commonSchema(type, currentType);
         if (type == undefined) {
             type = currentType;
 
@@ -95,6 +95,8 @@ function parseArray(original, preferEnums) {
                     }
                 }
             }
+        } else if (typeof original[i] == "object") {
+            type = commonSchema(type, currentType);
         } else if (equal(type, currentType) == false) {
             return "@error: Array with mismatched object types.";
         }
@@ -127,14 +129,38 @@ function parseArray(original, preferEnums) {
     return [type];
 }
 
+// Find the common key/value pairs in two schemas
+function commonSchema(a, b) {
+    var schema = undefined;
+    for (key in a) {
+        if (b[key] != undefined) {
+            if (schema == undefined) {
+                schema = {};
+            }
+
+            var areObjects = typeof a[key] == "object" && typeof b[key] == "object";
+            var areArrays = isArray(a[key]) || isArray(b[key]);
+            if (areObjects && !areArrays) {
+                schema[key] = commonSchema(a[key], b[key]);
+            } else if (a[key] == b[key] || areArrays) {
+                schema[key] = a[key];
+            }
+        }
+    }
+    return schema;
+}
+
+function isArray(value) {
+    return Object.prototype.toString.call(value) === "[object Array]";
+}
+
 function parseMember(original) {
     // Never modify the original value
     var member = original;
 
     // Iterate over keys and replace
     for (key in member) {
-        var type = parse(member[key]);
-        member[key] = type;
+        member[key] = parse(member[key]);
     }
 
     return member;
