@@ -38,7 +38,7 @@ public class JSchemaToJavaTest{
         assertEquals("public enum color{\n  blue,\n  brown,\n  red\n}\nprivate color _color;\n",
                 JSchemaToJavaRunner.generateEnums("{\"name\" : \"@String\",\"color\" : [\"blue\", \"brown\", \"red\"]}"));
         assertEquals("public enum color{\n  blue,\n  brown,\n  red\n}\nprivate color _color;\n",
-                JSchemaToJavaRunner.generateEnums("{\"name\" : \"[@String]\",\"color\" : [\"blue\", \"brown\", \"red\"]}"));
+                JSchemaToJavaRunner.generateEnums("{\"name\" : [\"@String\"],\"color\" : [\"blue\", \"brown\", \"red\"]}"));
     }
 
     @Test

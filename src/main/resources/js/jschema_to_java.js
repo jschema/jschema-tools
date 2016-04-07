@@ -27,6 +27,7 @@ function generateClass(classname){
 
 function generateEnums(jschema){
   var enums_present = check_for_enums(jschema);
+  var enum_check = false;
   if(!enums_present){
     return "";
   }
@@ -34,10 +35,8 @@ function generateEnums(jschema){
      var str = JSON.parse(jschema);
      var String = "";
      var members = [];
-     var enum_name = "";
-     var enum_check = false;
      for(var i in str){
-     enum_check = false;
+       enum_check = false;
        var str_1 = str.toString().charAt(0);
        if(str_1 == '['){
          for(var j in str[i]){
@@ -48,10 +47,9 @@ function generateEnums(jschema){
           }
        }
        if(!enum_check){
-         enum_name = i;
          members += str[i].toString();
-         String += "public enum "  + enum_name + "{";
-         String += "\r  ";
+         String += "public enum "  + i + "{";
+         String += "\n" + "  ";
          for(var k = 0; k < members.length; k++){
            String += members[k];
            if(members[k] == ','){
@@ -59,7 +57,7 @@ function generateEnums(jschema){
            }
          }
          String += "\n}\n";
-         String += "private " + enum_name + " _" + enum_name + ";\n";
+         String += "private " + i + " _" + i + ";\n";
        }
      }
      return String;
