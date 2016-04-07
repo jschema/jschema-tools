@@ -33,11 +33,11 @@ function generateEnums(jschema){
   else{
      var str = JSON.parse(jschema);
      var String = "";
-     var enum_check = false;
-
-     var enum_names = [];
      var members = [];
+     var enum_name = "";
+     var enum_check = false;
      for(var i in str){
+     enum_check = false;
        var str_1 = str.toString().charAt(0);
        if(str_1 == '['){
          for(var j in str[i]){
@@ -46,15 +46,20 @@ function generateEnums(jschema){
                enum_check = true;
              }
           }
-          if(!enum_check){
-            members += str[i].toString();
-            String += "public enum " + enum_names;
-            String += "{\n";
-            String += "  " + members.split(',').join(",\n  ");
-            String += "\n}\n";
-            String += "private " + i + " _" + i + ";\n";
-          }
-          enum_check = false;
+       }
+       if(!enum_check){
+         enum_name = i;
+         members += str[i].toString();
+         String += "public enum "  + enum_name + "{";
+         String += "\r  ";
+         for(var k = 0; k < members.length; k++){
+           String += members[k];
+           if(members[k] == ','){
+             String += "\n  ";
+           }
+         }
+         String += "\n}\n";
+         String += "private " + enum_name + " _" + enum_name + ";\n";
        }
      }
      return String;
