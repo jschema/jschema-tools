@@ -98,7 +98,7 @@ function parseArray(original, preferEnums) {
         } else if (typeof original[i] == "object") {
             type = commonSchema(type, currentType);
         } else if (equal(type, currentType) == false) {
-            return "@error: Array with mismatched object types.";
+            return ["*"];
         }
 
         // If the array contains objects, find enum values
