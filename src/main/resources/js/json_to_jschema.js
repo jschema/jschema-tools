@@ -132,21 +132,51 @@ function parseArray(original, preferEnums) {
 // Find the common key/value pairs in two schemas
 function commonSchema(a, b) {
     var schema = undefined;
+
+    // Iterate over keys in a
     for (key in a) {
+        // Compare types of common keys
         if (b[key] != undefined) {
+            // Schema has at least one key, so it is defined
             if (schema == undefined) {
                 schema = {};
             }
 
             var areObjects = typeof a[key] == "object" && typeof b[key] == "object";
             var areArrays = isArray(a[key]) || isArray(b[key]);
+
+            // Recursively add objects that are not arrays
             if (areObjects && !areArrays) {
                 schema[key] = commonSchema(a[key], b[key]);
             } else if (a[key] == b[key] || areArrays) {
+                // If schema types match or both schemas are arrays, add to schema
                 schema[key] = a[key];
+            } else {
+                // Types don't match, so set type to wildcard
+                schema[key] = "*";
             }
+        } else {
+            // Schema has at least one key, so it is defined
+            if (schema == undefined) {
+                schema = {};
+            }
+            schema[key] = a[key];
         }
     }
+
+    // Add remaining keys from b
+    for (key in b) {
+        // Schema has at least one key, so it is defined
+        if (schema == undefined) {
+            schema = {};
+        }
+
+        // Add key if it doesn't yet exist in schema
+        if (schema[key] == undefined) {
+            schema[key] = b[key];
+        }
+    }
+
     return schema;
 }
 
