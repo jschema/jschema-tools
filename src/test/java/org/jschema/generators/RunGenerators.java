@@ -13,7 +13,7 @@ public class RunGenerators
   public static final String SCHEMAS_DIR = "src/test/java/schemas";
   public static final String GENERATED_DIR = "src/test/java/org/jschema/generated";
   public static final String JAVA_GENERATED_DIR = GENERATED_DIR + "/java";
-  public static final String JAVASCRIPT_GENERATED_DIR = GENERATED_DIR + "/javascript";
+  public static final String JAVASCRIPT_GENERATED_DIR = GENERATED_DIR + "/javascript/";
 
   public static void main( String[] args )
   {

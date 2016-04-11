@@ -186,10 +186,9 @@ function generateEnum(key,type){
 function generateObject(name,type){
   generatedSchema +="\n        " + name + ": {";
   generatedSetters +="        validators[\"" + name + "\"] = function(value){\n";
-  generatedSetters +="          var validators={};\n"
+  generatedSetters +="          var validators={};\n";
   for(var key in type){
     if (type.hasOwnProperty(key)){
-       // generatedSchema += "\n          " + key + ": \"" + type[key] + "\",";
        if(Object.prototype.toString.call(type[key]).slice(8, -1) === 'Array'){
                 /*edge case->empty arrays*/
                  //check if enum or regular array
@@ -209,8 +208,7 @@ function generateObject(name,type){
              generatedSchema += "\n        " + key + ": [\"" + type[key] + "\"],";
           }
        }else if (Object.prototype.toString.call(type[key]).slice(8, -1) === 'Object'){
-                generatedSetters += generateObject(key, type[key]);
-               // generatedSchema += "\n        " + key + ": \"" + schema[key] + "\",";
+                generateObject(key,type[key]);
        }else{
                 generatedSetters += generateSetter(key, type[key]);
                 generatedSchema += "\n        " + key + ": \"" + type[key] + "\",";

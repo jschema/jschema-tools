@@ -16,12 +16,12 @@ public class JSchemaToJavascriptRunner
     String test3="{\"name\" : [\"@boolean\"]}";
     String test4="{\"name\" : [\"brown\",\"blue\",\"green\"]}";
     String test5="{\"info\" : {\"firstName\":\"@string\",\"lastName\":\"@string\"}}";
-    String test7="{\"info\" : {\"firstName\":{\"lol\":\"@string\"}}}";
+    String test7="{\"info\" : {\"firstName\":{\"lol\":[\"@string\"]}}}";
     String test6="{\"info\" : {\"firstName\":\"@string\"}}";
     ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
     engine.eval( new FileReader( "src/main/resources/js/jschema_to_javascript.js" ) );
     Invocable invocable = (Invocable) engine;
-    Object result = invocable.invokeFunction("generateJavascriptForJSchema", test6, "Person");
+    Object result = invocable.invokeFunction("generateJavascriptForJSchema", test7, "Person");
     System.out.println(result);
   }
 
