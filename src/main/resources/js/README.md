@@ -2,7 +2,7 @@
 
 ## Input
 
-jschema: `{"name" : "@string", "age" : "@int"}`
+jschema: `{\"info\" : {\"name\":{\"first\":\"@string\",\"last\":\"@string\"}}}`
 
 class name: `Person`
 
@@ -12,30 +12,68 @@ var Person = {
   create: function(){
     return{
       jschema: {
-        name: "@string",
-        age: "@int",
+        info: {
+        name: {
+        first: "@string",
+        last: "@string",
+        },
+        },
       },
       validate: function(){
         var validators = {};
         var msg = "";
+        validators["info"] = function(value){
+          var validators={};
+          if(Object.prototype.toString.call(value).slice(8, -1) === 'Object'){
+            this.info = value;
+          }else{
+            return "info =" + value + " does not conform to [object Object]\n";
+          }
         validators["name"] = function(value){
+          var validators={};
+          if(Object.prototype.toString.call(value).slice(8, -1) === 'Object'){
+            this.name = value;
+          }else{
+            return "name =" + value + " does not conform to [object Object]\n";
+          }
+        validators["first"] = function(value){
           if(Object.prototype.toString.call(value).slice(8, -1) === 'String'){
-              this.name = value;
-              return ""
-          } 
-          return "name=" + value + " does not conform to @string\n";
+            this.first = value;
+            return "";
+          }
+          return "first=" + value + " does not conform to @string\n";
         };
-        validators["age"] = function(value){
-          if(Number.isInteger(value)){
-            this.age = value;
-            return ""
-          } 
-          return "age=" + value + " does not conform to @int\n";
+        validators["last"] = function(value){
+          if(Object.prototype.toString.call(value).slice(8, -1) === 'String'){
+            this.last = value;
+            return "";
+          }
+          return "last=" + value + " does not conform to @string\n";
         };
+        for(var key in validators){
+          if(value[key]){
+            msg += validators[key](value[key]);
+          }
+        }
+        if(msg === ""){
+          return "Valid";
+        }
+        return msg;
+      };
+        for(var key in validators){
+          if(value[key]){
+            msg += validators[key](value[key]);
+          }
+        }
+        if(msg === ""){
+          return "Valid";
+        }
+        return msg;
+      };
         for(var key in validators){
           if(this[key]){
             msg += validators[key](this[key]);
-          } 
+          }
         }
         if(msg === ""){
           return "Valid";
@@ -56,12 +94,12 @@ var Person = {
   parse: function(jsonData){
     var json;
     if(typeof jsonData != 'undefined'){
-      try{
-        var json = JSON.parse(jsonData);
-      }catch(e){
-        return "Invalid JSON format";
-      }
-      return Object.assign(json, this.create());
+    try{
+      json = JSON.parse(jsonData);
+    }catch(e){
+      return "Invalid JSON format";
+    }
+    return Object.assign(json, this.create());
     }
   }
 };
@@ -69,12 +107,18 @@ var Person = {
 
 ## Usage
 ```javascript
-  var p = Person.create();
-  p.name = 4; // 
-  console.log(p.validate()); // "name=4 does not conform to @string"
-  p.name = "Ashley";
-  console.log(p.validate()); // "Valid"
-  console.log(p.name); // "Ashley"
+var person=Person.create();
+person.info={};
+console.log(person.validate()); //Valid
+person.info=5;
+console.log(person.validate()); //info=5 does not conform to [object Object]
+person.info={};
+person.info.name="hi";
+console.log(person.validate()); //name=5 does not conform to [object Object]
+person.info={name:{first:"jane",last:"doe"}};
+console.log(person.validate()); //Valid
+person.info.name.last=5;
+console.log(person.validate()); //last=5 does not conform to @string
 ```
 
 ## TO DO

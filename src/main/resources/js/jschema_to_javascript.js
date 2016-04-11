@@ -187,6 +187,11 @@ function generateObject(name,type){
   generatedSchema +="\n        " + name + ": {";
   generatedSetters +="        validators[\"" + name + "\"] = function(value){\n";
   generatedSetters +="          var validators={};\n";
+  generatedSetters +="          if(Object.prototype.toString.call(value).slice(8, -1) === 'Object'){\n"+
+                     "            this."+name+" = value;\n"+
+                     "          }else{\n"+
+                     "            return \"" + name + " =\" + value + \" does not conform to " + type + "\\n\";\n"+
+                     "          }\n";
   for(var key in type){
     if (type.hasOwnProperty(key)){
        if(Object.prototype.toString.call(type[key]).slice(8, -1) === 'Array'){
