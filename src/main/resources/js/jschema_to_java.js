@@ -41,7 +41,7 @@ function generateEnums(jschema){
        if(str_1 == '['){                                //check for if it's bracket
          for(var j in str[i]){
            var strj_1 = str[i].toString().charAt(0);
-             if(strj_1 == '@'){                          //if there's an @ sign, it's an enum
+             if(strj_1 == '@'){                          //if there's an @ sign, it's not an enum
                enum_check = true;
              }
           }

@@ -65,7 +65,7 @@ public class JSchemaToJavaTest{
         //      JSchemaToJavaRunner.generateFields("{\"person\" : {\"name\" : \"@String\", \"age\" : \"@int\"}}"));
 
         //simple enum case
-        assertEquals("public enum type{ red, green, blue};\nprivate type _type",
+        assertEquals("private type _type",
                 JSchemaToJavaRunner.generateFields("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
 
 
