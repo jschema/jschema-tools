@@ -38,10 +38,10 @@ function generateEnums(jschema){
      for(var i in str){
        enum_check = false;
        var str_1 = str.toString().charAt(0);
-       if(str_1 == '['){
+       if(str_1 == '['){                                //check for if it's bracket
          for(var j in str[i]){
            var strj_1 = str[i].toString().charAt(0);
-             if(strj_1 == '@'){
+             if(strj_1 == '@'){                          //if there's an @ sign, it's an enum
                enum_check = true;
              }
           }
@@ -73,7 +73,12 @@ function generateObject(jSchema, className){
 
   obj += "public " + className + "(";
   for (var i in parsed_schema){
-    obj += jschema_parser(parsed_schema[i]);
+    var checkwildcard = jschema_parser(parsed_schema[i]);
+    if(checkwildcard === "*"){
+        obj += i.toUpperCase() + " ";
+    }else{
+        obj += jschema_parser(parsed_schema[i]);
+    }
     obj += i + ", ";
   }
 
@@ -117,10 +122,17 @@ function generateGET(jschema){
 function generateSET(jschema){
     var parsed_schema = JSON.parse(jschema);
     var String = "";
+    var checkwildcard;
 
     for(var i in parsed_schema){
+        checkwildcard = jschema_parser(parsed_schema[i]);
         String += "public void set" + i + "(";
-        String += jschema_parser(parsed_schema[i]) + i + "){_" + i + " = " + i + ";}\n";
+        if( checkwildcard === "*"){
+            String += i.toUpperCase() + " " + i + "){_" + i + " = " + i + ";}\n";
+        }else {
+            String += checkwildcard + i + "){_" + i + " = " + i + ";}\n";
+        }
+
     }
   return String;
 }
@@ -134,6 +146,7 @@ function generateError(jschema){
 //first character.
 function jschema_parser(str){
   str_1 = str.toString().charAt(0);
+  //if enum, return empty string
   switch(str_1){
     case '@' : return parse_core_type(str);
                break;
@@ -141,7 +154,9 @@ function jschema_parser(str){
                break;
     case '{' : return parse_struct_type(str);
                break;
-    default  : return "* 88 ";
+
+    //default  : return "* 88 " + str_1;
+    default : return "*";
   }
 }
 

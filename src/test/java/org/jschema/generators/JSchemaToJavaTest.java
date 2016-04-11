@@ -78,7 +78,7 @@ public class JSchemaToJavaTest{
                 JSchemaToJavaRunner.generateObject("{\"emails\" : [\"@String\"]}", "Temp_Name"));
 
         //enum case --we will need to watch our variable capitalization
-        assertEquals("public enum Temp_Name(type Type){\n_type = Type;\n}\n",
+        assertEquals("public Temp_Name(TYPE type){\n_type = type;\n}\n",
                 JSchemaToJavaRunner.generateObject("{\"type\" : [\"red\", \"green\", \"blue\"]}" ,"Temp_Name"));
 
     }
@@ -116,7 +116,7 @@ public class JSchemaToJavaTest{
                 JSchemaToJavaRunner.generateSET("{\"emails\" : [\"@String\"]}"));
 
         //enum case --we will need error checking to make sure the input is a valid enum type
-        assertEquals("public void setType(type Type){_type = Type}\n",
+        assertEquals("public void settype(TYPE type){_type = type;}\n",
                 JSchemaToJavaRunner.generateSET("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
     }
 
