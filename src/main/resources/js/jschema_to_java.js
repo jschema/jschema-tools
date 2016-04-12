@@ -95,11 +95,17 @@ function generateObject(jSchema, className){
 function generateFields(jschema){
   var parsed_schema = JSON.parse(jschema);
   var String = "";
+  var checkwildcard;
 
   //loops through each key/value pair. Each parsed_schema[i]
   //is the value corresponding to its key i.
   for(var i in parsed_schema){
-    String += "private " + jschema_parser(parsed_schema[i]);
+    checkwildcard = jschema_parser(parsed_schema[i]);
+    if(checkwildcard === "*"){
+        String += "private " + i.toUpperCase() + " ";
+    }else{
+        String += "private " + checkwildcard;
+    }
     if(i != 0){
       String += "_" + i + ";\n";
     }
@@ -110,9 +116,15 @@ function generateFields(jschema){
 function generateGET(jschema){
     var parsed_schema = JSON.parse(jschema);
     var String = "";
+    var checkwildcard;
 
     for(var i in parsed_schema){
-        String += "public " + jschema_parser(parsed_schema[i]) + "get" + i + "()"; //first half of output
+        checkwildcard = jschema_parser(parsed_schema[i]);
+        if(checkwildcard === "*"){
+            String += "public " + i.toUpperCase() + " get" + i + "()"; //first half of output
+        }else{
+            String += "public " + checkwildcard + "get" + i + "()";
+        }
         String += "{return _" + i + ";}\n";      //second half of output
     }
     return String;

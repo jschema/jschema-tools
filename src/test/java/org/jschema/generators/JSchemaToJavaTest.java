@@ -65,7 +65,7 @@ public class JSchemaToJavaTest{
         //      JSchemaToJavaRunner.generateFields("{\"person\" : {\"name\" : \"@String\", \"age\" : \"@int\"}}"));
 
         //simple enum case
-        assertEquals("private type _type",
+        assertEquals("private TYPE _type;\n",
                 JSchemaToJavaRunner.generateFields("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
 
 
@@ -104,7 +104,7 @@ public class JSchemaToJavaTest{
                 JSchemaToJavaRunner.generateGET("{\"emails\" : [\"@String\"]}"));
 
         //enum case --will have to watch our variable capitalization
-        assertEquals("public type getType(){return _type;}\n",
+        assertEquals("public TYPE gettype(){return _type;}\n",
                 JSchemaToJavaRunner.generateGET("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
     }
 
