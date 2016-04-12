@@ -106,6 +106,9 @@ public class JSchemaToJavaTest{
         //enum case --will have to watch our variable capitalization
         assertEquals("public TYPE gettype(){return _type;}\n",
                 JSchemaToJavaRunner.generateGET("{\"type\" : [\"red\", \"green\", \"blue\"]}"));
+        //struct cae
+        assertEquals("public person getperson(){return _person;}\n",
+                JSchemaToJavaRunner.generateGET("{\"person\" : {\"name\" : \"@String\", \"age\" : \"@int\"}}"));
     }
 
 //does not return anything. sets value.
