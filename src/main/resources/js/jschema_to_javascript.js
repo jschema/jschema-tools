@@ -2,20 +2,21 @@
  This javascript file provides functionality for generating java source code for working with
  JSON documents that satisfy a given jSchema
  */
-
+var indent="  ";
+var currIndent="        ";
 // TODO: array, enum, struct
 function generateJavascriptForJSchema(jSchema, className) {
-  var parseFunction = "  parse: function(jsonData){\n" +
-                      "    var json;\n" +
-                      "    if(typeof jsonData != 'undefined'){\n" +
-                      "    try{\n" +
-                      "      json = JSON.parse(jsonData);\n" +
-                      "    }catch(e){\n" +
-                      "      return \"Invalid JSON format\";\n" +
-                      "    }\n" +
-                      "    return Object.assign(json, this.create());\n" +
-                      "    }\n" +
-                      "  }\n";
+  var parseFunction = indent+"parse: function(jsonData){\n" +
+                      indent+indent+"var json;\n" +
+                      indent+indent+"if(typeof jsonData != 'undefined'){\n" +
+                      indent+indent+indent+"try{\n" +
+                      indent+indent+indent+indent+"json = JSON.parse(jsonData);\n" +
+                      indent+indent+indent+"}catch(e){\n" +
+                      indent+indent+indent+indent+"return \"Invalid JSON format\";\n" +
+                      indent+indent+indent+"}\n" +
+                      indent+indent+indent+"return Object.assign(json, this.create());\n" +
+                      indent+indent+"}\n" +
+                      indent+"}\n";
 
   try{
     var schema = JSON.parse(jSchema);
@@ -29,7 +30,7 @@ function generateJavascriptForJSchema(jSchema, className) {
           "};\n";
 }
   var generatedSetters = "";
-  var generatedSchema = "      jschema: {";
+  var generatedSchema = indent+indent+indent+"jschema: {";
 function generateCreate(schema){
 
 
@@ -41,7 +42,7 @@ function generateCreate(schema){
             //check if enum or regular array
             if((schema[key][0]).charAt(0) !== '@' && Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'String'){
                 generatedSetters += generateEnum(key, schema[key]);
-                generatedSchema += "\n        " + key + ": [";
+                generatedSchema += "\n"+currIndent + key + ": [";
                 for (var elem in schema[key]){
                    if(elem!=0){
                       generatedSchema += ", ";
@@ -51,48 +52,47 @@ function generateCreate(schema){
                 generatedSchema += "],";
             }else{
                   generatedSetters += generateArray(key, schema[key]);
-                  generatedSchema += "\n        " + key + ": [\"" + schema[key] + "\"],";
+                  generatedSchema += "\n"+currIndent + key + ": [\"" + schema[key] + "\"],";
             }
          }else if (Object.prototype.toString.call(schema[key]).slice(8, -1) === 'Object'){
-            //generatedSetters += generateObject(key, schema[key]);
             generateObject(key,schema[key]);
-           // generatedSchema += "\n        " + key + ": \"" + schema[key] + "\",";
          }
          else{
             generatedSetters += generateSetter(key, schema[key]);
-            generatedSchema += "\n        " + key + ": \"" + schema[key] + "\",";
+            generatedSchema += "\n"+currIndent + key + ": \"" + schema[key] + "\",";
       }
     }
   }
-  generatedSchema += "\n      },\n";
-  return  "  create: function(){\n" +
-          "    return{\n" +
+    currIndent=currIndent.substring(0,currIndent.length-2);
+  generatedSchema += "\n"+currIndent+"},\n";
+  return  indent+"create: function(){\n" +
+          indent+indent+"return{\n" +
           generatedSchema +
-          "      validate: function(){\n" +
-          "        var validators = {};\n" +
-          "        var msg = \"\";\n" +
+          indent+indent+indent+"validate: function(){\n" +
+          indent+indent+indent+indent+"var validators = {};\n" +
+          indent+indent+indent+indent+"var msg = \"\";\n" +
           generatedSetters +
-          "        for(var key in validators){\n" +
-          "          if(this[key]){\n" +
-          "            msg += validators[key](this[key]);\n" +
-          "          }\n" +
-          "        }\n" +
-          "        if(msg === \"\"){\n" +
-          "          return \"Valid\";\n"+
-          "        }\n" +
-          "        return msg;\n"+
-          "      },\n" +
-          "      toJSON: function(){\n" +
-          "        var toJson = {};\n" +
-          "        for (var key in this){\n" +
-          "          if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {\n" +
-          "            toJson[key] = this[key];\n" +
-          "          }\n" +
-          "        }\n" +
-          "        return toJson;\n" +
-          "      }\n" +
-          "    };\n" +
-          "  },\n";
+          indent+indent+indent+indent+"for(var key in validators){\n" +
+          indent+indent+indent+indent+indent+"if(this[key]){\n" +
+          indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n" +
+          indent+indent+indent+indent+indent+"}\n" +
+          indent+indent+indent+indent+"}\n" +
+          indent+indent+indent+indent+"if(msg === \"\"){\n" +
+          indent+indent+indent+indent+indent+"return \"Valid\";\n"+
+          indent+indent+indent+indent+"}\n" +
+          indent+indent+indent+indent+"return msg;\n"+
+          indent+indent+indent+"},\n" +
+          indent+indent+indent+"toJSON: function(){\n" +
+          indent+indent+indent+indent+"var toJson = {};\n" +
+          indent+indent+indent+indent+"for (var key in this){\n" +
+          indent+indent+indent+indent+indent+"if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {\n" +
+          indent+indent+indent+indent+indent+indent+"toJson[key] = this[key];\n" +
+          indent+indent+indent+indent+indent+"}\n" +
+          indent+indent+indent+indent+"}\n" +
+          indent+indent+indent+indent+"return toJson;\n" +
+          indent+indent+indent+"}\n" +
+          indent+indent+"};\n" +
+          indent+"},\n";
 }
 
 function generateValidator(type){
@@ -141,57 +141,58 @@ function generateArrayValidator(type){
 }
 
 function generateSetter(key, type) {
-  return  "        validators[\"" + key + "\"] = function(value){\n" +
-          "          if(" + generateValidator(type) + "){\n" +
-          "            this." + key + " = value;\n" +
-          "            return \"\";\n" +
-          "          }\n" +
-          "          return \"" + key + "=\" + value + \" does not conform to " + type + "\\n\";\n" +
-          "        };\n";
+  return  currIndent+"validators[\"" + key + "\"] = function(value){\n" +
+          currIndent+indent+"if(" + generateValidator(type) + "){\n" +
+          currIndent+indent+indent+"this." + key + " = value;\n" +
+          currIndent+indent+indent+"return \"\";\n" +
+          currIndent+indent+"}\n" +
+          currIndent+indent+"return \"" + key + "=\" + value + \" does not conform to " + type + "\\n\";\n" +
+          currIndent+"};\n";
 }
 
 function generateArray(key,type){
     if(type.length<1) return "ERROR: Invalid JSchema Format";
-    return  "        validators[\"" + key + "\"] = function(value){\n" +
-            "          if(Object.prototype.toString.call(value).slice(8, -1) === \'Array\'){\n" +
-            "            for (var elem in value){\n" +
-            "              if(" + generateArrayValidator(type[0]) + "){\n" +
-            "                return \"" + key + " =[\" + value + \"] does not conform to " + type + "\\n\";\n" +
-            "              }\n" +
-            "            }\n" +
-            "            this." + key + " = value;\n" +
-            "            return \"\";\n" +
-            "          }else{\n"+
-            "            return \"name =\" + value + \" does not conform to ["+ type+"]\\n\";\n"+
-            "          }"+
-            "        };\n";
+    return  currIndent+"validators[\"" + key + "\"] = function(value){\n" +
+            currIndent+indent+"if(Object.prototype.toString.call(value).slice(8, -1) === \'Array\'){\n" +
+            currIndent+indent+indent+"for (var elem in value){\n" +
+            currIndent+indent+indent+indent+"if(" + generateArrayValidator(type[0]) + "){\n" +
+            currIndent+indent+indent+indent+indent+"return \"" + key + " =[\" + value + \"] does not conform to " + type + "\\n\";\n" +
+            currIndent+indent+indent+indent+"}\n" +
+            currIndent+indent+indent+"}\n" +
+            currIndent+indent+indent+"this." + key + " = value;\n" +
+            currIndent+indent+indent+"return \"\";\n" +
+            currIndent+indent+"}else{\n"+
+            currIndent+indent+indent+"return \"name =\" + value + \" does not conform to ["+ type+"]\\n\";\n"+
+            currIndent+indent+"}"+
+            currIndent+"};\n";
 }
 function generateEnum(key,type){
     if(type.length<1) return "ERROR: Invalid JSchema Format";
-    var genEnum = "        validators[\"" + key + "\"] = function(value){\n" +
-                 "            switch(value){\n";
+    var genEnum = currIndent+"validators[\"" + key + "\"] = function(value){\n" +
+                 currIndent+indent+"switch(value){\n";
     for (var el in type){
-        genEnum+="              case \""+type[el]+"\":\n";
-        genEnum+="                break;\n"
+        genEnum+=currIndent+indent+indent+"case \""+type[el]+"\" : ";
+        genEnum+="break;\n"
     }
-        genEnum+="              default: return \"" + key + " =\" + value + \" does not conform to [" + type + "]\\n\";\n";
-        genEnum+="              }\n";
-        genEnum+="              this." + key + " = value;\n";
-        genEnum+="              return \"\";\n";
-        genEnum+="        };\n";
+        genEnum+=currIndent+indent+indent+"default: return \"" + key + " =\" + value + \" does not conform to [" + type + "]\\n\";\n";
+        genEnum+=currIndent+indent+"\n";
+        genEnum+=currIndent+indent+"this." + key + " = value;\n";
+        genEnum+=currIndent+indent+"return \"\";\n";
+        genEnum+=currIndent+"};\n";
 
     return genEnum;
 }
 
 function generateObject(name,type){
-  generatedSchema +="\n        " + name + ": {";
-  generatedSetters +="        validators[\"" + name + "\"] = function(value){\n";
-  generatedSetters +="          var validators={};\n";
-  generatedSetters +="          if(Object.prototype.toString.call(value).slice(8, -1) === 'Object'){\n"+
-                     "            this."+name+" = value;\n"+
-                     "          }else{\n"+
-                     "            return \"" + name + " =\" + value + \" does not conform to " + type + "\\n\";\n"+
-                     "          }\n";
+  generatedSchema +="\n"+ currIndent + name + ": {";
+  currIndent+="  ";
+  generatedSetters +=currIndent+"validators[\"" + name + "\"] = function(value){\n";
+  generatedSetters +=currIndent+indent+"var validators={};\n";
+  generatedSetters +=currIndent+indent+"if(Object.prototype.toString.call(value).slice(8, -1) === 'Object'){\n"+
+                     currIndent+indent+indent+"this."+name+" = value;\n"+
+                     currIndent+indent+"}else{\n"+
+                     currIndent+indent+indent+"return \"" + name + " =\" + value + \" does not conform to " + type + "\\n\";\n"+
+                     currIndent+indent+"}\n";
   for(var key in type){
     if (type.hasOwnProperty(key)){
        if(Object.prototype.toString.call(type[key]).slice(8, -1) === 'Array'){
@@ -199,7 +200,7 @@ function generateObject(name,type){
                  //check if enum or regular array
           if((type[key][0]).charAt(0) !== '@' && Object.prototype.toString.call(type[key][0]).slice(8, -1) === 'String'){
              generatedSetters += generateEnum(key, type[key]);
-             generatedSchema += "\n        " + key + ": [";
+             generatedSchema += "\n"+currIndent + key + ": [";
              for (var elem in type[key]){
                 if(elem!=0){
                    generatedSchema += ", ";
@@ -210,27 +211,30 @@ function generateObject(name,type){
 
           }else{
              generatedSetters += generateArray(key, type[key]);
-             generatedSchema += "\n        " + key + ": [\"" + type[key] + "\"],";
+             generatedSchema += "\n" + currIndent + key + ": [\"" + type[key] + "\"],";
           }
        }else if (Object.prototype.toString.call(type[key]).slice(8, -1) === 'Object'){
                 generateObject(key,type[key]);
        }else{
-                generatedSetters += generateSetter(key, type[key]);
-                generatedSchema += "\n        " + key + ": \"" + type[key] + "\",";
+               currIndent+="  ";
+               generatedSetters += generateSetter(key, type[key]);
+               currIndent=currIndent.substring(0,currIndent.length-2);
+                generatedSchema += "\n" + currIndent + key + ": \"" + type[key] + "\",";
        }
     }
   }
-generatedSchema+="\n        },";
-   generatedSetters+=         "        for(var key in validators){\n" +
-            "          if(value[key]){\n" +
-            "            msg += validators[key](value[key]);\n" +
-            "          }\n" +
-            "        }\n" +
-            "        if(msg === \"\"){\n" +
-            "          return \"Valid\";\n"+
-            "        }\n" +
-            "        return msg;\n"+
-            "      };\n" ;
-  //generatedSetters+="\n        },";
+generatedSchema+="\n"+currIndent+"},";
+
+   generatedSetters+=currIndent+indent+"for(var key in validators){\n" +
+            currIndent+indent+indent+"if(value[key]){\n" +
+            currIndent+indent+indent+indent+"msg += validators[key](value[key]);\n" +
+            currIndent+indent+indent+"}\n" +
+            currIndent+indent+"}\n" +
+            currIndent+indent+"if(msg === \"\"){\n" +
+            currIndent+indent+indent+"return \"Valid\";\n"+
+            currIndent+indent+"}\n" +
+            currIndent+indent+"return msg;\n"+
+            currIndent+"};\n" ;
+  currIndent=currIndent.substring(0,currIndent.length-2);
 
 }
