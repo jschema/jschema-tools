@@ -61,8 +61,8 @@ public class JSchemaToJavaTest{
         assertEquals("private String[] _emails;\n" ,
                 JSchemaToJavaRunner.generateFields("{\"emails\" : [\"@String\"]}"));
 
-        //assertEquals("private Object _person{\n private String _name;\n private int _age;\n}\n" ,
-        //      JSchemaToJavaRunner.generateFields("{\"person\" : {\"name\" : \"@String\", \"age\" : \"@int\"}}"));
+        assertEquals("private person _person;\n" ,
+              JSchemaToJavaRunner.generateFields("{\"person\" : {\"name\" : \"@String\", \"age\" : \"@int\"}}"));
 
         //simple enum case
         assertEquals("private TYPE _type;\n",

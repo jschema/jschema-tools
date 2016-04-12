@@ -4,6 +4,7 @@
 */
 
 //function to generate everything
+
 function generateAll(classname, jschema){
     var String = "";
     String += generateClass(classname);
@@ -164,12 +165,21 @@ function jschema_parser(str){
                break;
     case '[' : return parse_array_type(str);
                break;
-    case '{' : return parse_struct_type(str);
-               break;
-
-    //default  : return "* 88 " + str_1;
     default : return "*";
   }
+  /*
+  if(isObject(str)){
+    if(isArray(str)){
+      return parse_array_type(str);
+    }
+    else {
+      return parse_struct_type(str);
+    }
+  }
+  else{
+    return parse_core_type(str);
+  }
+  */
 }
 
 //Checks for core types, returns appropriate value.
@@ -214,7 +224,7 @@ function parse_core_type(str){
 }
 
 function parse_struct_type(str){
-  return generateObject(str, str);
+  return str + "hello";
 }
 
 //Parses a jschema array. For loop behaves like those above.
@@ -241,4 +251,16 @@ function check_for_enums(jschema){
      }
    }
    return false;
+}
+
+function isArray(value) {
+    return Object.prototype.toString.call(value) === "[object Array]";
+}
+
+function isObject(value) {
+    return typeof value === "object";
+}
+
+function isString(value){
+  return typeof value === "string";
 }
