@@ -1,3 +1,5 @@
+package org.jschema.generated.java;
+
 public class Basic{
 private String _name;
 private int _age;

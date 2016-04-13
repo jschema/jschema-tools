@@ -102,7 +102,13 @@ function generateObject(jschema, className){
   //populates constructor
   String = String.substring(0, String.length - 2) + "){\n";
   for(var i in parsed_schema){
-    String += "_" + i + " = " + i + ";\n";
+    var checkwildcardagain = jschema_parser(parsed_schema[i]);
+    if(checkwildcardagain === "*"){
+      String += "_" + i + " = " + i.toUpperCase() + ";\n";
+    }
+    else{
+      String += "_" + i + " = " + i + ";\n";
+    }
   }
   String += "}\n";
   return String;

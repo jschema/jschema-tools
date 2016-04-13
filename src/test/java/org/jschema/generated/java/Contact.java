@@ -13,7 +13,7 @@ public Contact(String first_name, String last_name, int age, type TYPE, String[]
 _first_name = first_name;
 _last_name = last_name;
 _age = age;
-_type = type;
+_type = TYPE;
 _emails = emails;
 }
 public String getfirst_name(){return _first_name;}
