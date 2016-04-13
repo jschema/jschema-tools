@@ -3,17 +3,32 @@
   JSON documents that satisfy a given jSchema
 */
 
+
 //function to generate everything
 
 function generateAll(classname, jschema){
     var String = "";
-    String += generateClass(classname);
-    String += generateFields(jschema);
-    String += generateEnums(jschema);
-    String += generateObject(jschema, classname);
-    String += generateGET(jschema);
-    String += generateSET(jschema);
-    String += "}";
+    var parsed_schema = JSON.parse(jschema);
+    if(isArray(parsed_schema)){
+      for(var i = 0; i < parsed_schema.length; i++){
+        String += generateClass(classname);
+        String += generateFields(jschema[i]);
+        String += generateEnums(jschema[i]);
+        String += generateObject(jschema[i], classname);
+        String += generateGET(jschema[i]);
+        String += generateSET(jschema[i]);
+        String += "}\n";
+      }
+    }
+    else{
+        String += generateClass(classname);
+        String += generateFields(jschema);
+        String += generateEnums(jschema);
+        String += generateObject(jschema, classname);
+        String += generateGET(jschema);
+        String += generateSET(jschema);
+        String += "}\n";
+    }
     return String;
 }
 
@@ -155,7 +170,7 @@ function generateError(jschema){
 }
 
 
-//Main jschema parser method. Takes in a jschema array, and checks the
+//Main jschema parser method. Takes in a parsed jschema tree, and checks the
 //first character.
 function jschema_parser(str){
   str_1 = str.toString().charAt(0);
@@ -231,6 +246,9 @@ function parse_struct_type(str){
 function parse_array_type(str){
   var String = "";
   for(var i in str){
+    if(isObject(str[i])){
+      return parse_struct_type(str);
+    }
     String += jschema_parser(str[i]);
     String += "_" + i + ";\n";
   }
