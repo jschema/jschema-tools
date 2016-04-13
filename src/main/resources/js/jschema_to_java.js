@@ -80,32 +80,32 @@ function generateEnums(jschema){
   }
 }
 //Generates Java Object Based on jSchema input. Object name will be className.
-function generateObject(jSchema, className){
-  var parsed_schema = JSON.parse(jSchema);
-  var obj = "";
+function generateObject(jschema, className){
+  var parsed_schema = JSON.parse(jschema);
+  var String = "";
 
   //creates constructor. the for loop loops through each key/value pair. Each parsed_schema[i]
   //is the value corresponding to its key i.
 
-  obj += "public " + className + "(";
+  String += "public " + className + "(";
   for (var i in parsed_schema){
     var checkwildcard = jschema_parser(parsed_schema[i]);
     if(checkwildcard === "*"){
-        obj += i.toUpperCase() + " ";
+        String += i + " ";
+        String += i.toUpperCase() + ", ";
     }else{
-        obj += jschema_parser(parsed_schema[i]);
+        String += jschema_parser(parsed_schema[i]);
+        String += i + ", ";
     }
-    obj += i + ", ";
   }
 
   //populates constructor
-  obj = obj.substring(0, obj.length - 2);
-  obj += "){\n";
+  String = String.substring(0, String.length - 2) + "){\n";
   for(var i in parsed_schema){
-    obj += "_" + i + " = " + i + ";\n";
+    String += "_" + i + " = " + i + ";\n";
   }
-  obj += "}\n";
-  return obj;
+  String += "}\n";
+  return String;
 }
 
 function generateFields(jschema){
@@ -117,13 +117,11 @@ function generateFields(jschema){
   //is the value corresponding to its key i.
   for(var i in parsed_schema){
     checkwildcard = jschema_parser(parsed_schema[i]);
-    if(checkwildcard === "*"){
-        String += "private " + i.toUpperCase() + " ";
-    }else{
-        String += "private " + checkwildcard;
-    }
-    if(i != 0){
-      String += "_" + i + ";\n";
+    if(checkwildcard !== "*"){
+      String += "private " + checkwildcard;
+      if(i != 0){
+        String += "_" + i + ";\n";
+      }
     }
   }
   return String;
@@ -137,7 +135,7 @@ function generateGET(jschema){
     for(var i in parsed_schema){
         checkwildcard = jschema_parser(parsed_schema[i]);
         if(checkwildcard === "*"){
-            String += "public " + i.toUpperCase() + " get" + i + "()"; //first half of output
+            String += "public " + i + " get" + i.toUpperCase() + "()"; //first half of output
         }else{
             String += "public " + checkwildcard + "get" + i + "()";
         }
@@ -156,7 +154,7 @@ function generateSET(jschema){
         checkwildcard = jschema_parser(parsed_schema[i]);
         String += "public void set" + i + "(";
         if( checkwildcard === "*"){
-            String += i.toUpperCase() + " " + i + "){_" + i + " = " + i + ";}\n";
+            String += i + " " + i.toUpperCase() + "){_" + i + " = " + i.toUpperCase() + ";}\n";
         }else {
             String += checkwildcard + i + "){_" + i + " = " + i + ";}\n";
         }
@@ -182,29 +180,15 @@ function jschema_parser(str){
                break;
     default : return "*";
   }
-  /*
-  if(isObject(str)){
-    if(isArray(str)){
-      return parse_array_type(str);
-    }
-    else {
-      return parse_struct_type(str);
-    }
-  }
-  else{
-    return parse_core_type(str);
-  }
-  */
 }
 
 //Checks for core types, returns appropriate value.
 function parse_core_type(str){
-  var val = "";
 
   //Case 1: if str is an array, return appropriate Java variable
   if(str instanceof Array){
     switch(str.toString()){
-      case "@String" : return "String[] ";
+      case "@string" : return "String[] ";
                        break;
       case "@boolean": return "boolean[] ";
                        break;
@@ -216,13 +200,13 @@ function parse_core_type(str){
                        break;
       case "@number" : return "double[] ";
                        break;
-      default        : return typeof str + " ";
+      default        : return "ARRAY ** ";
     }
   }
 
   //Generic case: if type is just a variable, return the variable name
   switch(str){
-    case "@String" : return "String ";
+    case "@string" : return "String ";
                      break;
     case "@boolean": return "boolean ";
                      break;
@@ -234,7 +218,7 @@ function parse_core_type(str){
                      break;
     case "@number" : return "double ";
                      break;
-    default        : return typeof str + " ";
+    default        : return "CORE ** ";
   }
 }
 
