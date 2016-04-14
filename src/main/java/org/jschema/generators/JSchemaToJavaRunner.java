@@ -19,9 +19,19 @@ public class JSchemaToJavaRunner
     _testObj = Obj;
   }
 
+  public static Object generateAll(String classname, String jschema) throws Exception{
+    Object generatedAll = runEngine().invokeFunction("generateAll", classname, jschema);
+    return generatedAll;
+  }
+
   public static Object generateClass(String classname) throws Exception{
     Object generatedClass = runEngine().invokeFunction("generateClass", classname);
     return generatedClass;
+  }
+
+  public static Object generateEnums(String jschema) throws Exception{
+    Object generatedEnum = runEngine().invokeFunction("generateEnums", jschema);
+    return generatedEnum;
   }
 
   public static Object generateFields(String jschema) throws Exception{
@@ -57,47 +67,28 @@ public class JSchemaToJavaRunner
     return makeValues;
   }
 
+  public static Object check_jschema_value(String jschema) throws Exception{
+    Object checked_value = runEngine().invokeFunction("jschema_parser", jschema);
+    return checked_value;
+  }
+
 
 
   public static void main( String[] args ) throws Exception
   {
-/*
+
     //opens a .jschema file, reads it into Stringbuilder builder, and converts to String str.
     //if you get a "no such file or directory" error, verify that the FileReader path is correct for you
     StringBuilder builder = new StringBuilder();
     String Line;
-    BufferedReader schema = new BufferedReader( new FileReader("src/test/java/schemas/contact.jschema"));
+    BufferedReader schema = new BufferedReader( new FileReader("src/test/java/schemas/basic.jschema"));
     while((Line = schema.readLine()) != null){
       builder.append(Line);
     }
     String str = builder.toString();
 
-    Object generatedClass = generateClass("Temp_name");
-    //System.out.print(generatedClass);
-
-    Object generatedFields = generateFields(str);
-    //System.out.print(generatedFields);
-
-    Object generatedObject = generateObject(str, "Temp_name");
-
-    Object generatedError = generateError(str);
-
-    Object keys = makeValues(str);
-    System.out.print(keys);
-*/
-      Object test1 = test("{\"Name\" : \"@String\"}");
-      System.out.println(test1);
-
-  }
-
-    public static Object test(String classname) throws Exception{
-        Object generatedClass = runEngine().invokeFunction("myTest", classname);
-        return generatedClass;
-    }
-
-  private static Object parse( String src )
-  {
-    return new Parser( src ).parse();
+    Object obj = generateFields(str);
+    System.out.print(obj);
   }
 
   private static Invocable runEngine() throws Exception{

@@ -96,7 +96,7 @@ public class Parser
   }
 
   public Object parseObject() {
-    HashMap<String, Object> map = new HashMap<>();
+    HashMap<String, Object> map = new HashMap();
 
     if(match(STRING)) {
       parseMember(map);

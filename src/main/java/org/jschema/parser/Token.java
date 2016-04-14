@@ -45,7 +45,7 @@ public class Token
 
   private static Map<String, TokenType> initializeConstants()
   {
-    HashMap<String, TokenType> map = new HashMap<>();
+    HashMap<String, TokenType> map = new HashMap();
     map.put( "true", TokenType.TRUE );
     map.put( "false", TokenType.FALSE );
     map.put( "null", TokenType.NULL );
