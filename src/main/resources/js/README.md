@@ -123,8 +123,6 @@ console.log(person.validate()); //last=5 does not conform to @string
 
 ## TO DO
 
-* arrays
-* enums
-* structs
+* array of objects
 * strict validation: `p.validate(true)` 
 * file input/output

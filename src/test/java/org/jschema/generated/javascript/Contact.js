@@ -33,17 +33,14 @@ var Contact = {
           return "age=" + value + " does not conform to @int\n";
         };
         validators["type"] = function(value){
-            switch(value){
-              case "friend":
-                break;
-              case "customer":
-                break;
-              case "supplier":
-                break;
-              default: return "type =" + value + " does not conform to [friend,customer,supplier]\n";
-              }
-              this.type = value;
-              return "";
+          switch(value){
+            case "friend" : break;
+            case "customer" : break;
+            case "supplier" : break;
+            default: return "type =" + value + " does not conform to [friend,customer,supplier]\n";
+          
+          this.type = value;
+          return "";
         };
         validators["emails"] = function(value){
           if(Object.prototype.toString.call(value).slice(8, -1) === 'Array'){
@@ -81,12 +78,12 @@ var Contact = {
   parse: function(jsonData){
     var json;
     if(typeof jsonData != 'undefined'){
-    try{
-      json = JSON.parse(jsonData);
-    }catch(e){
-      return "Invalid JSON format";
-    }
-    return Object.assign(json, this.create());
+      try{
+        json = JSON.parse(jsonData);
+      }catch(e){
+        return "Invalid JSON format";
+      }
+      return Object.assign(json, this.create());
     }
   }
 };

@@ -4,7 +4,7 @@
  */
 var indent="  ";
 var currIndent="        ";
-// TODO: array, enum, struct
+// TODO: array of objects
 function generateJavascriptForJSchema(jSchema, className) {
   var parseFunction = indent+"parse: function(jsonData){\n" +
                       indent+indent+"var json;\n" +
@@ -85,11 +85,12 @@ function generateCreate(schema){
           indent+indent+indent+"toJSON: function(){\n" +
           indent+indent+indent+indent+"var toJson = {};\n" +
           indent+indent+indent+indent+"for (var key in this){\n" +
-          indent+indent+indent+indent+indent+"if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {\n" +
+          indent+indent+indent+indent+indent+"if (this.hasOwnProperty(key) && key!==\"jschema\" &&\n"+
+          indent+indent+indent+indent+indent+indent+"Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {\n" +
           indent+indent+indent+indent+indent+indent+"toJson[key] = this[key];\n" +
           indent+indent+indent+indent+indent+"}\n" +
           indent+indent+indent+indent+"}\n" +
-          indent+indent+indent+indent+"return toJson;\n" +
+          indent+indent+indent+indent+"return JSON.stringify(toJson);\n" +
           indent+indent+indent+"}\n" +
           indent+indent+"};\n" +
           indent+"},\n";
