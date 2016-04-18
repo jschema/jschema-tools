@@ -119,7 +119,7 @@ public class EndToEndJavascriptTests
 
   private String jsonString( String s )
   {
-    return "\"" + s.replace( "\"", "\\\"" ) + "\"";
+    return "\"" + s.replace( "\"", "\\\"" ).replace( "\n", "\\n" ) + "\"";
   }
 
   private String loadFile( String path ) throws IOException
