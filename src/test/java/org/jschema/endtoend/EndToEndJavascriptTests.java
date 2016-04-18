@@ -102,4 +102,37 @@ public class EndToEndJavascriptTests
 
   }
 
+  @Test
+  public void nestedObjectTest(){
+    load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Person.js" );
+    eval ("var obj=Person.parse(\"{ \\\"name\\\" : \\\"@string\\\", \\\"age\\\" : {\\\"month\\\" : \\\"@string\\\", \\\"day\\\" : \\\"@int\\\", \\\"year\\\" : {\\\"decade\\\":\\\"@int\\\"}}}\")");
+    Assert.assertEquals("{\"name\":\"@string\",\"age\":{\"month\":\"@string\",\"day\":\"@int\",\"year\":{\"decade\":\"@int\"}}}",eval("obj.toJSON()"));
+    //Check Valid String
+    Assert.assertEquals("@string",eval("obj.age.month"));
+    //Check field is set
+    eval("obj.age.month=\"April\"");
+    Assert.assertEquals("April",eval("obj.age.month"));
+    //Check JSON is updated
+    Assert.assertEquals("{\"name\":\"@string\",\"age\":{\"month\":\"April\",\"day\":\"@int\",\"year\":{\"decade\":\"@int\"}}}",eval("obj.toJSON()"));
+    //Check Invalid String
+    eval("obj.age.day=7");
+    eval("obj.age.year.decade=2015");
+    eval("obj.name=4");
+    Assert.assertEquals(4,eval("obj.name"));
+    Assert.assertEquals("name=4 does not conform to @string\n",eval("obj.validate()"));
+    //Check Valid Name
+    eval("obj.name=\"jane\"");
+    Assert.assertEquals("Valid",eval("obj.validate()"));
+    //Check Invalid Decade
+    eval("obj.age.year.decade=\"bad\"");
+    Assert.assertEquals("decade=bad does not conform to @int\n",eval("obj.validate()"));
+    //Check Invalid Month
+    eval("obj.age.month=5");
+    Assert.assertEquals("month=5 does not conform to @string\ndecade=bad does not conform to @int\n",eval("obj.validate()"));
+    //Check Valid Month and Decade
+    eval("obj.age.month=\"June\"");
+    eval("obj.age.year.decade=2015");
+    Assert.assertEquals("Valid",eval("obj.validate()"));
+  }
+
 }
