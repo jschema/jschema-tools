@@ -1,0 +1,34 @@
+{
+
+  "id" : "@string",
+	"created_at": "@date",
+	"updated_at": "@date",
+	"email" : "@string",
+  "total" : "@number",
+  "subtotal" : "@number",
+  "tax" : "@number",
+  "notes" : "@string",
+
+  "customer" : {
+    "email" : "@string",
+    "first_name" : "@string",
+    "last_name" : "@string"
+  },
+
+  "to_address" : {
+    "address1" : "@string",
+    "address2" : "@string",
+    "zip" : "@string",
+    "state" : "@string",
+    "country" : "@string"
+  },
+
+  "line_items" : [{
+    "sku" : "@string",
+    "description" : "@string",
+    "notes" : "@string",
+    "count" : "@int",
+    "price" : "@number",
+    "subtotal" : "@number"
+  }]
+}
