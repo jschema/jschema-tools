@@ -9,7 +9,13 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class EndToEndJavascriptTests
 {
@@ -100,6 +106,26 @@ public class EndToEndJavascriptTests
             "\"type\":\"supplier\"," +
             "\"emails\":[\"test\",\"fixed\"]}",eval("p.toJSON()"));
 
+  }
+
+  @Test
+  public void exampleSampleDataTest() throws IOException
+  {
+    String invoice1 = jsonString( loadFile( "/samples/invoice-1.json" ) );
+    load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Invoice.js" );
+    eval("var inv=Invoice.parse(" + invoice1  + ");");
+    //TODO make it work...
+  }
+
+  private String jsonString( String s )
+  {
+    return "\"" + s.replace( "\"", "\\\"" ) + "\"";
+  }
+
+  private String loadFile( String path ) throws IOException
+  {
+    File resource = new File("src/test/java" + path );
+    return new String( Files.readAllBytes( Paths.get( resource.getPath() ) ) );
   }
 
 }
