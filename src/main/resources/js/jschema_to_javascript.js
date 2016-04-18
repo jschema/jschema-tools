@@ -14,7 +14,11 @@ function generateJavascriptForJSchema(jSchema, className) {
                       indent+indent+indent+"}catch(e){\n" +
                       indent+indent+indent+indent+"return \"Invalid JSON format\";\n" +
                       indent+indent+indent+"}\n" +
-                      indent+indent+indent+"return Object.assign(json, this.create());\n" +
+                      indent+indent+indent+"var obj=this.create();\n"+
+                      indent+indent+indent+"for (var key in obj){\n"+
+                      indent+indent+indent+indent+"if(obj.hasOwnProperty(key)) json[key]=obj[key];\n"+
+                      indent+indent+indent+"}\n"+
+                      indent+indent+indent+"return json;\n" +
                       indent+indent+"}\n" +
                       indent+"}\n";
 
@@ -109,7 +113,7 @@ function generateValidator(type){
       // json_to_schema.js
       return " /^(?:(?:(?:https?|ftp):)?\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})).?)(?::\\d{2,5})?(?:[/?#]\\S*)?$/i.test( value )"
     case "@int" :
-      return "Number.isInteger(value)";
+      return "Object.prototype.toString.call(value).slice(8, -1) === 'Number'";
     case "@number" :
       return "!Number.isNaN(value)";
     default: // wildcard
@@ -129,7 +133,7 @@ function generateArrayValidator(type){
       // json_to_schema.js
       return "!( /^(?:(?:(?:https?|ftp):)?\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})).?)(?::\\d{2,5})?(?:[/?#]\\S*)?$/i.test( value[elem] ))"
     case "@int" :
-      return "!Number.isInteger(value[elem])";
+      return "Object.prototype.toString.call(value[elem]).slice(8, -1) !== 'Number'";
     case "@number" :
       return "Number.isNaN(value[elem])";
     default: // wildcard
@@ -157,7 +161,7 @@ function generateArray(key,type){
             currIndent+indent+"if(Object.prototype.toString.call(value).slice(8, -1) === \'Array\'){\n" +
             currIndent+indent+indent+"for (var elem in value){\n" +
             currIndent+indent+indent+indent+"if(" + generateArrayValidator(type[0]) + "){\n" +
-            currIndent+indent+indent+indent+indent+"return \"" + key + " =[\" + value + \"] does not conform to " + type + "\\n\";\n" +
+            currIndent+indent+indent+indent+indent+"return \"" + key + " =[\" + value + \"] does not conform to [" + type + "]\\n\";\n" +
             currIndent+indent+indent+indent+"}\n" +
             currIndent+indent+indent+"}\n" +
             currIndent+indent+indent+"this." + key + " = value;\n" +
@@ -176,7 +180,7 @@ function generateEnum(key,type){
         genEnum+="break;\n"
     }
         genEnum+=currIndent+indent+indent+"default: return \"" + key + " =\" + value + \" does not conform to [" + type + "]\\n\";\n";
-        genEnum+=currIndent+indent+"\n";
+        genEnum+=currIndent+indent+"}\n";
         genEnum+=currIndent+indent+"this." + key + " = value;\n";
         genEnum+=currIndent+indent+"return \"\";\n";
         genEnum+=currIndent+"};\n";

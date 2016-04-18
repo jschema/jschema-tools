@@ -26,7 +26,7 @@ var Contact = {
           return "last_name=" + value + " does not conform to @string\n";
         };
         validators["age"] = function(value){
-          if(Number.isInteger(value)){
+          if(Object.prototype.toString.call(value).slice(8, -1) === 'Number'){
             this.age = value;
             return "";
           }
@@ -38,7 +38,7 @@ var Contact = {
             case "customer" : break;
             case "supplier" : break;
             default: return "type =" + value + " does not conform to [friend,customer,supplier]\n";
-          
+          }
           this.type = value;
           return "";
         };
@@ -46,7 +46,7 @@ var Contact = {
           if(Object.prototype.toString.call(value).slice(8, -1) === 'Array'){
             for (var elem in value){
               if(Object.prototype.toString.call(value[elem]).slice(8, -1) !== 'String'){
-                return "emails =[" + value + "] does not conform to @string\n";
+                return "emails =[" + value + "] does not conform to [@string]\n";
               }
             }
             this.emails = value;
@@ -67,11 +67,12 @@ var Contact = {
       toJSON: function(){
         var toJson = {};
         for (var key in this){
-          if (this.hasOwnProperty(key) && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {
+          if (this.hasOwnProperty(key) && key!=="jschema" &&
+            Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function') {
             toJson[key] = this[key];
           }
         }
-        return toJson;
+        return JSON.stringify(toJson);
       }
     };
   },
@@ -83,7 +84,11 @@ var Contact = {
       }catch(e){
         return "Invalid JSON format";
       }
-      return Object.assign(json, this.create());
+      var obj=this.create();
+      for (var key in obj){
+        if(obj.hasOwnProperty(key)) json[key]=obj[key];
+      }
+      return json;
     }
   }
 };
