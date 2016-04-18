@@ -1,14 +1,11 @@
 package org.jschema.generated.java;
-
+import java.util.Map;
 public class Basic{
-private String _name;
-private int _age;
-public Basic(String name, int age){
-_name = name;
-_age = age;
-}
-public String getname(){return _name;}
-public int getage(){return _age;}
-public void setname(String name){_name = name;}
-public void setage(int age){_age = age;}
+  private Map<String, Object> _fields;
+  public String toJSON(){return _fields.toString();}
+  public Object getname(){return _fields.get("name");}
+  public Object getage(){return _fields.get("age");}
+  public void setname(Object name){_fields.put("name", name);}
+  public void setage(Object age){_fields.put("age", age);}
+
 }

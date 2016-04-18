@@ -29,48 +29,25 @@ public class JSchemaToJavaRunner
     return generatedClass;
   }
 
-  public static Object generateEnums(String jschema) throws Exception{
-    Object generatedEnum = runEngine().invokeFunction("generateEnums", jschema);
-    return generatedEnum;
+  public static Object generateField() throws Exception{
+    Object generatedField = runEngine().invokeFunction("generateField");
+    return generatedField;
   }
 
-  public static Object generateFields(String jschema) throws Exception{
-    Object generatedFields = runEngine().invokeFunction("generateFields", jschema);
-    return generatedFields;
-  }
-
-  public static Object generateObject(String jschema, String classname) throws Exception{
-    Object generatedObject = runEngine().invokeFunction("generateObject", jschema, classname);
-    return generatedObject;
+  public static Object generateConstructor(String jschema, String classname) throws Exception{
+    Object generatedConstructor = runEngine().invokeFunction("generateConstructor", classname, jschema);
+    return generatedConstructor;
   }
 
   public static Object generateGET(String jschema) throws Exception{
-    Object generatedGET = runEngine().invokeFunction("generateGET", jschema);
+    Object generatedGET = runEngine().invokeFunction("generateGet", jschema);
     return generatedGET;
   }
   public static Object generateSET(String jschema) throws Exception{
-    Object generatedSET = runEngine().invokeFunction("generateSET", jschema);
+    Object generatedSET = runEngine().invokeFunction("generateSet", jschema);
     return generatedSET;
   }
 
-  public static Object generateError(String jschema) throws Exception{
-    Object generatedError = runEngine().invokeFunction("generateError", jschema);
-    return generatedError;
-  }
-
-  public static Object makeKeys(String jschema) throws Exception{
-    Object makeKeys = runEngine().invokeFunction("makeKeys", jschema);
-    return makeKeys;
-  }
-  public static Object makeValues(String jschema) throws Exception{
-    Object makeValues = runEngine().invokeFunction("makeValues", jschema);
-    return makeValues;
-  }
-
-  public static Object check_jschema_value(String jschema) throws Exception{
-    Object checked_value = runEngine().invokeFunction("jschema_parser", jschema);
-    return checked_value;
-  }
 
 
 
@@ -86,9 +63,7 @@ public class JSchemaToJavaRunner
       builder.append(Line);
     }
     String str = builder.toString();
-
-    Object obj = generateFields(str);
-    System.out.print(obj);
+    System.out.print(str);
   }
 
   private static Invocable runEngine() throws Exception{
