@@ -193,6 +193,7 @@ function generateObject(name,type){
   currIndent+="  ";
   generatedSetters +=currIndent+"validators[\"" + name + "\"] = function(value){\n";
   generatedSetters +=currIndent+indent+"var validators={};\n";
+  generatedSetters +=currIndent+indent+"var msg=\"\";\n";
   generatedSetters +=currIndent+indent+"if(Object.prototype.toString.call(value).slice(8, -1) === 'Object'){\n"+
                      currIndent+indent+indent+"this."+name+" = value;\n"+
                      currIndent+indent+"}else{\n"+
@@ -229,17 +230,17 @@ function generateObject(name,type){
     }
   }
 generatedSchema+="\n"+currIndent+"},";
-
    generatedSetters+=currIndent+indent+"for(var key in validators){\n" +
             currIndent+indent+indent+"if(value[key]){\n" +
             currIndent+indent+indent+indent+"msg += validators[key](value[key]);\n" +
             currIndent+indent+indent+"}\n" +
             currIndent+indent+"}\n" +
             currIndent+indent+"if(msg === \"\"){\n" +
-            currIndent+indent+indent+"return \"Valid\";\n"+
+            currIndent+indent+indent+"return \"\";\n"+
             currIndent+indent+"}\n" +
             currIndent+indent+"return msg;\n"+
             currIndent+"};\n" ;
+
   currIndent=currIndent.substring(0,currIndent.length-2);
 
 }
