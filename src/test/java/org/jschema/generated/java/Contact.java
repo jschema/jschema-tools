@@ -15,7 +15,7 @@ public class Contact{
   public int getAge(){return (int) _fields.get("age");}
   public void setAge(Object age){_fields.put("age", age);}
 
-  public List<type>  getType(){return (List<type> ) _fields.get("type");}
+  public List<Type>  getType(){return (List<Type> ) _fields.get("type");}
   public void setType(Object type){_fields.put("type", type);}
 
   public List<String>  getEmails(){return (List<String> ) _fields.get("emails");}
@@ -31,6 +31,19 @@ public class Contact{
 
     public String getName(){return (String) _fields.get("name");}
     public void setName(Object name){_fields.put("name", name);}
+
+
+  }
+  public List<Testing>  getTesting(){return (List<Testing> ) _fields.get("testing");}
+  public void setTesting(Object testing){_fields.put("testing", testing);}
+
+  public class Testing{
+    private Map<String, Object> _fields = new HashMap<String, Object>();
+
+    public String toJSON(){return _fields.toString();}
+
+    public String get0(){return (String) _fields.get("0");}
+    public void set0(Object 0){_fields.put("0", 0);}
 
 
   }

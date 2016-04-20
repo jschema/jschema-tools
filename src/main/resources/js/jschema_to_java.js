@@ -1,15 +1,11 @@
 
 var indent = "";
-//var indent_count = 0;
 
 function generateAll(classname, jschema){
   var parsed_schema;
   var String = "";
-  if(Object.prototype.toString.call(jschema) === "[object Object]"){
+  if(Object.prototype.toString.call(jschema) === "[object Object]" || isArray(jschema)){  //for recursive calls
     parsed_schema = jschema;
-   // indent_count++;
-   // indent = makeIndent(indent_count);
-  // indent += "  ";
   }
   else{
     parsed_schema = JSON.parse(jschema);
@@ -19,14 +15,21 @@ function generateAll(classname, jschema){
   String += indent + generateClass(classname);
   indent += "  ";
   String += indent + generateField() + "\n";
-  //String += indent + generateConstructor(classname, jschema);
   //String += indent + generateParse(classname, jschema);
   String += indent + generateToJson() + "\n";
   for(var key in parsed_schema){
     String += indent + generateGet(key, parsed_schema[key]);
     String += indent + generateSet(key) + "\n";
-    if(isObject(parsed_schema[key]) && !isArray(parsed_schema[key])){
+    if(isObject(parsed_schema[key]) && !isArray(parsed_schema[key])){      //if value is an object
       String += generateAll(capitalize(key), parsed_schema[key]);
+    }
+    if(isArray(parsed_schema[key])){
+      if(isArray(parsed_schema[key][0])){
+        String += generateAll(capitalize(key), parsed_schema[key][0]);
+      }
+      else if(isObject(parsed_schema[key][0])){
+        String += generateAll(capitalize(key), parsed_schema[key][0]);
+      }
     }
   }
   indent = indent.slice(0, indent.length() - 2);
@@ -41,11 +44,6 @@ function generateClass(classname){
 function generateField(){
   var String = "private Map<String, Object> _fields = new HashMap<String, Object>();\n";
   return String;
-}
-
-function generateConstructor(classname, jschema){
-  //todo --make based off Carson's example
-  return "";
 }
 
 function generateParse(classname, jschema){
@@ -87,7 +85,7 @@ function CheckValue(key, value){
 }
 
 function CheckArrays(key, value){
-  String = "List<" + getListType(key, value) + "> ";
+  String = "List<" + getListType(capitalize(key), value) + "> ";
   return String;
 }
 
@@ -115,19 +113,14 @@ function CheckString(value){
 
 function getListType(key, value){
   var type = "";
-  if(isObject(value)){
-    if(isArray(value)){
-      type = CheckString(value[0]);
-      if(type === "BAD"){             //for enum-like arrays
-        return key;
-      }
-      return type;
-    }
-    else{
+  if(isArray(value)){
+    type = CheckString(value[0]);
+    if(type === "BAD"){             //for enum-like arrays
       return key;
     }
+    return type;
   }
-  return "toDo";
+  return key;
 }
 
 function isArray(value) {
