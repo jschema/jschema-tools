@@ -11,7 +11,7 @@ public class Contact{
   public void setAge(Object age){_fields.put("age", age);}
   public List<type>  getType(){return (List<type> ) _fields.get("type");}
   public void setType(Object type){_fields.put("type", type);}
-  public List<emails>  getEmails(){return (List<emails> ) _fields.get("emails");}
+  public List<String>  getEmails(){return (List<String> ) _fields.get("emails");}
   public void setEmails(Object emails){_fields.put("emails", emails);}
   public Customer getCustomer(){return (Customer) _fields.get("customer");}
   public void setCustomer(Object customer){_fields.put("customer", customer);}

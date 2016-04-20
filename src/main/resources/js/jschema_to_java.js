@@ -95,12 +95,23 @@ function CheckString(value){
     }
 }
 
+//
+//Helper Methods
+//
+
 function getListType(key, value){
+  var type = "";
   if(isObject(value)){
-    return key;
-  }
-  if(isArray(Value)){
-    return "toDO"
+    if(isArray(value)){
+      type = CheckString(value[0]);
+      if(type === "BAD"){             //for enum-like arrays
+        return key;
+      }
+      return type;
+    }
+    else{
+      return key;
+    }
   }
   return "toDo";
 }
