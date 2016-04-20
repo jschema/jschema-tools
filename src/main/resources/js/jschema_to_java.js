@@ -1,20 +1,36 @@
 
+var indent = "";
+//var indent_count = 0;
+
 function generateAll(classname, jschema){
-var parsed_schema = JSON.parse(jschema);
+  var parsed_schema;
   var String = "";
-  var indent = "  ";
-  String += "package org.jschema.generated.java;\n"; //import line for testing, should be deleted before release
-  String += "import java.util.*;\n";
-  String += generateClass(classname);
-  String += indent + generateField();
+  if(Object.prototype.toString.call(jschema) === "[object Object]"){
+    parsed_schema = jschema;
+   // indent_count++;
+   // indent = makeIndent(indent_count);
+  // indent += "  ";
+  }
+  else{
+    parsed_schema = JSON.parse(jschema);
+    String += "package org.jschema.generated.java;\n"; //import line for testing, should be deleted before release
+    String += "import java.util.*;\n\n";
+  }
+  String += indent + generateClass(classname);
+  indent += "  ";
+  String += indent + generateField() + "\n";
   //String += indent + generateConstructor(classname, jschema);
   //String += indent + generateParse(classname, jschema);
-  String += indent + generateToJson();
+  String += indent + generateToJson() + "\n";
   for(var key in parsed_schema){
     String += indent + generateGet(key, parsed_schema[key]);
-    String += generateSet(key);
+    String += indent + generateSet(key) + "\n";
+    if(isObject(parsed_schema[key]) && !isArray(parsed_schema[key])){
+      String += generateAll(capitalize(key), parsed_schema[key]);
+    }
   }
-  String += "\n}\n";
+  indent = indent.slice(0, indent.length() - 2);
+  String += "\n" + indent + "}\n";
   return String;
 }
 function generateClass(classname){
@@ -54,8 +70,6 @@ function generateGet(key, value){
 
 function generateSet(key){
     var String = "";
-    var indent = "  ";
-    String += indent;
     String += "public void set" + capitalize(key) + "(Object " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
     return String;
 }
@@ -130,4 +144,12 @@ function isString(value){
 
 function capitalize(str){
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function makeIndent(count){
+  var indent = "";
+   for(var i= 0; i <= count; i++){
+     indent += "  ";
+   }
+   return indent;
 }
