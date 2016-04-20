@@ -9,7 +9,7 @@ import java.util.Map;
 public class Invoice
 {
   private Map<String, Object> _values = new HashMap<String, Object>();
-  
+
   public String getId()
   {
     return (String) _values.get( "id" );
@@ -29,7 +29,7 @@ public class Invoice
   {
     _values.put( "created_at", d );
   }
-  
+
   // .. and so on
 
   // Note use of inner class
@@ -45,7 +45,7 @@ public class Invoice
 
 
   // .. and to_address similar
-  
+
   // .. finally, dealing with arrays, treat them as lists:
   public List<LineItem> getLineItems()
   {
@@ -58,8 +58,8 @@ public class Invoice
   }
 
   // .. inner classes for inner types
-  
-  
+
+
   public class Customer {
     private Map _values = new HashMap();
 
@@ -78,9 +78,9 @@ public class Invoice
   }
 
   // ... generate one for addresss
-  
+
   // ... and one for the array items
-  
+
   public class LineItem {
     private Map _values = new HashMap();
 
