@@ -48,7 +48,7 @@ function generateGet(key, value){
     var indent = "  ";
     String += "public ";
     String += CheckValue(key, value);
-    String += " get" + key + "(){return (" + CheckValue(key, value)  + ") _fields.get(\"" + key + "\");}\n";
+    String += " get" + capitalize(key) + "(){return (" + CheckValue(key, value)  + ") _fields.get(\"" + key + "\");}\n";
     return String;
 }
 
@@ -56,20 +56,25 @@ function generateSet(key){
     var String = "";
     var indent = "  ";
     String += indent;
-    String += "public void set" + key + "(Object " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
+    String += "public void set" + capitalize(key) + "(Object " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
     return String;
 }
 
 function CheckValue(key, value){
   if(isArray(value)){
-    return "ARRAY";
+    return CheckArrays(key, value);
   }
   else if(isObject(value)){
-    return "OBJECT";
+    return capitalize(key);
   }
   else if(isString){
     return CheckString(value);
   }
+}
+
+function CheckArrays(key, value){
+  String = "List<" + getListType(key, value) + "> ";
+  return String;
 }
 
 function CheckString(value){
@@ -90,6 +95,16 @@ function CheckString(value){
     }
 }
 
+function getListType(key, value){
+  if(isObject(value)){
+    return key;
+  }
+  if(isArray(Value)){
+    return "toDO"
+  }
+  return "toDo";
+}
+
 function isArray(value) {
     return Object.prototype.toString.call(value) === "[object Array]";
 }
@@ -100,4 +115,8 @@ function isObject(value) {
 
 function isString(value){
   return typeof value === "string";
+}
+
+function capitalize(str){
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
