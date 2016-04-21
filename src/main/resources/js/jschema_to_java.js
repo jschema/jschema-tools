@@ -1,20 +1,39 @@
 
+var indent = "";
+
 function generateAll(classname, jschema){
-var parsed_schema = JSON.parse(jschema);
+  var parsed_schema;
   var String = "";
-  var indent = "  ";
-  String += "package org.jschema.generated.java;\n"; //import line for testing, should be deleted before release
-  String += "import java.util.*;\n";
-  String += generateClass(classname);
-  String += indent + generateField();
-  //String += indent + generateConstructor(classname, jschema);
+  if(Object.prototype.toString.call(jschema) === "[object Object]" || isArray(jschema)){  //for recursive calls
+    parsed_schema = jschema;
+  }
+  else{
+    parsed_schema = JSON.parse(jschema);
+    String += "package org.jschema.generated.java;\n"; //import line for testing, should be deleted before release
+    String += "import java.util.*;\n\n";
+  }
+  String += indent + generateClass(classname);
+  indent += "  ";
+  String += indent + generateField() + "\n";
   //String += indent + generateParse(classname, jschema);
-  String += indent + generateToJson();
+  String += indent + generateToJson() + "\n";
   for(var key in parsed_schema){
     String += indent + generateGet(key, parsed_schema[key]);
-    String += generateSet(key);
+    String += indent + generateSet(key) + "\n";
+    if(isObject(parsed_schema[key]) && !isArray(parsed_schema[key])){      //if value is an object
+      String += generateAll(capitalize(key), parsed_schema[key]);
+    }
+    if(isArray(parsed_schema[key])){
+      if(isArray(parsed_schema[key][0])){
+        String += generateAll(capitalize(key), parsed_schema[key][0]);
+      }
+      else if(isObject(parsed_schema[key][0])){
+        String += generateAll(capitalize(key), parsed_schema[key][0]);
+      }
+    }
   }
-  String += "\n}\n";
+  indent = indent.slice(0, indent.length() - 2);
+  String += "\n" + indent + "}\n";
   return String;
 }
 function generateClass(classname){
@@ -25,11 +44,6 @@ function generateClass(classname){
 function generateField(){
   var String = "private Map<String, Object> _fields = new HashMap<String, Object>();\n";
   return String;
-}
-
-function generateConstructor(classname, jschema){
-  //todo --make based off Carson's example
-  return "";
 }
 
 function generateParse(classname, jschema){
@@ -54,8 +68,6 @@ function generateGet(key, value){
 
 function generateSet(key){
     var String = "";
-    var indent = "  ";
-    String += indent;
     String += "public void set" + capitalize(key) + "(Object " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
     return String;
 }
@@ -73,7 +85,7 @@ function CheckValue(key, value){
 }
 
 function CheckArrays(key, value){
-  String = "List<" + getListType(key, value) + "> ";
+  String = "List<" + getListType(capitalize(key), value) + "> ";
   return String;
 }
 
@@ -101,19 +113,14 @@ function CheckString(value){
 
 function getListType(key, value){
   var type = "";
-  if(isObject(value)){
-    if(isArray(value)){
-      type = CheckString(value[0]);
-      if(type === "BAD"){             //for enum-like arrays
-        return key;
-      }
-      return type;
-    }
-    else{
+  if(isArray(value)){
+    type = CheckString(value[0]);
+    if(type === "BAD"){             //for enum-like arrays
       return key;
     }
+    return type;
   }
-  return "toDo";
+  return key;
 }
 
 function isArray(value) {
@@ -130,4 +137,12 @@ function isString(value){
 
 function capitalize(str){
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function makeIndent(count){
+  var indent = "";
+   for(var i= 0; i <= count; i++){
+     indent += "  ";
+   }
+   return indent;
 }

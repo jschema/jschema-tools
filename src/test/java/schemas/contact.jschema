@@ -4,5 +4,6 @@
   "age" : "@int",
   "type" : ["friend", "customer", "supplier"],
   "emails" : ["@string"],
-  "customer" : {"name" : "@string"}
+  "customer" : {"name" : "@string"},
+  "testing" : [["@string"]]
 }
