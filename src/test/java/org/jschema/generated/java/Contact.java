@@ -34,18 +34,5 @@ public class Contact{
 
 
   }
-  public List<Testing>  getTesting(){return (List<Testing> ) _fields.get("testing");}
-  public void setTesting(Object testing){_fields.put("testing", testing);}
-
-  public class Testing{
-    private Map<String, Object> _fields = new HashMap<String, Object>();
-
-    public String toJSON(){return _fields.toString();}
-
-    public String get0(){return (String) _fields.get("0");}
-    public void set0(Object 0){_fields.put("0", 0);}
-
-
-  }
 
 }

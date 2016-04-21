@@ -20,10 +20,11 @@ function generateAll(classname, jschema){
   for(var key in parsed_schema){
     String += indent + generateGet(key, parsed_schema[key]);
     String += indent + generateSet(key) + "\n";
+
     if(isObject(parsed_schema[key]) && !isArray(parsed_schema[key])){      //if value is an object
       String += generateAll(capitalize(key), parsed_schema[key]);
     }
-    if(isArray(parsed_schema[key])){
+    if(isArray(parsed_schema[key])){                                       //if value is an array
       if(isArray(parsed_schema[key][0])){
         String += generateAll(capitalize(key), parsed_schema[key][0]);
       }
@@ -31,6 +32,7 @@ function generateAll(classname, jschema){
         String += generateAll(capitalize(key), parsed_schema[key][0]);
       }
     }
+   // String += indent + generateEnums(key, parsed_schema[key]);              //generate Enums, if present
   }
   indent = indent.slice(0, indent.length() - 2);
   String += "\n" + indent + "}\n";
@@ -70,6 +72,15 @@ function generateSet(key){
     var String = "";
     String += "public void set" + capitalize(key) + "(Object " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
     return String;
+}
+
+function generateEnums(key, value){
+  if(!isArray(value)){
+    return "";
+  }
+  else{
+    return "Enum Test!";
+  }
 }
 
 function CheckValue(key, value){
@@ -137,12 +148,4 @@ function isString(value){
 
 function capitalize(str){
   return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function makeIndent(count){
-  var indent = "";
-   for(var i= 0; i <= count; i++){
-     indent += "  ";
-   }
-   return indent;
 }
