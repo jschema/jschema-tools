@@ -32,7 +32,7 @@ function generateAll(classname, jschema){
         String += generateAll(capitalize(key), parsed_schema[key][0]);
       }
     }
-   // String += indent + generateEnums(key, parsed_schema[key]);              //generate Enums, if present
+    String += generateEnums(capitalize(key), parsed_schema[key]);              //generate Enums, if present
   }
   indent = indent.slice(0, indent.length() - 2);
   String += "\n" + indent + "}\n";
@@ -79,7 +79,19 @@ function generateEnums(key, value){
     return "";
   }
   else{
-    return "Enum Test!";
+
+    if(value[0].toString().charAt(0) == '@' || isObject(value[0])){
+      return "";
+    }
+    var String = indent + "public enum " + key + "{\n";
+    indent += "  ";
+    for(var i = 0; i < value.length; i++){
+      String += indent + value[i] + ",\n";
+    }
+    String = String.slice(0, String.length - 2) + "\n";
+    indent = indent.slice(0, indent.length() - 2);
+    String += indent + "}\n\n";
+    return String;
   }
 }
 

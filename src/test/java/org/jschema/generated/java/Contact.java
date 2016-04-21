@@ -18,6 +18,12 @@ public class Contact{
   public List<Type>  getType(){return (List<Type> ) _fields.get("type");}
   public void setType(Object type){_fields.put("type", type);}
 
+  public enum Type{
+    friend,
+    customer,
+    supplier
+  }
+
   public List<String>  getEmails(){return (List<String> ) _fields.get("emails");}
   public void setEmails(Object emails){_fields.put("emails", emails);}
 
