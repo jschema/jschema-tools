@@ -38,6 +38,7 @@ function generateAll(classname, jschema){
   String += "\n" + indent + "}\n";
   return String;
 }
+
 function generateClass(classname){
   var className = "public class " + classname + "{\n";
   return className;
@@ -85,7 +86,7 @@ function generateEnums(key, value){
     var String = indent + "public enum " + key + "{\n";
     indent += "  ";
     for(var i = 0; i < value.length; i++){
-      String += indent + value[i] + ",\n";
+      String += indent + value[i].toUpperCase() + ",\n";
     }
     String = String.slice(0, String.length - 2) + "\n";
     indent = indent.slice(0, indent.length() - 2);
@@ -93,6 +94,10 @@ function generateEnums(key, value){
     return String;
   }
 }
+
+//
+//Helper Methods
+//
 
 function CheckValue(key, value){
   if(isArray(value)){
@@ -128,10 +133,6 @@ function CheckString(value){
       default        : return "BAD";
     }
 }
-
-//
-//Helper Methods
-//
 
 function getListType(key, value){
   var type = "";

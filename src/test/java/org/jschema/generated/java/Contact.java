@@ -19,9 +19,9 @@ public class Contact{
   public void setType(List<Type> type){_fields.put("type", type);}
 
   public enum Type{
-    friend,
-    customer,
-    supplier
+    FRIEND,
+    CUSTOMER,
+    SUPPLIER
   }
 
   public List<String> getEmails(){return (List<String>) _fields.get("emails");}
