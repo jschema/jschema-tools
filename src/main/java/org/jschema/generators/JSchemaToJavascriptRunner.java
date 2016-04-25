@@ -14,7 +14,7 @@ public class JSchemaToJavascriptRunner
     String test1 = "{ \"name\" : \"@string\", \"age\" : \"@int\", \"birthday\" : \"@date\", \"website\" : \"@uri\", \"student\" : \"@boolean\", \"favorite_number\":\"@number\" }";
     String test2 = "[{ \"name\" : \"@string\", \"age\" : \"@int\"}]";
     String test8="{ \"name\" : \"@string\", \"age\" : \"@int\" }";
-    String test3="{\"name\" : [{\"test\":\"@boolean\",\"value\":\"@string\"}]}";
+    String test3="{\"name\" : {\"test\":[{\"blah\":\"@boolean\",\"value\":\"@string\"}]}}";
     String test4="{\"name\" : [\"brown\",\"blue\",\"green\"]}";
     String test5="{\"info\" : {\"firstName\":\"@string\",\"lastName\":\"@string\"}}";
     String test7="{\"info\" : {\"name\":{\"first\":\"@string\",\"last\":\"@string\"}}}";
@@ -28,10 +28,20 @@ public class JSchemaToJavascriptRunner
             "    \"price\" : \"@number\",\n" +
             "    \"subtotal\" : \"@number\"\n" +
             "  }]}";
+    String test12="{" +
+            " \"first_name\" : \"@string\"," +
+            " \"age\" : \"@int\"," +
+            " \"type\" : [\"friend\", \"customer\", \"supplier\"]," +
+            " \"info\" : {" +
+            "   \"emails\" : [\"@string\"]," +
+            "   \"phone_number\" : {\"home\" : \"@int\", \"cell\" : \"@int\"}," +
+            "   \"addresses\" : [{\"address\" : \"@string\"}]" +
+            " }" +
+            "}";
     ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
     engine.eval( new FileReader( "src/main/resources/js/jschema_to_javascript.js" ) );
     Invocable invocable = (Invocable) engine;
-    Object result = invocable.invokeFunction("generateJavascriptForJSchema", test3, "Person");
+    Object result = invocable.invokeFunction("generateJavascriptForJSchema", test12, "Person");
     System.out.println(result);
   }
 

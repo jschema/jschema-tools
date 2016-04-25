@@ -77,7 +77,6 @@ function generateCreate(schema){
                                            currIndent+indent+indent+"return \""+key+"=\" + value + \" does not conform to [array]\\n\";\n"+
                                            currIndent+indent+"}\n"+
                                            currIndent+"};\n";
-                    //generatedSchema += "],";
             }else if(Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'Array'){
                  generatedSchema += "\n"+currIndent + key + ":";
                   generatedSetters += generateArray(key, schema[key]);
@@ -167,7 +166,7 @@ function generateArrayValidator(type){
       return "!( /^(?:(?:(?:https?|ftp):)?\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})).?)(?::\\d{2,5})?(?:[/?#]\\S*)?$/i.test( value[elem] ))"
     case "@int" :
       generatedSchema+="\""+type+"\"";
-      return "Object.prototype.toString.call(value[elem]).slice(8, -1) !== 'Number' && value%1===0";
+      return "Object.prototype.toString.call(value[elem]).slice(8, -1) !== 'Number' && value%1!==0";
     case "@number" :
       generatedSchema+="\""+type+"\"";
         //to support ecma 5 cannot use Number.isNan
@@ -299,7 +298,7 @@ function generateObject(name,type,isArray){
        if(Object.prototype.toString.call(type[key]).slice(8, -1) === 'Array'){
                 /*edge case->empty arrays*/
                  //check if enum or regular array
-          if((type[key][0]).charAt(0) !== '@' && Object.prototype.toString.call(type[key][0]).slice(8, -1) === 'String'){
+          if(type[key][0] !== '@string' && Object.prototype.toString.call(type[key][0]).slice(8, -1) === 'String'){
              generatedSetters += generateEnum(key, type[key]);
              generatedSchema += "\n"+currIndent + key + ": [";
              for (var elem in type[key]){
@@ -309,10 +308,42 @@ function generateObject(name,type,isArray){
                 generatedSchema += "\"" + type[key][elem] + "\"";
              }
              generatedSchema += "],";
+}else if(Object.prototype.toString.call(type[key][0]).slice(8, -1) === 'Object'){
+                generatedSchema+="\n"+currIndent+key+": [";
+                    generatedSetters+=  currIndent+"validators[\"" + key + "\"] = function(value){\n" +
+                                currIndent+indent+"if(Object.prototype.toString.call(value).slice(8, -1) === \'Array\'){\n" +
+                                currIndent+indent+indent+"for (var elem in value){\n" ;
+                      generatedSetters +=currIndent+indent+"var validators={};\n";
+                        generatedSetters +=currIndent+indent+"var msg=\"\";\n";
+                       generatedSetters +=currIndent+indent+"if(Object.prototype.toString.call(value[elem]).slice(8, -1) === 'Object'){\n"+
+                                           currIndent+indent+indent+"this."+key+" = value;\n"+
+                                           currIndent+indent+"}else{\n"+
+                                           currIndent+indent+indent+"return \"" + key + " =\" + value + \" does not conform to [" + type[key][0] + "]\\n\";\n"+
+                                           currIndent+indent+"}\n";
+                    generateObject("",type[key][0],false);
+                    generatedSchema+="\n"+currIndent+indent+"]";
+                     generatedSetters+=currIndent+indent+indent+"}\n" +
+                                 currIndent+indent+"if(msg === \"\"){\n" +
+                                 currIndent+indent+indent+"return \"\";\n"+
+                                 currIndent+indent+"}\n" +
+                                 currIndent+indent+"return msg;\n"+
+                                           currIndent+indent+indent+"this." + key + " = value;\n" +
+                                           currIndent+indent+indent+"return \"\";\n" +
+                                           currIndent+indent+"}else{\n"+
+                                           currIndent+indent+indent+"return \""+key+"=\" + value + \" does not conform to [array]\\n\";\n"+
+                                           currIndent+indent+"}\n"+
+                                           currIndent+"};\n";
+            }else if(Object.prototype.toString.call(type[key][0]).slice(8, -1) === 'Array'){
+                 generatedSchema += "\n"+currIndent + key + ":";
+                  generatedSetters += generateArray(key, type[key]);
 
+                 generatedSchema += ",";
           }else{
-             generatedSetters += generateArray(key, type[key]);
-             generatedSchema += "\n" + currIndent + key + ": [\"" + type[key] + "\"],";
+                 generatedSchema += "\n"+currIndent + key + ":[";
+                 generatedSetters += generateArray(key, type[key]);
+                  generatedSchema += ",";
+             //generatedSetters += generateArray(key, type[key]);
+             //generatedSchema += "\n" + currIndent + key + ": [\"" + type[key] + "\"],";
           }
        }else if (Object.prototype.toString.call(type[key]).slice(8, -1) === 'Object'){
                 generateObject(key,type[key],false);
