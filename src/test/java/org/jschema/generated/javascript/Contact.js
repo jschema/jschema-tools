@@ -6,7 +6,7 @@ var Contact = {
         last_name: "@string",
         age: "@int",
         type: ["friend", "customer", "supplier"],
-        emails: ["@string"],
+        emails:["@string"]
       },
       validate: function(){
         var validators = {};
@@ -52,10 +52,11 @@ var Contact = {
             this.emails = value;
             return "";
           }else{
-            return "name =" + value + " does not conform to [@string]\n";
-          }        };
+            return "emails=" + value + " does not conform to [@string]\n";
+          }
+        };
         for(var key in validators){
-          if(this[key]){
+          if(this.jschema[key]){
             msg += validators[key](this[key]);
           }
         }

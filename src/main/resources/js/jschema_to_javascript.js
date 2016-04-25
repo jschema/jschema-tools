@@ -36,15 +36,13 @@ function generateJavascriptForJSchema(jSchema, className) {
   var generatedSetters = "";
   var generatedSchema = indent+indent+indent+"jschema: {";
 function generateCreate(schema){
-
-
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
         //check if array
          if(Object.prototype.toString.call(schema[key]).slice(8, -1) === 'Array'){
             /*edge case->empty arrays*/
             //check if enum or regular array
-            if((schema[key][0]).charAt(0) !== '@' && Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'String'){
+            if(String(schema[key][0]).charAt(0) !== '@' && Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'String'){
                 generatedSetters += generateEnum(key, schema[key]);
                 generatedSchema += "\n"+currIndent + key + ": [";
                 for (var elem in schema[key]){
@@ -54,12 +52,23 @@ function generateCreate(schema){
                    generatedSchema += "\"" + schema[key][elem] + "\"";
                 }
                 generatedSchema += "],";
-            }else{
+            }else if(Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'Object'){
+                     //generatedSchema += "\n"+currIndent + key + ": [";
+                    generateObject(key,schema[key][0],true);
+                    generatedSchema +="],";
+            }else if(Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'Array'){
+                 generatedSchema += "\n"+currIndent + key + ":";
                   generatedSetters += generateArray(key, schema[key]);
-                  generatedSchema += "\n"+currIndent + key + ": [\"" + schema[key] + "\"],";
+
+                 generatedSchema += ",";
+                 //normal array of core types
+            }else{
+                    generatedSchema += "\n"+currIndent + key + ":[";
+                    generatedSetters += generateArray(key, schema[key]);
+                    //generatedSchema += "\n"+currIndent + key + ": [\"" + schema[key] + "\"],";
             }
          }else if (Object.prototype.toString.call(schema[key]).slice(8, -1) === 'Object'){
-            generateObject(key,schema[key]);
+            generateObject(key,schema[key],false);
          }
          else{
             generatedSetters += generateSetter(key, schema[key]);
@@ -77,7 +86,7 @@ function generateCreate(schema){
           indent+indent+indent+indent+"var msg = \"\";\n" +
           generatedSetters +
           indent+indent+indent+indent+"for(var key in validators){\n" +
-          indent+indent+indent+indent+indent+"if(this[key]){\n" +
+          indent+indent+indent+indent+indent+"if(this.jschema[key]){\n" +
           indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n" +
           indent+indent+indent+indent+indent+"}\n" +
           indent+indent+indent+indent+"}\n" +
@@ -108,14 +117,14 @@ function generateValidator(type){
     case "@boolean" :
       return "Object.prototype.toString.call(value).slice(8, -1) === 'Boolean'";
     case "@date" :
-      return "!isNaN(Date.parse(value))";
+      return "Date.parse(value)===Date.parse(value)";
     case "@uri" :
       // json_to_schema.js
       return " /^(?:(?:(?:https?|ftp):)?\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})).?)(?::\\d{2,5})?(?:[/?#]\\S*)?$/i.test( value )"
     case "@int" :
       return "Object.prototype.toString.call(value).slice(8, -1) === 'Number'";
     case "@number" :
-      return "!Number.isNaN(value)";
+      return "value===value";
     default: // wildcard
         return "True";
   }
@@ -123,25 +132,34 @@ function generateValidator(type){
 function generateArrayValidator(type){
   switch(type){
     case "@string" :
-      // https://toddmotto.com/understanding-javascript-types-and-reliable-type-checking/
+      generatedSchema+="\""+type+"\"";
       return "Object.prototype.toString.call(value[elem]).slice(8, -1) !== 'String'";
     case "@boolean" :
+      generatedSchema+="\""+type+"\"";
       return "Object.prototype.toString.call(value[elem]).slice(8, -1) !== 'Boolean'";
     case "@date" :
-      return "isNaN(Date.parse(value[elem]))";
+     generatedSchema+="\""+type+"\"";
+      return "Date.parse(value[elem])!==Date.parse(value[elem])";
     case "@uri" :
-      // json_to_schema.js
+      generatedSchema+="\""+type+"\"";
       return "!( /^(?:(?:(?:https?|ftp):)?\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})).?)(?::\\d{2,5})?(?:[/?#]\\S*)?$/i.test( value[elem] ))"
     case "@int" :
+      generatedSchema+="\""+type+"\"";
       return "Object.prototype.toString.call(value[elem]).slice(8, -1) !== 'Number'";
     case "@number" :
-      return "Number.isNaN(value[elem])";
+      generatedSchema+="\""+type+"\"";
+        //to support ecma 5 cannot use Number.isNan
+      return "value[elem]!==value[elem]";
     default: // wildcard
         //check if enumeration
-        if(Object.prototype.toString.call(type).slice(8, -1) === 'String'){
+       /* if(Object.prototype.toString.call(type).slice(8, -1) === 'String'){
             return "enum";
         }
-        return "True";
+        return "True";*/
+  }
+  //Special case array of arrays
+  if(Object.prototype.toString.call(type).slice(8,-1)==='Array'){
+  return "Array";
   }
 }
 
@@ -154,22 +172,63 @@ function generateSetter(key, type) {
           currIndent+indent+"return \"" + key + "=\" + value + \" does not conform to " + type + "\\n\";\n" +
           currIndent+"};\n";
 }
+function generateNestedLoop(key,type){
+currIndent+="  ";
+generatedSchema += "[";
+var strArray="";
+var validation=generateArrayValidator(type[0]);
+ if(validation==='Array'){
+    strArray+=currIndent+indent+indent+"if(Object.prototype.toString.call(value[elem]).slice(8, -1) === \'Array\'){\n"+
+              currIndent+indent+indent+indent+"value = value[elem];\n"+
+              currIndent+indent+indent+indent+"for (var elem in value){\n"+
+              generateNestedLoop(key,type[0])+
+              currIndent+indent+indent+indent+"}\n"+
+              currIndent+indent+indent+"}else{\n"+
+              currIndent+indent+indent+indent+"return \""+key+"=\" + value + \" does not conform to [array]\\n\";\n"+
+              currIndent+indent+indent+"}\n";
+ }else{
+    strArray+=currIndent+indent+indent+indent+"if(" + validation + "){\n" +
+              currIndent+indent+indent+indent+indent+"return \"" + key + " =[\" + value + \"] does not conform to [" + type + "]\\n\";\n"+
+              currIndent+indent+indent+indent+"}\n";
+ }
+ currIndent=currIndent.substring(0,currIndent.length-2);
+ generatedSchema += "]";
+ return strArray;
 
+}
 function generateArray(key,type){
     if(type.length<1) return "ERROR: Invalid JSchema Format";
-    return  currIndent+"validators[\"" + key + "\"] = function(value){\n" +
+    var validation=generateArrayValidator(type[0]);
+    var strArray;
+    if(validation!=="Array"){
+            strArray=  currIndent+"validators[\"" + key + "\"] = function(value){\n" +
             currIndent+indent+"if(Object.prototype.toString.call(value).slice(8, -1) === \'Array\'){\n" +
             currIndent+indent+indent+"for (var elem in value){\n" +
-            currIndent+indent+indent+indent+"if(" + generateArrayValidator(type[0]) + "){\n" +
+            currIndent+indent+indent+indent+"if(" + validation + "){\n" +
             currIndent+indent+indent+indent+indent+"return \"" + key + " =[\" + value + \"] does not conform to [" + type + "]\\n\";\n" +
             currIndent+indent+indent+indent+"}\n" +
             currIndent+indent+indent+"}\n" +
             currIndent+indent+indent+"this." + key + " = value;\n" +
             currIndent+indent+indent+"return \"\";\n" +
             currIndent+indent+"}else{\n"+
-            currIndent+indent+indent+"return \"name =\" + value + \" does not conform to ["+ type+"]\\n\";\n"+
-            currIndent+indent+"}"+
+            currIndent+indent+indent+"return \""+key+"=\" + value + \" does not conform to ["+ type+"]\\n\";\n"+
+            currIndent+indent+"}\n"+
             currIndent+"};\n";
+            generatedSchema += "]";
+     }else{
+            strArray=  currIndent+"validators[\"" + key + "\"] = function(value){\n" +
+            currIndent+indent+"if(Object.prototype.toString.call(value).slice(8, -1) === \'Array\'){\n" +
+            currIndent+indent+indent+"for (var elem in value){\n" ;
+            strArray+=generateNestedLoop(key,type);
+            strArray+=currIndent+indent+indent+"}\n" +
+                       currIndent+indent+indent+"this." + key + " = value;\n" +
+                       currIndent+indent+indent+"return \"\";\n" +
+                       currIndent+indent+"}else{\n"+
+                       currIndent+indent+indent+"return \""+key+"=\" + value + \" does not conform to [array]\\n\";\n"+
+                       currIndent+indent+"}\n"+
+                       currIndent+"};\n";
+     }
+    return strArray;
 }
 function generateEnum(key,type){
     if(type.length<1) return "ERROR: Invalid JSchema Format";
@@ -188,8 +247,12 @@ function generateEnum(key,type){
     return genEnum;
 }
 
-function generateObject(name,type){
-  generatedSchema +="\n"+ currIndent + name + ": {";
+function generateObject(name,type,isArray){
+  if(isArray){
+     generatedSchema +="\n"+ currIndent + name + ": [{";
+  }else{
+     generatedSchema += "\n"+currIndent + name + ": {";
+  }
   currIndent+="  ";
   generatedSetters +=currIndent+"validators[\"" + name + "\"] = function(value){\n";
   generatedSetters +=currIndent+indent+"var validators={};\n";
@@ -220,7 +283,7 @@ function generateObject(name,type){
              generatedSchema += "\n" + currIndent + key + ": [\"" + type[key] + "\"],";
           }
        }else if (Object.prototype.toString.call(type[key]).slice(8, -1) === 'Object'){
-                generateObject(key,type[key]);
+                generateObject(key,type[key],false);
        }else{
                currIndent+="  ";
                generatedSetters += generateSetter(key, type[key]);
@@ -229,7 +292,11 @@ function generateObject(name,type){
        }
     }
   }
+  if(isArray){
+  generatedSchema+="\n"+currIndent+"}";
+  }else{
 generatedSchema+="\n"+currIndent+"},";
+}
    generatedSetters+=currIndent+indent+"for(var key in validators){\n" +
             currIndent+indent+indent+"if(value[key]){\n" +
             currIndent+indent+indent+indent+"msg += validators[key](value[key]);\n" +

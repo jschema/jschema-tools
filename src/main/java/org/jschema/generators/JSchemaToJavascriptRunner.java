@@ -14,15 +14,24 @@ public class JSchemaToJavascriptRunner
     String test1 = "{ \"name\" : \"@string\", \"age\" : \"@int\", \"birthday\" : \"@date\", \"website\" : \"@uri\", \"student\" : \"@boolean\", \"favorite_number\":\"@number\" }";
     String test2 = "[{ \"name\" : \"@string\", \"age\" : \"@int\"}]";
     String test8="{ \"name\" : \"@string\", \"age\" : \"@int\" }";
-    String test3="{\"name\" : [\"@boolean\"]}";
+    String test3="{\"name\" : [[\"@boolean\"]]}";
     String test4="{\"name\" : [\"brown\",\"blue\",\"green\"]}";
     String test5="{\"info\" : {\"firstName\":\"@string\",\"lastName\":\"@string\"}}";
     String test7="{\"info\" : {\"name\":{\"first\":\"@string\",\"last\":\"@string\"}}}";
     String test6="{\"info\" : {\"firstName\":\"@string\"}}";
+    String test10="{\"name\" : \"@string\", \"age\" : \"@int\"}";
+    String test11="{ \"line_items\" : [{\n" +
+            "    \"sku\" : \"@string\",\n" +
+            "    \"description\" : \"@string\",\n" +
+            "    \"notes\" : \"@string\",\n" +
+            "    \"count\" : \"@int\",\n" +
+            "    \"price\" : \"@number\",\n" +
+            "    \"subtotal\" : \"@number\"\n" +
+            "  }]}";
     ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
     engine.eval( new FileReader( "src/main/resources/js/jschema_to_javascript.js" ) );
     Invocable invocable = (Invocable) engine;
-    Object result = invocable.invokeFunction("generateJavascriptForJSchema", test4, "Person");
+    Object result = invocable.invokeFunction("generateJavascriptForJSchema", test3, "Person");
     System.out.println(result);
   }
 

@@ -113,13 +113,35 @@ public class EndToEndJavascriptTests
   {
     String invoice1 = jsonString( loadFile( "/samples/invoice-1.json" ) );
     load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Invoice.js" );
-    eval("var inv=Invoice.parse(" + invoice1  + ");");
-    //TODO make it work...
+    eval("var inv=Invoice.parse(\"" + invoice1  + "\");");
+    //check basic JSON correctly parsed
+    Assert.assertEquals("1234",eval("inv.id"));
+    Assert.assertEquals("100.00",eval("inv.subtotal"));
+    //Check field is set
+    eval("inv.subtotal=\"200.00\"");
+    Assert.assertEquals("200.00",eval("inv.subtotal"));
+    //Check JSON Object correctly parsed
+    Assert.assertEquals("joe@test.com",eval("inv.customer.email"));
+    //Check field is set
+    Assert.assertEquals("123 Main Stree",eval("inv.to_address.address1"));
+    eval("inv.to_address.address1=\"1234 Mulberry Street\"");
+    Assert.assertEquals("1234 Mulberry Street",eval("inv.to_address.address1"));
+    //Check JSON array of objects correctly parsed
+    Assert.assertEquals("S12T-Wid-GG",eval("inv.line_items[0].sku"));
+    //Check field is set
+    Assert.assertEquals("F34JJ-Wid-HH",eval("inv.line_items[1].sku"));
+    eval("inv.line_items[1].sku=\"12345-abc-de\"");
+    Assert.assertEquals("12345-abc-de",eval("inv.line_items[1].sku"));
+    Assert.assertEquals("Valid",eval("inv.validate()"));
+
   }
 
   private String jsonString( String s )
   {
-    return "\"" + s.replace( "\"", "\\\"" ).replace( "\n", "\\n" ) + "\"";
+    ////System.out.println(s);
+    String temp=s.replace( "\"", "\\\"" );
+    temp=temp.replace(System.getProperty("line.separator"), " ");
+    return temp;
   }
 
   private String loadFile( String path ) throws IOException
@@ -127,7 +149,29 @@ public class EndToEndJavascriptTests
     File resource = new File("src/test/java" + path );
     return new String( Files.readAllBytes( Paths.get( resource.getPath() ) ) );
   }
-
+  @Test
+  public void testNestedArrays() throws IOException{
+    String list1 = jsonString( loadFile( "/samples/shoppinglist-1.json" ) );
+    load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Shoppinglist.js" );
+    eval("var list=Shoppinglist.parse(\"" + list1  + "\");");
+    //check basic JSON correctly parsed
+    Assert.assertEquals("Costco",eval("list.storeName"));
+    Assert.assertEquals("apples",eval("list.itemsToBuy[0][0]"));
+    //Check field is set
+    eval("list.itemsToBuy[0]=[\"peaches\",\"pears\"]");
+    Assert.assertEquals("peaches",eval("list.itemsToBuy[0][0]"));
+    Assert.assertEquals("pears",eval("list.itemsToBuy[0][1]"));
+    //Check invalid state
+    eval("list.itemsToBuy[0]=\"pears\"");
+    Assert.assertEquals("itemsToBuy=pears,forks,knives,spoons,hot sauce,bbq sauce,rance does not conform to [array]\n",eval("list.validate()"));
+    eval("list.itemsToBuy[0]=[\"pears\",5]");
+    Assert.assertEquals("itemsToBuy =[pears,5] does not conform to [@string]\n",eval("list.validate()"));
+    eval("list.itemsToBuy=[[\"pears\"],5]");
+    Assert.assertEquals("itemsToBuy=pears does not conform to [array]\n",eval("list.validate()"));
+    //Check valid state
+    eval("list.itemsToBuy=[[\"pears\"]]");
+    Assert.assertEquals("Valid",eval("list.validate()"));
+  }
   @Test
   public void nestedObjectTest(){
     load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Person.js" );

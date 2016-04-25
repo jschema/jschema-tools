@@ -79,7 +79,7 @@ var Person = {
             return msg;
           };
         for(var key in validators){
-          if(this[key]){
+          if(this.jschema[key]){
             msg += validators[key](this[key]);
           }
         }
