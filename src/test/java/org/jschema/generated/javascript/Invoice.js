@@ -22,15 +22,17 @@ var Invoice = {
           state: "@string",
           country: "@string",
           },
-        line_items: [{
-          sku: "@string",
-          description: "@string",
-          notes: "@string",
-          count: "@int",
-          price: "@number",
-          subtotal: "@number",
-          }],
-      },
+        line_items: [
+        {
+        sku: "@string",
+        description: "@string",
+        notes: "@string",
+        count: "@int",
+        price: "@number",
+        subtotal: "@number",
+        },
+        ]
+    },
       validate: function(){
         var validators = {};
         var msg = "";
@@ -63,21 +65,21 @@ var Invoice = {
           return "email=" + value + " does not conform to @string\n";
         };
         validators["total"] = function(value){
-          if(value===value){
+          if(Object.prototype.toString.call(value).slice(8, -1) === 'Number'){
             this.total = value;
             return "";
           }
           return "total=" + value + " does not conform to @number\n";
         };
         validators["subtotal"] = function(value){
-          if(value===value){
+          if(Object.prototype.toString.call(value).slice(8, -1) === 'Number'){
             this.subtotal = value;
             return "";
           }
           return "subtotal=" + value + " does not conform to @number\n";
         };
         validators["tax"] = function(value){
-          if(value===value){
+          if(Object.prototype.toString.call(value).slice(8, -1) === 'Number'){
             this.tax = value;
             return "";
           }
@@ -182,66 +184,77 @@ var Invoice = {
             }
             return msg;
           };
-          validators["line_items"] = function(value){
-            var validators={};
-            var msg="";
-            if(Object.prototype.toString.call(value).slice(8, -1) === 'Object'){
-              this.line_items = value;
-            }else{
-              return "line_items =" + value + " does not conform to [object Object]\n";
-            }
-            validators["sku"] = function(value){
-              if(Object.prototype.toString.call(value).slice(8, -1) === 'String'){
-                this.sku = value;
-                return "";
-              }
-              return "sku=" + value + " does not conform to @string\n";
-            };
-            validators["description"] = function(value){
-              if(Object.prototype.toString.call(value).slice(8, -1) === 'String'){
-                this.description = value;
-                return "";
-              }
-              return "description=" + value + " does not conform to @string\n";
-            };
-            validators["notes"] = function(value){
-              if(Object.prototype.toString.call(value).slice(8, -1) === 'String'){
-                this.notes = value;
-                return "";
-              }
-              return "notes=" + value + " does not conform to @string\n";
-            };
-            validators["count"] = function(value){
-              if(Object.prototype.toString.call(value).slice(8, -1) === 'Number'){
-                this.count = value;
-                return "";
-              }
-              return "count=" + value + " does not conform to @int\n";
-            };
-            validators["price"] = function(value){
-              if(value===value){
-                this.price = value;
-                return "";
-              }
-              return "price=" + value + " does not conform to @number\n";
-            };
-            validators["subtotal"] = function(value){
-              if(value===value){
-                this.subtotal = value;
-                return "";
-              }
-              return "subtotal=" + value + " does not conform to @number\n";
-            };
-            for(var key in validators){
-              if(value[key]){
-                msg += validators[key](value[key]);
-              }
-            }
-            if(msg === ""){
+        validators["line_items"] = function(value){
+          if(Object.prototype.toString.call(value).slice(8, -1) === 'Array'){
+            for (var elem in value){
+          var validators={};
+          var msg="";
+          if(Object.prototype.toString.call(value[elem]).slice(8, -1) === 'Object'){
+            this.line_items = value;
+          }else{
+            return "line_items =" + value + " does not conform to [[object Object]]\n";
+          }
+          validators["sku"] = function(value){
+            if(Object.prototype.toString.call(value).slice(8, -1) === 'String'){
+              this.sku = value;
               return "";
             }
-            return msg;
+            return "sku=" + value + " does not conform to @string\n";
           };
+          validators["description"] = function(value){
+            if(Object.prototype.toString.call(value).slice(8, -1) === 'String'){
+              this.description = value;
+              return "";
+            }
+            return "description=" + value + " does not conform to @string\n";
+          };
+          validators["notes"] = function(value){
+            if(Object.prototype.toString.call(value).slice(8, -1) === 'String'){
+              this.notes = value;
+              return "";
+            }
+            return "notes=" + value + " does not conform to @string\n";
+          };
+          validators["count"] = function(value){
+            if(Object.prototype.toString.call(value).slice(8, -1) === 'Number' && value%1===0){
+              this.count = value;
+              return "";
+            }
+            return "count=" + value + " does not conform to @int\n";
+          };
+          validators["price"] = function(value){
+            if(Object.prototype.toString.call(value).slice(8, -1) === 'Number'){
+              this.price = value;
+              return "";
+            }
+            return "price=" + value + " does not conform to @number\n";
+          };
+          validators["subtotal"] = function(value){
+            if(Object.prototype.toString.call(value).slice(8, -1) === 'Number'){
+              this.subtotal = value;
+              return "";
+            }
+            return "subtotal=" + value + " does not conform to @number\n";
+          };
+          for(var key in validators){
+            if(value[elem][key]|| Object.prototype.toString.call(value[elem][key] ).slice(8, -1) === 'Boolean'){
+              msg += validators[key](value[elem][key]);
+            }
+          }
+          if(msg !== ""){
+            return msg;
+          }
+          }
+        if(msg === ""){
+          return "";
+        }
+        return msg;
+          this.line_items = value;
+          return "";
+        }else{
+          return "line_items=" + value + " does not conform to [array]\n";
+        }
+      };
         for(var key in validators){
           if(this.jschema[key]){
             msg += validators[key](this[key]);

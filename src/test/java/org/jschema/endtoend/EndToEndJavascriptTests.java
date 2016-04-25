@@ -116,10 +116,10 @@ public class EndToEndJavascriptTests
     eval("var inv=Invoice.parse(\"" + invoice1  + "\");");
     //check basic JSON correctly parsed
     Assert.assertEquals("1234",eval("inv.id"));
-    Assert.assertEquals("100.00",eval("inv.subtotal"));
+    Assert.assertEquals(100,eval("inv.subtotal"));
     //Check field is set
-    eval("inv.subtotal=\"200.00\"");
-    Assert.assertEquals("200.00",eval("inv.subtotal"));
+    eval("inv.subtotal=200.00");
+    Assert.assertEquals(200.00,eval("inv.subtotal"));
     //Check JSON Object correctly parsed
     Assert.assertEquals("joe@test.com",eval("inv.customer.email"));
     //Check field is set
@@ -133,6 +133,20 @@ public class EndToEndJavascriptTests
     eval("inv.line_items[1].sku=\"12345-abc-de\"");
     Assert.assertEquals("12345-abc-de",eval("inv.line_items[1].sku"));
     Assert.assertEquals("Valid",eval("inv.validate()"));
+    String invoice2 = jsonString( loadFile( "/samples/invoice-2.json" ) );
+    load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Invoice.js" );
+    eval("var inv1=Invoice.parse(\"" + invoice2  + "\");");
+    //check basic JSON correctly parsed
+    Assert.assertEquals("2",eval("inv1.id"));
+    eval("inv1.created_at=\"2013-05-14T16:09:35-04:00\"");
+    eval("inv1.updated_at=\"2013-05-14T16:09:35-04:00\"");
+    eval("inv1.subtotal=50.0");
+    eval("inv1.tax=0");
+    eval("inv1.notes=\"none\"");
+    eval("inv1.id=5");
+    Assert.assertEquals("id=5 does not conform to @string\n",eval("inv1.validate()"));
+    eval("inv1.id=\"5\"");
+    Assert.assertEquals("Valid",eval("inv1.validate()"));
 
   }
 

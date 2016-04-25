@@ -26,7 +26,7 @@ var Contact = {
           return "last_name=" + value + " does not conform to @string\n";
         };
         validators["age"] = function(value){
-          if(Object.prototype.toString.call(value).slice(8, -1) === 'Number'){
+          if(Object.prototype.toString.call(value).slice(8, -1) === 'Number' && value%1===0){
             this.age = value;
             return "";
           }

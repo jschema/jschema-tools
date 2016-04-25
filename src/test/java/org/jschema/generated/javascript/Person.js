@@ -37,7 +37,7 @@ var Person = {
               return "month=" + value + " does not conform to @string\n";
             };
             validators["day"] = function(value){
-              if(Object.prototype.toString.call(value).slice(8, -1) === 'Number'){
+              if(Object.prototype.toString.call(value).slice(8, -1) === 'Number' && value%1===0){
                 this.day = value;
                 return "";
               }
@@ -52,7 +52,7 @@ var Person = {
                 return "year =" + value + " does not conform to [object Object]\n";
               }
               validators["decade"] = function(value){
-                if(Object.prototype.toString.call(value).slice(8, -1) === 'Number'){
+                if(Object.prototype.toString.call(value).slice(8, -1) === 'Number' && value%1===0){
                   this.decade = value;
                   return "";
                 }

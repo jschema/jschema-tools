@@ -1,5 +1,32 @@
 {
   "id": "2",
   "email": "joe@test.com",
-  "total": "15.00"
+  "total": 15.00,
+  "customer": {
+    "email": "joe@test.com",
+    "first_name": "Joe",
+    "last_name": "Blow"
+  },
+  "to_address": {
+    "address1": "123 Main Stree",
+    "zip": "12345",
+    "state": "MS",
+    "country": "USA"
+  },
+  "line_items": [
+    {
+      "sku": "S12T-Wid-GG",
+      "description": "The Best Darn Widgets Around",
+      "count": 10,
+      "price": 5.00,
+      "subtotal": 50
+    },
+    {
+      "sku": "F34JJ-Wid-HH",
+      "description": "Rubber Best Darn Widgets Holders",
+      "count": 10,
+      "price": 5.00,
+      "subtotal": 50
+    }
+  ]
 }
