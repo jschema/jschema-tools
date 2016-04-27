@@ -7,10 +7,10 @@ public class Basic{
   public String toJSON(){return _fields.toString();}
 
   public String getName(){return (String) _fields.get("name");}
-  public void setName(Object name){_fields.put("name", name);}
+  public void setName(String name){_fields.put("name", name);}
 
   public int getAge(){return (int) _fields.get("age");}
-  public void setAge(Object age){_fields.put("age", age);}
+  public void setAge(int age){_fields.put("age", age);}
 
 
 }

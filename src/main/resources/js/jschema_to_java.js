@@ -19,7 +19,7 @@ function generateAll(classname, jschema){
   String += indent + generateToJson() + "\n";
   for(var key in parsed_schema){
     String += indent + generateGet(key, parsed_schema[key]);
-    String += indent + generateSet(key) + "\n";
+    String += indent + generateSet(key, parsed_schema[key]) + "\n";
 
     if(isObject(parsed_schema[key]) && !isArray(parsed_schema[key])){      //if value is an object
       String += generateAll(capitalize(key), parsed_schema[key]);
@@ -38,6 +38,7 @@ function generateAll(classname, jschema){
   String += "\n" + indent + "}\n";
   return String;
 }
+
 function generateClass(classname){
   var className = "public class " + classname + "{\n";
   return className;
@@ -68,9 +69,9 @@ function generateGet(key, value){
     return String;
 }
 
-function generateSet(key){
+function generateSet(key, value){
     var String = "";
-    String += "public void set" + capitalize(key) + "(Object " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
+    String += "public void set" + capitalize(key) + "(" + CheckValue(key, value) + " " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
     return String;
 }
 
@@ -79,14 +80,13 @@ function generateEnums(key, value){
     return "";
   }
   else{
-
     if(value[0].toString().charAt(0) == '@' || isObject(value[0])){
       return "";
     }
     var String = indent + "public enum " + key + "{\n";
     indent += "  ";
     for(var i = 0; i < value.length; i++){
-      String += indent + value[i] + ",\n";
+      String += indent + value[i].toUpperCase() + ",\n";
     }
     String = String.slice(0, String.length - 2) + "\n";
     indent = indent.slice(0, indent.length() - 2);
@@ -94,6 +94,10 @@ function generateEnums(key, value){
     return String;
   }
 }
+
+//
+//Helper Methods
+//
 
 function CheckValue(key, value){
   if(isArray(value)){
@@ -108,7 +112,7 @@ function CheckValue(key, value){
 }
 
 function CheckArrays(key, value){
-  String = "List<" + getListType(capitalize(key), value) + "> ";
+  String = "List<" + getListType(capitalize(key), value) + ">";
   return String;
 }
 
@@ -129,10 +133,6 @@ function CheckString(value){
       default        : return "BAD";
     }
 }
-
-//
-//Helper Methods
-//
 
 function getListType(key, value){
   var type = "";
