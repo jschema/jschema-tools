@@ -83,7 +83,7 @@ public class Parser
         nextToken();
         return Double.parseDouble(tokenValue);
       }
-      if(tokenNum % 1 == 0){
+      if(!tokenValue.contains(".")){
         nextToken();
         return Integer.parseInt(tokenValue);
       }
