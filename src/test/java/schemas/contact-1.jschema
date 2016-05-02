@@ -1,0 +1,1 @@
+{"first_name":"@string","age":"@int","type":"@string","info":{"emails":["@string"],"phone_number":{"home":"@int","cell":"@int"},"addresses":[{"address":"@string"}]}}
