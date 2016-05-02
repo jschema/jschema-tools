@@ -18,6 +18,8 @@ public class JSONToJSchemaRunner
     // Arrays
     test("[\"red\", \"orange\", \"yellow\"]", "[\"@string\"]", false);
     test("[\"red\", 5]", "[\"*\"]", false);
+    test("[[\"apples\",\"oranges\",\"bananas\"], [\"forks\",\"knives\",\"spoons\"],[\"hot sauce\",\"bbq sauce\",\"rance\"]]","[[\"@string\"]]",false);
+    test("{ \"storeName\" : \"Costco\",\"itemsToBuy\" : [[\"apples\",\"oranges\",\"bananas\"], [\"forks\",\"knives\",\"spoons\"],[\"hot sauce\",\"bbq sauce\",\"ranch\"]]}", "{\"storeName\": \"@string\", \"itemsToBuy\":[[\"@string\"]]}", false);
 
     // Arrays of objects
     test("[{\"a\": \"hello\"}, {\"b\": 5}]", "[{\"a\": \"@string\", \"b\": \"@int\"}]", false);
