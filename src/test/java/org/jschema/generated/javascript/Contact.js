@@ -18,7 +18,7 @@ var Contact = {
           ]
         },
     },
-      validate: function(){
+      validate: function(strict){
         var validators = {};
         var msg = "";
         validators["first_name"] = function(value){
@@ -145,8 +145,14 @@ var Contact = {
           return msg;
         };
         for(var key in validators){
-          if(this.jschema[key]){
-            msg += validators[key](this[key]);
+          if(strict){
+            if(this.jschema[key]){
+              msg += validators[key](this[key]);
+            }
+          }else{
+            if(this[key]){
+              msg += validators[key](this[key]);
+            }
           }
         }
         if(msg === ""){

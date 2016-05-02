@@ -102,14 +102,20 @@ function generateCreate(schema){
   return  indent+"create: function(){\n" +
           indent+indent+"return{\n" +
           generatedSchema +
-          indent+indent+indent+"validate: function(){\n" +
+          indent+indent+indent+"validate: function(strict){\n" +
           indent+indent+indent+indent+"var validators = {};\n" +
           indent+indent+indent+indent+"var msg = \"\";\n" +
           generatedSetters +
           indent+indent+indent+indent+"for(var key in validators){\n" +
-          indent+indent+indent+indent+indent+"if(this.jschema[key]){\n" +
-          indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n" +
-          indent+indent+indent+indent+indent+"}\n" +
+          indent+indent+indent+indent+indent+"if(strict){\n"+
+          indent+indent+indent+indent+indent+indent+"if(this.jschema[key]){\n" +
+          indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n" +
+          indent+indent+indent+indent+indent+indent+"}\n" +
+          indent+indent+indent+indent+indent+"}else{\n"+
+          indent+indent+indent+indent+indent+indent+"if(this[key]){\n" +
+          indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n" +
+          indent+indent+indent+indent+indent+indent+"}\n" +
+          indent+indent+indent+indent+indent+"}\n"+
           indent+indent+indent+indent+"}\n" +
           indent+indent+indent+indent+"if(msg === \"\"){\n" +
           indent+indent+indent+indent+indent+"return \"Valid\";\n"+

@@ -11,7 +11,7 @@ var Person = {
             },
           },
       },
-      validate: function(){
+      validate: function(strict){
         var validators = {};
         var msg = "";
         validators["name"] = function(value){
@@ -79,8 +79,14 @@ var Person = {
             return msg;
           };
         for(var key in validators){
-          if(this.jschema[key]){
-            msg += validators[key](this[key]);
+          if(strict){
+            if(this.jschema[key]){
+              msg += validators[key](this[key]);
+            }
+          }else{
+            if(this[key]){
+              msg += validators[key](this[key]);
+            }
           }
         }
         if(msg === ""){

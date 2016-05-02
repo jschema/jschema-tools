@@ -5,7 +5,7 @@ var Shoppinglist = {
         storeName: "@string",
         itemsToBuy:[["@string"]],
       },
-      validate: function(){
+      validate: function(strict){
         var validators = {};
         var msg = "";
         validators["storeName"] = function(value){
@@ -36,8 +36,14 @@ var Shoppinglist = {
           }
         };
         for(var key in validators){
-          if(this.jschema[key]){
-            msg += validators[key](this[key]);
+          if(strict){
+            if(this.jschema[key]){
+              msg += validators[key](this[key]);
+            }
+          }else{
+            if(this[key]){
+              msg += validators[key](this[key]);
+            }
           }
         }
         if(msg === ""){

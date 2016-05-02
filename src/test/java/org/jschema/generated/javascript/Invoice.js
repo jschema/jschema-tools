@@ -33,7 +33,7 @@ var Invoice = {
         },
         ]
     },
-      validate: function(){
+      validate: function(strict){
         var validators = {};
         var msg = "";
         validators["id"] = function(value){
@@ -256,8 +256,14 @@ var Invoice = {
         }
       };
         for(var key in validators){
-          if(this.jschema[key]){
-            msg += validators[key](this[key]);
+          if(strict){
+            if(this.jschema[key]){
+              msg += validators[key](this[key]);
+            }
+          }else{
+            if(this[key]){
+              msg += validators[key](this[key]);
+            }
           }
         }
         if(msg === ""){

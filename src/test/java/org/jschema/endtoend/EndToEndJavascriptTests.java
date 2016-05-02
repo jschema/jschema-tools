@@ -134,7 +134,59 @@ public class EndToEndJavascriptTests
     load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Invoice.js" );
     eval("var inv2=Invoice.parse(\"" + invoice2  + "\");");
     //check basic JSON correctly parsed
-    Assert.assertEquals("2",eval("inv2.validate()"));
+    Assert.assertEquals("2",eval("inv2.id"));
+    //call without strict flag
+    Assert.assertEquals("Valid",eval("inv2.validate()"));
+    //call with strict flag
+    Assert.assertEquals("created_at=undefined does not conform to @date\n" +
+            "updated_at=undefined does not conform to @date\n" +
+            "subtotal=undefined does not conform to @number\n" +
+            "tax=undefined does not conform to @number\n" +
+            "notes=undefined does not conform to @string\n" +
+            "customer =undefined does not conform to [object Object]\n" +
+            "to_address =undefined does not conform to [object Object]\n" +
+            "line_items=undefined does not conform to [array]\n",eval("inv2.validate(1)"));
+    eval("inv2.created_at=\"2013-05-14T16:09:35-04:00\"");
+    eval("inv2.updated_at=\"2013-05-14T16:09:35-04:00\"");
+    //call with strict flag
+    Assert.assertEquals("subtotal=undefined does not conform to @number\n" +
+            "tax=undefined does not conform to @number\n" +
+            "notes=undefined does not conform to @string\n" +
+            "customer =undefined does not conform to [object Object]\n" +
+            "to_address =undefined does not conform to [object Object]\n" +
+            "line_items=undefined does not conform to [array]\n",eval("inv2.validate(1)"));
+    eval("inv2.subtotal=200.00");
+    eval("inv2.tax=10");
+    eval("inv2.notes=\"none\"");
+    eval("inv2.customer={}");
+    eval("inv2.customer.email=\"jane@test.com\"");
+    eval("inv2.customer.first_name=\"jane\"");
+    eval("inv2.customer.last_name=\"doe\"");
+    //call with strict flag
+    Assert.assertEquals("to_address =undefined does not conform to [object Object]\n" +
+            "line_items=undefined does not conform to [array]\n",eval("inv2.validate(1)"));
+    //call without strict flag
+    Assert.assertEquals("Valid",eval("inv2.validate(0)"));
+    eval("inv2.to_address={\"address\":\"test\",\"zip\":\"12345\",\"state\":\"ca\",\"country\":\"USA\"}");
+    eval("inv2.line_items=[{\"sku\":\"test\",\"description\":\"nothing\",\"count\":10,\"price\":5.0,\"subtotal\":100}]");
+    //call with strict flag
+    Assert.assertEquals("Valid",eval("inv2.validate(1)"));
+    //call without strict flag
+    Assert.assertEquals("Valid",eval("inv2.validate(0)"));
+    //test tojson method
+    Assert.assertEquals("{\"id\":\"2\",\"email\":\"joe@test.com\"," +
+            "\"total\":15,\"created_at\":\"2013-05-14T16:09:35-04:00\"," +
+            "\"updated_at\":\"2013-05-14T16:09:35-04:00\",\"subtotal\":200," +
+            "\"tax\":10,\"notes\":\"none\",\"customer\":{\"email\":\"jane@test.com\"," +
+            "\"first_name\":\"jane\",\"last_name\":\"doe\"}," +
+            "\"to_address\":{\"address\":\"test\",\"zip\":\"12345\",\"state\":\"ca\"," +
+            "\"country\":\"USA\"},\"line_items\":[{\"sku\":\"test\",\"description\":\"nothing\"," +
+            "\"count\":10,\"price\":5,\"subtotal\":100}]}",eval("inv2.toJSON()"));
+
+
+
+
+
 
 
 
