@@ -3,7 +3,7 @@
   "created_at": "2013-05-14T16:09:35-04:00",
   "updated_at": "2013-05-14T16:09:35-04:00",
   "email": "joe@test.com",
-  "total": "105.00",
+  "total": 105.00,
   "subtotal": "100.00",
   "tax": "5.00",
   "notes": "Thanks Joe! -- Tim",
@@ -13,7 +13,7 @@
     "last_name": "Blow"
   },
   "to_address": {
-    "address1": "123 Main Stree",
+    "address1": "123 Main Street",
     "zip": "12345",
     "state": "MS",
     "country": "USA"
