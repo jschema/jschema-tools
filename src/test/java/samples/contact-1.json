@@ -1,0 +1,10 @@
+{
+  "first_name" : "jane",
+  "age" : 20,
+  "type" : "friend",
+  "info" : {
+    "emails" : ["jane@test.com"],
+    "phone_number" : {"home" : 1234567, "cell" : 1234567},
+    "addresses" : [{"address" : "123 test street, ca"}]
+  }
+}
