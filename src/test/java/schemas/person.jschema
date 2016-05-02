@@ -1,1 +1,1 @@
-{ "name" : "@string", "age" : {"month" : "@string", "day" : "@int", "year" : {"decade":"@int"}} }
+{"first_name":"@string","last_name":"@string","age":"@int","hobbies":[{"sports":["@string"],"crafts":"@string"}],"info":{"email":["@string"],"phone_number":{"home":"@int","cell":"@int"},"addresses":[{"address":"@string"}]},"dob":"@date","gender":["@string"]}

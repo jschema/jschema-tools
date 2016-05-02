@@ -5,6 +5,8 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 public class JSONToJSchemaRunner
@@ -63,5 +65,12 @@ public class JSONToJSchemaRunner
     String formattedJSON = (String)invocable.invokeFunction("formatJSONString", json);
     String result = (String)invocable.invokeFunction("jsonToJSchemaString", json, preferEnums);
     System.out.println("JSON input: " + formattedJSON + "\nJSchema result: " + result + "\n");
+  }
+  public static Object generateAll( String json, Boolean preferEnums ) throws ScriptException, NoSuchMethodException, FileNotFoundException
+  {
+    ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+    engine.eval( new FileReader( "src/main/resources/js/json_to_jschema.js" ) );
+    Invocable invocable = (Invocable) engine;
+    return invocable.invokeFunction("jsonToJSchemaString", json, preferEnums);
   }
 }

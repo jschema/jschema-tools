@@ -1,6 +1,3 @@
 { "storeName" : "Costco",
   "itemsToBuy" : [["apples","oranges","bananas"], ["forks","knives","spoons"],["hot sauce","bbq sauce","rance"]]
-
-
-
 }
