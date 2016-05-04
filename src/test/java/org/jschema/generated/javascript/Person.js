@@ -8,19 +8,19 @@ var Person = {
         hobbies: [
         {
         sports:["@string"],
-        crafts: "@string",
-        },
-        ]
+        crafts: "@string"
+        }
+        ],
       info: {
         email:["@string"],
         phone_number: {
           home: "@int",
-          cell: "@int",
+          cell: "@int"
           },
         addresses: [
         {
-        address: "@string",
-        },
+        address: "@string"
+        }
         ]
       },
     dob: "@date",
@@ -229,7 +229,7 @@ var Person = {
             }
           }
         }
-        if(msg === ""){
+      if(msg === ""){
           return "Valid";
         }
         return msg;

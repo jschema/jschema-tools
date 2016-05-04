@@ -2,31 +2,34 @@ var Contact = {
   create: function(){
     return{
       jschema: {
-        first_name: "@string",
+        first_name: ["jane"],
         age: "@int",
         type: ["friend", "customer", "supplier"],
         info: {
           emails:["@string"],
           phone_number: {
             home: "@int",
-            cell: "@int",
+            cell: "@int"
             },
           addresses: [
           {
-          address: "@string",
-          },
+          address: "@string"
+          }
           ]
-        },
+        }
     },
       validate: function(strict){
         var validators = {};
         var msg = "";
+         for(var index in this){
+        if(Object.prototype.toString.call(this[index]).slice(8, -1) === 'Object' && index !=='jschema'){
         validators["first_name"] = function(value){
-          if(Object.prototype.toString.call(value).slice(8, -1) === 'String'){
-            this.first_name = value;
-            return "";
+          switch(value){
+            case "jane" : break;
+            default: return "first_name =" + value + " does not conform to [jane]\n";
           }
-          return "first_name=" + value + " does not conform to @string\n";
+          this.first_name = value;
+          return "";
         };
         validators["age"] = function(value){
           if(Object.prototype.toString.call(value).slice(8, -1) === 'Number' && value%1===0){
@@ -147,15 +150,17 @@ var Contact = {
         for(var key in validators){
           if(strict){
             if(this.jschema[key]){
-              msg += validators[key](this[key]);
+              msg += validators[key](this[index][key]);
             }
           }else{
-            if(this[key]){
-              msg += validators[key](this[key]);
+            if(this[index][key]){
+              msg += validators[key](this[index][key]);
             }
           }
         }
-        if(msg === ""){
+        }
+        }
+      if(msg === ""){
           return "Valid";
         }
         return msg;

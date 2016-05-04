@@ -13,14 +13,14 @@ var Invoice = {
         customer: {
           email: "@string",
           first_name: "@string",
-          last_name: "@string",
+          last_name: "@string"
           },
         to_address: {
           address1: "@string",
           address2: "@string",
           zip: "@string",
           state: "@string",
-          country: "@string",
+          country: "@string"
           },
         line_items: [
         {
@@ -29,8 +29,8 @@ var Invoice = {
         notes: "@string",
         count: "@int",
         price: "@number",
-        subtotal: "@number",
-        },
+        subtotal: "@number"
+        }
         ]
     },
       validate: function(strict){
@@ -266,7 +266,7 @@ var Invoice = {
             }
           }
         }
-        if(msg === ""){
+      if(msg === ""){
           return "Valid";
         }
         return msg;

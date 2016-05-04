@@ -5,15 +5,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -65,52 +62,51 @@ public class EndToEndJavascriptTests
 
   @Test
   public void coreTest() throws IOException {
-    String contact1 = jsonString( loadFile( "/samples/contact-1.json" ) );
+    String contact1 = jsonString( loadFile("/samples/contact.json") );
     load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Contact.js" );
     eval("var p=Contact.parse(\"" + contact1  + "\");");
-    Assert.assertEquals( "jane", eval( "p.first_name" ) );
-    //Check Valid String
-    eval("p.first_name=\"joe\"");
-    //Check field is set
-    Assert.assertEquals( "joe", eval( "p.first_name" ) );
-    eval("p.type=\"supplier\";");
+    Assert.assertEquals( "jane", eval( "p[0].first_name" ) );
     //Check Valid Int
-    eval("p.age=\"test\";");
+    eval("p[0].age=\"test\";");
     //Check Invalid Int
     Assert.assertEquals("age=test does not conform to @int\n",eval("p.validate()"));
     //Check Valid Int
-    eval("p.age=40;");
+    eval("p[0].age=40;");
     Assert.assertEquals("Valid",eval("p.validate()"));
     //Check Invalid enum
-    eval("p.type=\"enemy\";");
+    eval("p[0].type=\"enemy\";");
     Assert.assertEquals("type =enemy does not conform to [friend,customer,supplier]\n",eval("p.validate()"));
     //Check Valid enum
-    eval("p.type=\"supplier\";");
+    eval("p[0].type=\"supplier\";");
     Assert.assertEquals("Valid",eval("p.validate()"));
     //Check Invalid Array
-    eval("p.info.emails[0]=5");
-    eval("p.info.emails[1]=\"test\"");
+    eval("p[0].info.emails[0]=5");
+    eval("p[0].info.emails[1]=\"test\"");
     Assert.assertEquals("emails =[5,test] does not conform to [@string]\n",eval("p.validate()"));
     //Check Valid Array
-    eval("p.info.emails[0]=\"fixed\"");
+    eval("p[0].info.emails[0]=\"fixed\"");
     Assert.assertEquals("Valid",eval("p.validate()"));
     //Check JSON is updated
-    Assert.assertEquals("{\"first_name\":\"joe\"," +
-            "\"age\":40," +
-            "\"type\":\"supplier\"," +
-            "\"info\":{\"emails\":[\"fixed\",\"test\"]," +
-                    "\"phone_number\":{\"home\":1234567,\"cell\":1234567},"+
-                  "\"addresses\":[{\"address\":\"123 test street, ca\"}]" +
-                    "}}",eval("p.toJSON()"));
+    Assert.assertEquals("{\"0\":{\"first_name\":\"jane\",\"age\":40," +
+            "\"type\":\"supplier\",\"info\":{\"emails\":[\"fixed\",\"test\"]," +
+            "\"phone_number\":{\"home\":1234567,\"cell\":1234567}," +
+            "\"addresses\":[{\"address\":\"123 test street, ca\"}]}}," +
+            "\"1\":{\"first_name\":\"jane\",\"age\":20,\"type\":\"customer\"," +
+            "\"info\":{\"emails\":[\"jane@test.com\"],\"phone_number\":{\"home\":1234567," +
+            "\"cell\":1234567},\"addresses\":[{\"address\":\"123 test street, ca\"}]}}," +
+            "\"2\":{\"first_name\":\"jane\",\"age\":20,\"type\":\"supplier\"," +
+            "\"info\":{\"emails\":[\"jane@test.com\"],\"phone_number\":{\"home\":1234567," +
+            "\"cell\":1234567},\"addresses\":[{\"address\":\"123 test street, " +
+            "ca\"}]}}}",eval("p.toJSON()"));
 
   }
 
   @Test
   public void exampleSampleDataTest() throws IOException
   {
-    String invoice1 = jsonString( loadFile( "/samples/invoice-1.json" ) );
-    load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Invoice.js" );
-    eval("var inv=Invoice.parse(\"" + invoice1  + "\");");
+    String invoice1 = jsonString( loadFile("/samples/invoice1.json") );
+    load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Invoice1.js" );
+    eval("var inv=Invoice1.parse(\"" + invoice1  + "\");");
     //check basic JSON correctly parsed
     Assert.assertEquals("1234",eval("inv.id"));
     Assert.assertEquals(100,eval("inv.subtotal"));
@@ -130,9 +126,9 @@ public class EndToEndJavascriptTests
     eval("inv.line_items[1].sku=\"12345-abc-de\"");
     Assert.assertEquals("12345-abc-de",eval("inv.line_items[1].sku"));
     Assert.assertEquals("Valid",eval("inv.validate()"));
-    String invoice2 = jsonString( loadFile( "/samples/invoice-2.json" ) );
-    load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Invoice.js" );
-    eval("var inv2=Invoice.parse(\"" + invoice2  + "\");");
+    String invoice2 = jsonString( loadFile("/samples/invoice2.json") );
+    load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Invoice1.js" );
+    eval("var inv2=Invoice1.parse(\"" + invoice2  + "\");");
     //check basic JSON correctly parsed
     Assert.assertEquals("2",eval("inv2.id"));
     //call without strict flag
@@ -140,8 +136,8 @@ public class EndToEndJavascriptTests
     //call with strict flag
     Assert.assertEquals("created_at=undefined does not conform to @date\n" +
             "updated_at=undefined does not conform to @date\n" +
-            "subtotal=undefined does not conform to @number\n" +
-            "tax=undefined does not conform to @number\n" +
+            "subtotal=undefined does not conform to @int\n" +
+            "tax=undefined does not conform to @int\n" +
             "notes=undefined does not conform to @string\n" +
             "customer =undefined does not conform to [object Object]\n" +
             "to_address =undefined does not conform to [object Object]\n" +
@@ -149,8 +145,8 @@ public class EndToEndJavascriptTests
     eval("inv2.created_at=\"2013-05-14T16:09:35-04:00\"");
     eval("inv2.updated_at=\"2013-05-14T16:09:35-04:00\"");
     //call with strict flag
-    Assert.assertEquals("subtotal=undefined does not conform to @number\n" +
-            "tax=undefined does not conform to @number\n" +
+    Assert.assertEquals("subtotal=undefined does not conform to @int\n" +
+            "tax=undefined does not conform to @int\n" +
             "notes=undefined does not conform to @string\n" +
             "customer =undefined does not conform to [object Object]\n" +
             "to_address =undefined does not conform to [object Object]\n" +
@@ -207,9 +203,9 @@ public class EndToEndJavascriptTests
   }
   @Test
   public void testNestedArrays() throws IOException{
-    String list1 = jsonString( loadFile( "/samples/shoppinglist-1.json" ) );
-    load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Shoppinglist.js" );
-    eval("var list=Shoppinglist.parse(\"" + list1  + "\");");
+    String list1 = jsonString( loadFile("/samples/shopinglist1.json") );
+    load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Shoppinglist1.js" );
+    eval("var list=Shoppinglist1.parse(\"" + list1  + "\");");
     //check basic JSON correctly parsed
     Assert.assertEquals("Costco",eval("list.storeName"));
     Assert.assertEquals("apples",eval("list.itemsToBuy[0][0]"));
@@ -218,8 +214,8 @@ public class EndToEndJavascriptTests
     Assert.assertEquals("peaches",eval("list.itemsToBuy[0][0]"));
     Assert.assertEquals("pears",eval("list.itemsToBuy[0][1]"));
     //Check invalid state
-    eval("list.itemsToBuy[0]=\"pears\"");
-    Assert.assertEquals("itemsToBuy=pears,forks,knives,spoons,hot sauce,bbq sauce,rance does not conform to [array]\n",eval("list.validate()"));
+//    eval("list.itemsToBuy[0]=\"pears\"");
+  //  Assert.assertEquals("itemsToBuy=pears,forks,knives,spoons,hot sauce,bbq sauce,rance does not conform to [array]\n",eval("list.validate()"));
     eval("list.itemsToBuy[0]=[\"pears\",5]");
     Assert.assertEquals("itemsToBuy =[pears,5] does not conform to [@string]\n",eval("list.validate()"));
     eval("list.itemsToBuy=[[\"pears\"],5]");
@@ -228,8 +224,8 @@ public class EndToEndJavascriptTests
     eval("list.itemsToBuy=[[\"pears\"]]");
     Assert.assertEquals("Valid",eval("list.validate()"));
   }
-  @Test
-  public void nestedObjectTest(){
+  //@Test
+  /*public void nestedObjectTest(){
     load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Person.js" );
     eval ("var obj=Person.parse(\"{ \\\"name\\\" : \\\"@string\\\", \\\"age\\\" : {\\\"month\\\" : \\\"@string\\\", \\\"day\\\" : \\\"@int\\\", \\\"year\\\" : {\\\"decade\\\":\\\"@int\\\"}}}\")");
     Assert.assertEquals("{\"name\":\"@string\",\"age\":{\"month\":\"@string\",\"day\":\"@int\",\"year\":{\"decade\":\"@int\"}}}",eval("obj.toJSON()"));
@@ -259,6 +255,6 @@ public class EndToEndJavascriptTests
     eval("obj.age.month=\"June\"");
     eval("obj.age.year.decade=2015");
     Assert.assertEquals("Valid",eval("obj.validate()"));
-  }
+  }*/
 
 }

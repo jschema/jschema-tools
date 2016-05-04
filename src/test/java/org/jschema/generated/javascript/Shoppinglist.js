@@ -3,7 +3,7 @@ var Shoppinglist = {
     return{
       jschema: {
         storeName: "@string",
-        itemsToBuy:[["@string"]],
+        itemsToBuy:[["@string"]]
       },
       validate: function(strict){
         var validators = {};
@@ -46,7 +46,7 @@ var Shoppinglist = {
             }
           }
         }
-        if(msg === ""){
+      if(msg === ""){
           return "Valid";
         }
         return msg;

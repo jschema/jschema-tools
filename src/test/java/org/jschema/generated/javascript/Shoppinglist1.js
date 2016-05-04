@@ -1,14 +1,10 @@
-var Shoppinglist-1 = {
+var Shoppinglist1 = {
   create: function(){
     return{
       jschema: {
         storeName: "@string",
-        itemsToBuy: [
-        {
-        0: "@string",
-        },
-        ]
-    },
+        itemsToBuy:[["@string"]]
+      },
       validate: function(strict){
         var validators = {};
         var msg = "";
@@ -22,39 +18,23 @@ var Shoppinglist-1 = {
         validators["itemsToBuy"] = function(value){
           if(Object.prototype.toString.call(value).slice(8, -1) === 'Array'){
             for (var elem in value){
-          var validators={};
-          var msg="";
-          if(Object.prototype.toString.call(value[elem]).slice(8, -1) === 'Object'){
+              if(Object.prototype.toString.call(value[elem]).slice(8, -1) === 'Array'){
+                value = value[elem];
+                for (var elem in value){
+                  if(Object.prototype.toString.call(value[elem]).slice(8, -1) !== 'String'){
+                    return "itemsToBuy =[" + value + "] does not conform to [@string]\n";
+                  }
+                }
+              }else{
+                return "itemsToBuy=" + value + " does not conform to [array]\n";
+              }
+            }
             this.itemsToBuy = value;
+            return "";
           }else{
-            return "itemsToBuy =" + value + " does not conform to [[object Object]]\n";
+            return "itemsToBuy=" + value + " does not conform to [array]\n";
           }
-          validators["0"] = function(value){
-            if(Object.prototype.toString.call(value).slice(8, -1) === 'String'){
-              this.0 = value;
-              return "";
-            }
-            return "0=" + value + " does not conform to @string\n";
-          };
-          for(var key in validators){
-            if(value[elem][key]|| Object.prototype.toString.call(value[elem][key] ).slice(8, -1) === 'Boolean'){
-              msg += validators[key](value[elem][key]);
-            }
-          }
-          if(msg !== ""){
-            return msg;
-          }
-          }
-        if(msg === ""){
-          return "";
-        }
-        return msg;
-          this.itemsToBuy = value;
-          return "";
-        }else{
-          return "itemsToBuy=" + value + " does not conform to [array]\n";
-        }
-      };
+        };
         for(var key in validators){
           if(strict){
             if(this.jschema[key]){
@@ -66,7 +46,7 @@ var Shoppinglist-1 = {
             }
           }
         }
-        if(msg === ""){
+      if(msg === ""){
           return "Valid";
         }
         return msg;

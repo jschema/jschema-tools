@@ -36,6 +36,17 @@ function generateJavascriptForJSchema(jSchema, className) {
   var generatedSetters = "";
   var generatedSchema = indent+indent+indent+"jschema: {";
 function generateCreate(schema){
+    var first=1;
+    var isArray=0;
+    if(Object.prototype.toString.call(schema).slice(8, -1) === 'Array'){
+        isArray=1;
+      //  generatedSchema += "\n"+currIndent + "[";
+        schema=schema[0];
+        /*if(Object.prototype.toString.call(schema).slice(8, -1)==='Object'){
+            generatedSchema += "{";
+            isArray=2;
+        }*/
+    }
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
         //check if array
@@ -44,6 +55,8 @@ function generateCreate(schema){
             //check if enum or regular array
             if(String(schema[key][0]).charAt(0) !== '@' && Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'String'){
                 generatedSetters += generateEnum(key, schema[key]);
+
+                if(!first)generatedSchema += ",";
                 generatedSchema += "\n"+currIndent + key + ": [";
                 for (var elem in schema[key]){
                    if(elem!=0){
@@ -51,8 +64,9 @@ function generateCreate(schema){
                    }
                    generatedSchema += "\"" + schema[key][elem] + "\"";
                 }
-                generatedSchema += "],";
+                generatedSchema += "]";
             }else if(Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'Object'){
+                if(!first)generatedSchema += ",";
                 generatedSchema+="\n"+currIndent+key+": [";
                     generatedSetters+=  currIndent+"validators[\"" + key + "\"] = function(value){\n" +
                                 currIndent+indent+"if(Object.prototype.toString.call(value).slice(8, -1) === \'Array\'){\n" +
@@ -64,7 +78,7 @@ function generateCreate(schema){
                                            currIndent+indent+"}else{\n"+
                                            currIndent+indent+indent+"return \"" + key + " =\" + value + \" does not conform to [" + schema[key][0] + "]\\n\";\n"+
                                            currIndent+indent+"}\n";
-                    generateObject("",schema[key][0],false);
+                    generateObject("",schema[key][0],true);
                     generatedSchema+="\n"+currIndent+indent+"]";
                      generatedSetters+=currIndent+indent+indent+"}\n" +
                                  currIndent+indent+"if(msg === \"\"){\n" +
@@ -78,46 +92,70 @@ function generateCreate(schema){
                                            currIndent+indent+"}\n"+
                                            currIndent+"};\n";
             }else if(Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'Array'){
+                if(!first)generatedSchema += ",";
                  generatedSchema += "\n"+currIndent + key + ":";
                   generatedSetters += generateArray(key, schema[key]);
 
-                 generatedSchema += ",";
+                // generatedSchema += ",";
                  //normal array of core types
             }else{
+                    if(!first)generatedSchema += ",";
                     generatedSchema += "\n"+currIndent + key + ":[";
                     generatedSetters += generateArray(key, schema[key]);
                     //generatedSchema += "\n"+currIndent + key + ": [\"" + schema[key] + "\"],";
             }
          }else if (Object.prototype.toString.call(schema[key]).slice(8, -1) === 'Object'){
+            if(!first)generatedSchema += ",";
             generateObject(key,schema[key],false);
          }
          else{
+            if(!first)generatedSchema += ",";
             generatedSetters += generateSetter(key, schema[key]);
-            generatedSchema += "\n"+currIndent + key + ": \"" + schema[key] + "\",";
+            generatedSchema += "\n"+currIndent + key + ": \"" + schema[key] + "\"";
       }
     }
+    first=0;
   }
+
     currIndent=currIndent.substring(0,currIndent.length-2);
   generatedSchema += "\n"+currIndent+"},\n";
-  return  indent+"create: function(){\n" +
+  var returnString=  indent+"create: function(){\n" +
           indent+indent+"return{\n" +
           generatedSchema +
           indent+indent+indent+"validate: function(strict){\n" +
           indent+indent+indent+indent+"var validators = {};\n" +
-          indent+indent+indent+indent+"var msg = \"\";\n" +
-          generatedSetters +
-          indent+indent+indent+indent+"for(var key in validators){\n" +
-          indent+indent+indent+indent+indent+"if(strict){\n"+
-          indent+indent+indent+indent+indent+indent+"if(this.jschema[key]){\n" +
-          indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n" +
-          indent+indent+indent+indent+indent+indent+"}\n" +
-          indent+indent+indent+indent+indent+"}else{\n"+
-          indent+indent+indent+indent+indent+indent+"if(this[key]){\n" +
-          indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n" +
-          indent+indent+indent+indent+indent+indent+"}\n" +
-          indent+indent+indent+indent+indent+"}\n"+
-          indent+indent+indent+indent+"}\n" +
-          indent+indent+indent+indent+"if(msg === \"\"){\n" +
+          indent+indent+indent+indent+"var msg = \"\";\n";
+          if(isArray){
+            returnString+=indent+indent+indent+indent+" for(var index in this){\n"+
+            indent+indent+indent+indent+"if(Object.prototype.toString.call(this[index]).slice(8, -1) === 'Object' && index !=='jschema'){\n";
+          }
+          returnString+=generatedSetters +
+            indent+indent+indent+indent+"for(var key in validators){\n" +
+            indent+indent+indent+indent+indent+"if(strict){\n";
+          if(isArray){
+            returnString+=indent+indent+indent+indent+indent+indent+"if(this.jschema[key]){\n" +
+            indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[index][key]);\n"+
+            indent+indent+indent+indent+indent+indent+"}\n" +
+            indent+indent+indent+indent+indent+"}else{\n"+
+            indent+indent+indent+indent+indent+indent+"if(this[index][key]){\n" +
+            indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[index][key]);\n" +
+            indent+indent+indent+indent+indent+indent+"}\n";
+          }else{
+          returnString+=indent+indent+indent+indent+indent+indent+"if(this.jschema[key]){\n" +
+                      indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n"+
+                      indent+indent+indent+indent+indent+indent+"}\n" +
+                      indent+indent+indent+indent+indent+"}else{\n"+
+                      indent+indent+indent+indent+indent+indent+"if(this[key]){\n" +
+                      indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n" +
+                      indent+indent+indent+indent+indent+indent+"}\n";
+          }
+          returnString+=indent+indent+indent+indent+indent+"}\n"+
+          indent+indent+indent+indent+"}\n" ;
+          if(isArray){
+            returnString+=indent+indent+indent+indent+"}\n" +
+           indent+indent+indent+indent+"}\n";
+          }
+          returnString+=indent+indent+indent+"if(msg === \"\"){\n" +
           indent+indent+indent+indent+indent+"return \"Valid\";\n"+
           indent+indent+indent+indent+"}\n" +
           indent+indent+indent+indent+"return msg;\n"+
@@ -134,6 +172,7 @@ function generateCreate(schema){
           indent+indent+indent+"}\n" +
           indent+indent+"};\n" +
           indent+"},\n";
+    return returnString;
 }
 
 function generateValidator(type){
@@ -298,7 +337,7 @@ function generateObject(name,type,isArray){
   }
 
 
-
+var first=1;
   for(var key in type){
     if (type.hasOwnProperty(key)){
        if(Object.prototype.toString.call(type[key]).slice(8, -1) === 'Array'){
@@ -306,6 +345,7 @@ function generateObject(name,type,isArray){
                  //check if enum or regular array
           if(type[key][0] !== '@string' && Object.prototype.toString.call(type[key][0]).slice(8, -1) === 'String'){
              generatedSetters += generateEnum(key, type[key]);
+             if(!first)generatedSchema += ",";
              generatedSchema += "\n"+currIndent + key + ": [";
              for (var elem in type[key]){
                 if(elem!=0){
@@ -313,8 +353,10 @@ function generateObject(name,type,isArray){
                 }
                 generatedSchema += "\"" + type[key][elem] + "\"";
              }
-             generatedSchema += "],";
+             generatedSchema += "]";
+
           }else if(Object.prototype.toString.call(type[key][0]).slice(8, -1) === 'Object'){
+                if(!first)generatedSchema += ",";
                 generatedSchema+="\n"+currIndent+key+": [";
                     generatedSetters+=  currIndent+"validators[\"" + key + "\"] = function(value){\n" +
                                 currIndent+indent+"if(Object.prototype.toString.call(value).slice(8, -1) === \'Array\'){\n" +
@@ -326,7 +368,7 @@ function generateObject(name,type,isArray){
                                            currIndent+indent+"}else{\n"+
                                            currIndent+indent+indent+"return \"" + key + " =\" + value + \" does not conform to [" + type[key][0] + "]\\n\";\n"+
                                            currIndent+indent+"}\n";
-                    generateObject("",type[key][0],false);
+                    generateObject("",type[key][0],true);
                     generatedSchema+="\n"+currIndent+indent+"]";
                      generatedSetters+=currIndent+indent+indent+"}\n" +
                                  currIndent+indent+"if(msg === \"\"){\n" +
@@ -340,30 +382,33 @@ function generateObject(name,type,isArray){
                                            currIndent+indent+"}\n"+
                                            currIndent+"};\n";
           }else if(Object.prototype.toString.call(type[key][0]).slice(8, -1) === 'Array'){
+                if(!first)generatedSchema += ",";
                  generatedSchema += "\n"+currIndent + key + ":";
                   generatedSetters += generateArray(key, type[key]);
 
-                 generatedSchema += ",";
           }else{
+                 if(!first)generatedSchema += ",";
                  generatedSchema += "\n"+currIndent + key + ":[";
                  generatedSetters += generateArray(key, type[key]);
-                  generatedSchema += ",";
           }
        }else if (Object.prototype.toString.call(type[key]).slice(8, -1) === 'Object'){
+                if(!first)generatedSchema += ",";
                 generateObject(key,type[key],false);
        }else{
                currIndent+="  ";
                generatedSetters += generateSetter(key, type[key]);
                currIndent=currIndent.substring(0,currIndent.length-2);
-                generatedSchema += "\n" + currIndent + key + ": \"" + type[key] + "\",";
+               if(!first)generatedSchema += ",";
+               generatedSchema += "\n" + currIndent + key + ": \"" + type[key] + "\"";
        }
+       first=0;
     }
   }
   if(isArray){
   generatedSchema+="\n"+currIndent+"}";
   }else{
-generatedSchema+="\n"+currIndent+"},";
-}
+    generatedSchema+="\n"+currIndent+"}";
+  }
 if(name!==""){
    generatedSetters+=currIndent+indent+"for(var key in validators){\n" +
             currIndent+indent+indent+"if(value[key]){\n" +

@@ -1,4 +1,4 @@
-var Invoice-1 = {
+var Invoice1 = {
   create: function(){
     return{
       jschema: {
@@ -13,13 +13,13 @@ var Invoice-1 = {
         customer: {
           email: "@string",
           first_name: "@string",
-          last_name: "@string",
+          last_name: "@string"
           },
         to_address: {
           address1: "@string",
           zip: "@date",
           state: "@string",
-          country: "@string",
+          country: "@string"
           },
         line_items: [
         {
@@ -27,8 +27,8 @@ var Invoice-1 = {
         description: "@string",
         count: "@int",
         price: "@int",
-        subtotal: "@int",
-        },
+        subtotal: "@int"
+        }
         ]
     },
       validate: function(strict){
@@ -250,7 +250,7 @@ var Invoice-1 = {
             }
           }
         }
-        if(msg === ""){
+      if(msg === ""){
           return "Valid";
         }
         return msg;

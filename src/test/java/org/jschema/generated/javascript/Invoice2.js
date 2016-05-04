@@ -1,10 +1,10 @@
-var Invoice-2 = {
+var Invoice2 = {
   create: function(){
     return{
       jschema: {
         id: "@date",
         email: "@string",
-        total: "@int",
+        total: "@int"
       },
       validate: function(strict){
         var validators = {};
@@ -41,7 +41,7 @@ var Invoice-2 = {
             }
           }
         }
-        if(msg === ""){
+      if(msg === ""){
           return "Valid";
         }
         return msg;
