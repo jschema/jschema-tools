@@ -1,0 +1,15 @@
+edgeCases_1:
+-3 nested objects
+edgeCases_2:
+-array of 1 object in each position, with 3 objects inside that position. ah, and btw, that array is within another object
+edgeCases_3:
+-object with array in each position of the array
+edgeCases_4:
+-array of objects inside array
+edgeCases_5:
+-array of 3 positions (array) [so, actually a 2-dimension array -> valid JSON/JSchema???]
+edgeCases_6:
+-array of complex object (1 object per position of the array)
+
+
+

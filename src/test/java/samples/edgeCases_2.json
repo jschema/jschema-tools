@@ -1,11 +1,12 @@
 {
   "obj_1": {
     "id_1": "1111",
-    "arrayObjects" : [
-      "obj_2" : {
-        "id_2": "2222",
-        "number": 1234
-      }
-    ]
+    "arrayOfObjects" : [{
+      "obj_2": {"id_2":"2222", "number": 22},
+      "obj_3": {"id_3":"3333", "number": 33},
+      "obj_4": {"id_4":"4444", "number": 44}
+    }]
   }
 }
+
+

@@ -1,8 +1,13 @@
 {
   "obj_1": {
     "id_1": "@string",
-    "arrayObjects" : [{
-
+    "arrayOfObjects" : [{
+        "obj_2": {
+            "id_2":"@string",
+            "number": "@int"
+        }
     }]
  }
 }
+
+
