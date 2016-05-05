@@ -98,7 +98,7 @@ public class MyParser {
     {
         //TODO implement, return a map of name/value pairs, and Error if an error is detected
         //                pass the map into parseMember to populate
-        HashMap<String, Object> map = new HashMap<>();
+        HashMap<String, Object> map = new HashMap<String, Object>();
         String key;
         Object value;
 

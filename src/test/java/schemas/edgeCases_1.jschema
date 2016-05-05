@@ -1,0 +1,11 @@
+{
+  "obj_1": {
+    "id_1": "@string",
+    "obj_2": {
+      "id_2": "@string",
+      "obj_3": {
+        "id_3": "@string"
+      }
+    }
+  }
+}

@@ -48,9 +48,16 @@ public class Contact{
   public int getAge(){return (int) _fields.get("age");}
   public void setAge(int age){_fields.put("age", age);}
 
-  public List<Type> getType(){return (List<Type>) _fields.get("type");}
-  public void setType(List<Type> type){_fields.put("type", type);}
+//-------------------------------------------------------------------------------------------------------------
+  //TODO change enums generation, so type if the enum type and not a list
+  // it returns a string? should probably change that
+  //public List<Type> getType(){return (List<Type>) _fields.get("type");}
+  //public void setType(List<Type> type){_fields.put("type", type);}
 
+  public Type getType(){return Type.valueOf((String) _fields.get("type"));}
+  public void setType(Type type){_fields.put("type", type);}
+
+//-------------------------------------------------------------------------------------------------------------
   public enum Type{
     FRIEND,
     CUSTOMER,
