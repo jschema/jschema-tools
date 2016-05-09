@@ -1,4 +1,5 @@
 package org.jschema.endtoend;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import org.jschema.generated.java.*;
 
 import junit.framework.Assert;
@@ -9,21 +10,47 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class EndToEndJavaTests
 {
+
   @Test
-  public void bootstrap(){
+  public void BasicTest() throws IOException{
+
+    Basic b = Basic.parse(loadFile("/samples/basic.json"));
+    Assert.assertEquals("Bill", b.getName());
+    Assert.assertEquals(29, b.getAge());
+
+    b.setAge(30);
+    Assert.assertEquals(30, b.getAge());
+
   }
 
   @Test
-  public void BasicTest(){
+  public void ContactTest() throws IOException{
+
+    Contact c = Contact.parse(loadFile("/samples/Contact.json"));
+    Assert.assertEquals("Bill", c.getFirst_name());
+    Assert.assertEquals("Bill@2.com", c.getEmails().get(1));
+    //System.out.print(c.toJSON());
+    Assert.assertEquals( "FRIEND" , c.getType().get(0));
+    Assert.assertEquals("{name=NOTBill, age=31}", c.getCustomer().toJSON());
+    Assert.assertEquals("NOTBill", c.getCustomer().getName());
 
   }
 
   @Test
-  public void exampleSampleDataTest() throws IOException
+  public void NestTest() throws IOException{
+    Nest n = Nest.parse(loadFile("/samples/Nest.json"));
+    Assert.assertEquals("College Park High", n.getName());
+    Assert.assertEquals("Pleasant Hill", n.getSchool().getCity());
+    Assert.assertEquals("High School", n.getStudents().getType());
+    Assert.assertEquals("Freshmen", n.getStudents().getStudent_Facts().getLevel());
+  }
+  @Test
+  public void Invoice2Test() throws IOException
   {
 
     Invoice2 i = Invoice2.parse( loadFile( "/samples/invoice-1.json" ) );
@@ -35,6 +62,9 @@ public class EndToEndJavaTests
     Assert.assertEquals("{zip=12345, country=USA, address1=123 Main Street, state=MS}", i.getTo_address().toJSON());
     Assert.assertEquals("{price=5.00, subtotal=50, count=10, description=The Best Darn Widgets Around, sku=S12T-Wid-GG}",i.getLine_items().get( 0 ).toJSON());
     Assert.assertEquals("S12T-Wid-GG", i.getLine_items().get( 0 ).getSku());
+    Assert.assertEquals("fred", i.getList().get(0));
+    Assert.assertEquals("PLEASE", i.getNest().getNonNested());
+    Assert.assertEquals(16, i.getNest().getNested().getInnerVal());
 
   }
 

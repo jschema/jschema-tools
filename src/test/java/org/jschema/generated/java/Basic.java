@@ -11,27 +11,19 @@ public class Basic{
     Iterator it = jsonObject.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry)it.next();
-      if(pair.getValue() instanceof HashMap){
-        newBasic._fields.put((String) pair.getKey(), parseInnerMap(newBasic, pair.getKey(), (Map) pair.getValue()));
+      if(pair.getValue() instanceof Map){
+        Object obj = makeObject(newBasic, (String)pair.getKey(), (Map)pair.getValue());
+        newBasic._fields.put((String) pair.getKey(), obj);
       }
-      else if(pair.getValue() instanceof ArrayList && ((ArrayList) pair.getValue()).get(0) instanceof HashMap){
-        newBasic._fields.put((String) pair.getKey(), parseInnerList(newBasic, pair.getKey(), (List) pair.getValue()));
+      else{
+        newBasic._fields.put((String) pair.getKey(), pair.getValue());
       }
-      else newBasic._fields.put((String) pair.getKey(), pair.getValue());
     }
     return newBasic;
   }
-  public static Object parseInnerMap(Basic newBasic, Object key, Map value){
+  public static Object makeObject(Basic newBasic, String key, Map value){
     return null;
 }
-  public static List parseInnerList(Basic newBasic, Object key, List value){
-    List<Object> list = new ArrayList<>();
-    for(int i = 0; i < value.size(); i++) {
-      Object result = parseInnerMap(newBasic, key, (Map) value.get(i));
-      list.add(result);
-    }
-    return list;
-  }
   public String toJSON(){return _fields.toString();}
 
   public String getName(){return (String) _fields.get("name");}

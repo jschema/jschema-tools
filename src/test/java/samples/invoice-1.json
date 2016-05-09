@@ -33,6 +33,13 @@
       "price": "5.00",
       "subtotal": "50"
     }
-  ]
+  ],
+
+  "list" : ["fred", "george", "arthur"],
+
+  "Nest" : {
+    "Nested" : {"InnerVal" : 16},
+    "NonNested" : "PLEASE"
+  }
 }
 

@@ -18,9 +18,8 @@ function generateAll(classname, jschema){
   indent += "  ";
   String += indent + generateField() + "\n";
   if(counter == 0){
-    String += indent + generateParse(classname);
-    String += indent + generateInnerMap(classname, parsed_schema);
-    String += indent + generateInnerList(classname, parsed_schema);
+    String += indent + generateParse(classname, 0);
+    String += indent + generateInner(classname, parsed_schema);
   }
   String += indent + generateToJson() + "\n";
   for(var key in parsed_schema){
@@ -58,9 +57,14 @@ function generateField(){
   return String;
 }
 
-function generateParse(classname){
+function generateParse(classname, static){
   var newName = "new" + capitalize(classname);
-  var String = "public static " + classname +  " parse(String jsonString){\n";
+  if(static == 0){
+    var String = "public static " + classname +  " parse(String jsonString){\n";
+  }
+  else{
+    var String = "public " + classname +  " parse(String jsonString){\n";
+  }
   indent += "  ";
   String += indent + classname + " " + newName + " = new " + classname + "();\n";
   String += indent + "Map<String, Object> jsonObject = (Map) new Parser(jsonString).parse();\n";
@@ -70,15 +74,18 @@ function generateParse(classname){
   indent += "  ";
 
   String += indent + "Map.Entry pair = (Map.Entry)it.next();\n";
-  String += indent + "if(pair.getValue() instanceof HashMap){\n";
+
+  String += indent + "if(pair.getValue() instanceof Map){\n";
   indent += "  ";
-  String += indent + newName + "._fields.put((String) pair.getKey(), parseInnerMap(" + newName + ", pair.getKey(), (Map) pair.getValue()));\n";
+  String += indent + "Object obj = makeObject(" + newName + ", (String)pair.getKey(), (Map)pair.getValue());\n";
+  String += indent + newName + "._fields.put((String) pair.getKey(), obj);\n";
   indent = indent.slice(0, indent.length() - 2);
-  String += indent + "}\n" + indent + "else if(pair.getValue() instanceof ArrayList && ((ArrayList) pair.getValue()).get(0) instanceof HashMap){\n";
+  String += indent + "}\n";
+  String += indent + "else{\n";
   indent += "  ";
-  String += indent +  newName + "._fields.put((String) pair.getKey(), parseInnerList(" + newName + ", pair.getKey(), (List) pair.getValue()));\n";
+  String += indent + newName + "._fields.put((String) pair.getKey(), pair.getValue());\n";
   indent = indent.slice(0, indent.length() - 2);
-  String += indent + "}\n" + indent + "else " + newName + "._fields.put((String) pair.getKey(), pair.getValue());\n";
+  String += indent + "}\n";
 
   indent = indent.slice(0, indent.length() - 2);
   String += indent + "}\n";
@@ -89,14 +96,16 @@ function generateParse(classname){
   return String;
 }
 
-function generateInnerMap(classname, parsed_schema){
+
+
+function generateInner(classname, parsed_schema){
   var newName = "new" + capitalize(classname);
-  var String = "public static Object parseInnerMap(" + classname + " " + newName + ", Object key, Map value){\n";
+  var String = "public static Object makeObject(" + classname + " " + newName + ", String key, Map value){\n";
   indent += "  ";
   for(key in parsed_schema){
     if((!isArray(parsed_schema[key]) && isObject(parsed_schema[key])) ||
         (isArray(parsed_schema[key]) && isObject(parsed_schema[key][0]))){
-      String += indent + "if(key.toString().equals(\"" + key + "\")){\n";
+      String += indent + "if(key.equals(\"" + key + "\")){\n";
       indent += "  ";
       String += indent + classname + "." + capitalize(key) + " " + key.charAt(0) + " = " + newName + ".new " +capitalize(key) + "();\n";
       String += indent + key.charAt(0) + "._fields = value;\n";
@@ -111,6 +120,7 @@ function generateInnerMap(classname, parsed_schema){
   return String;
 }
 
+/*
 function generateInnerList(classname, parsed_schema){
   var newName = "new" + capitalize(classname);
   String = "public static List parseInnerList(" + classname + " " +  newName + ", Object key, List value){\n";
@@ -129,6 +139,7 @@ function generateInnerList(classname, parsed_schema){
 
 }
 
+*/
 function generateToJson(){
   var String = "public String toJSON(){return _fields.toString();}\n";
   return String;

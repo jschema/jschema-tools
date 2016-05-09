@@ -11,32 +11,24 @@ public class Contact{
     Iterator it = jsonObject.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry)it.next();
-      if(pair.getValue() instanceof HashMap){
-        newContact._fields.put((String) pair.getKey(), parseInnerMap(newContact, pair.getKey(), (Map) pair.getValue()));
+      if(pair.getValue() instanceof Map){
+        Object obj = makeObject(newContact, (String)pair.getKey(), (Map)pair.getValue());
+        newContact._fields.put((String) pair.getKey(), obj);
       }
-      else if(pair.getValue() instanceof ArrayList && ((ArrayList) pair.getValue()).get(0) instanceof HashMap){
-        newContact._fields.put((String) pair.getKey(), parseInnerList(newContact, pair.getKey(), (List) pair.getValue()));
+      else{
+        newContact._fields.put((String) pair.getKey(), pair.getValue());
       }
-      else newContact._fields.put((String) pair.getKey(), pair.getValue());
     }
     return newContact;
   }
-  public static Object parseInnerMap(Contact newContact, Object key, Map value){
-    if(key.toString().equals("customer")){
+  public static Object makeObject(Contact newContact, String key, Map value){
+    if(key.equals("customer")){
       Contact.Customer c = newContact.new Customer();
       c._fields = value;
       return c;
     }
     return null;
 }
-  public static List parseInnerList(Contact newContact, Object key, List value){
-    List<Object> list = new ArrayList<>();
-    for(int i = 0; i < value.size(); i++) {
-      Object result = parseInnerMap(newContact, key, (Map) value.get(i));
-      list.add(result);
-    }
-    return list;
-  }
   public String toJSON(){return _fields.toString();}
 
   public String getFirst_name(){return (String) _fields.get("first_name");}
@@ -70,6 +62,9 @@ public class Contact{
 
     public String getName(){return (String) _fields.get("name");}
     public void setName(String name){_fields.put("name", name);}
+
+    public int getAge(){return (int) _fields.get("age");}
+    public void setAge(int age){_fields.put("age", age);}
 
 
   }

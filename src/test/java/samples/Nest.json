@@ -1,0 +1,15 @@
+{
+  "Name" : "College Park High",
+  "age" : 55,
+  "School" : {
+    "School_Name" : "CPHS",
+    "City" : "Pleasant Hill"
+  },
+  "Students" : {
+    "Type" : "High School",
+    "Student_Facts" : {
+      "Number" : 2154,
+      "level"  : "Freshmen"
+    }
+  }
+}

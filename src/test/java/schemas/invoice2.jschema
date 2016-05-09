@@ -30,5 +30,12 @@
     "count" : "@int",
     "price" : "@number",
     "subtotal" : "@number"
-  }]
+  }],
+
+  "list" : ["@string"],
+
+  "Nest" : {
+    "Nested" : {"InnerVal" : "@int"},
+    "NonNested" : "@string"
+  }
 }
