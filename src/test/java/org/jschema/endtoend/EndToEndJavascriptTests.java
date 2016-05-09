@@ -203,7 +203,7 @@ public class EndToEndJavascriptTests
   }
   @Test
   public void testNestedArrays() throws IOException{
-    String list1 = jsonString( loadFile("/samples/shopinglist1.json") );
+    String list1 = jsonString( loadFile("/samples/shoppinglist1.json") );
     load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Shoppinglist1.js" );
     eval("var list=Shoppinglist1.parse(\"" + list1  + "\");");
     //check basic JSON correctly parsed
