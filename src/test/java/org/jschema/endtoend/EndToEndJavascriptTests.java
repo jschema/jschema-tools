@@ -134,23 +134,12 @@ public class EndToEndJavascriptTests
     //call without strict flag
     Assert.assertEquals("Valid",eval("inv2.validate()"));
     //call with strict flag
-    Assert.assertEquals("created_at=undefined does not conform to @date\n" +
-            "updated_at=undefined does not conform to @date\n" +
-            "subtotal=undefined does not conform to @int\n" +
-            "tax=undefined does not conform to @int\n" +
-            "notes=undefined does not conform to @string\n" +
-            "customer =undefined does not conform to [object Object]\n" +
-            "to_address =undefined does not conform to [object Object]\n" +
-            "line_items=undefined does not conform to [array]\n",eval("inv2.validate(1)"));
+    Assert.assertEquals("Valid",eval("inv2.validate(1)"));
     eval("inv2.created_at=\"2013-05-14T16:09:35-04:00\"");
     eval("inv2.updated_at=\"2013-05-14T16:09:35-04:00\"");
+    eval("inv2.test=5");
     //call with strict flag
-    Assert.assertEquals("subtotal=undefined does not conform to @int\n" +
-            "tax=undefined does not conform to @int\n" +
-            "notes=undefined does not conform to @string\n" +
-            "customer =undefined does not conform to [object Object]\n" +
-            "to_address =undefined does not conform to [object Object]\n" +
-            "line_items=undefined does not conform to [array]\n",eval("inv2.validate(1)"));
+    Assert.assertEquals("Key test not defined in JSchema. Strict flag only allows keys defined in JSchema.",eval("inv2.validate(1)"));
     eval("inv2.subtotal=200.00");
     eval("inv2.tax=10");
     eval("inv2.notes=\"none\"");
@@ -159,20 +148,19 @@ public class EndToEndJavascriptTests
     eval("inv2.customer.first_name=\"jane\"");
     eval("inv2.customer.last_name=\"doe\"");
     //call with strict flag
-    Assert.assertEquals("to_address =undefined does not conform to [object Object]\n" +
-            "line_items=undefined does not conform to [array]\n",eval("inv2.validate(1)"));
+    Assert.assertEquals("Valid",eval("inv2.validate()"));
     //call without strict flag
     Assert.assertEquals("Valid",eval("inv2.validate(0)"));
     eval("inv2.to_address={\"address\":\"test\",\"zip\":\"12345\",\"state\":\"ca\",\"country\":\"USA\"}");
     eval("inv2.line_items=[{\"sku\":\"test\",\"description\":\"nothing\",\"count\":10,\"price\":5.0,\"subtotal\":100}]");
     //call with strict flag
-    Assert.assertEquals("Valid",eval("inv2.validate(1)"));
+    Assert.assertEquals("Key test not defined in JSchema. Strict flag only allows keys defined in JSchema.",eval("inv2.validate(1)"));
     //call without strict flag
     Assert.assertEquals("Valid",eval("inv2.validate(0)"));
     //test tojson method
     Assert.assertEquals("{\"id\":\"2\",\"email\":\"joe@test.com\"," +
             "\"total\":15,\"created_at\":\"2013-05-14T16:09:35-04:00\"," +
-            "\"updated_at\":\"2013-05-14T16:09:35-04:00\",\"subtotal\":200," +
+            "\"updated_at\":\"2013-05-14T16:09:35-04:00\",\"test\":5,\"subtotal\":200," +
             "\"tax\":10,\"notes\":\"none\",\"customer\":{\"email\":\"jane@test.com\"," +
             "\"first_name\":\"jane\",\"last_name\":\"doe\"}," +
             "\"to_address\":{\"address\":\"test\",\"zip\":\"12345\",\"state\":\"ca\"," +
@@ -250,7 +238,7 @@ public class EndToEndJavascriptTests
     Assert.assertEquals("Valid",eval("p.validate()"));
     //check strict validation
     eval("p.favorite_food=\"pizza\"");
-    Assert.assertEquals("Valid",eval("p.validate(true)"));
+    Assert.assertEquals("Key favorite_food not defined in JSchema. Strict flag only allows keys defined in JSchema.",eval("p.validate(true)"));
   }
 
   @Test
@@ -278,6 +266,31 @@ public class EndToEndJavascriptTests
     //check strict flag
     eval("car[1].sunroof=true");
     Assert.assertEquals("Valid",eval("car.validate()"));
-    Assert.assertEquals("",eval("car.validate(true)"));
+    Assert.assertEquals("Key sunroof not defined in JSchema. Strict flag only allows keys defined in JSchema.",eval("car.validate(true)"));
+    eval("car[2].floor_mats=false");
+    Assert.assertEquals("Key sunroof not defined in JSchema. Strict flag only allows keys defined in JSchema.Key floor_mats not defined in JSchema. Strict flag only allows keys defined in JSchema.",eval("car.validate(true)"));
+    Assert.assertEquals("Valid",eval("car.validate()"));
+    //check JSON
+    Assert.assertEquals("{\"0\":{\"make\":\"Tesla\",\"model\":\"3\"," +
+            "\"year\":2016,\"miles\":5,\"accessories\":[\"good_mpg\"," +
+            "\"eco_friendly\",\"navigation\",\"extra_cargo\"]," +
+            "\"interior\":{\"seats\":4,\"parking_sensors\":false," +
+            "\"colors\":\"red\",\"packages\":{\"sport\":{\"heated_seats\":true," +
+            "\"big_rims\":false,\"awd\":false},\"luxury\":{\"heated_seats\":true," +
+            "\"big_rims\":false,\"awd\":false},\"base\":{\"heated_seats\":true," +
+            "\"big_rims\":false,\"awd\":false}}}},\"1\":{\"make\":\"Mercedes\"," +
+            "\"model\":\"GLK\",\"year\":2012,\"miles\":20000," +
+            "\"accessories\":[\"dvd_player\",\"aux\",\"radio\",\"bluetooth\",\"navigation\"]," +
+            "\"interior\":{\"seats\":5,\"parking_sensors\":true,\"colors\":\"silver\"," +
+            "\"packages\":{\"sport\":{\"heated_seats\":true,\"big_rims\":true,\"awd\":true}," +
+            "\"luxury\":{\"heated_seats\":true,\"big_rims\":false,\"awd\":false}," +
+            "\"base\":{\"heated_seats\":false,\"big_rims\":false,\"awd\":false}}}," +
+            "\"sunroof\":true},\"2\":{\"make\":\"Lexus\",\"model\":\"NX\",\"year\":2016," +
+            "\"miles\":10000,\"accessories\":[\"radio\",\"bluetooth\",\"navigation\"]," +
+            "\"interior\":{\"seats\":4,\"parking_sensors\":true,\"colors\":\"white\"," +
+            "\"packages\":{\"sport\":{\"heated_seats\":true,\"big_rims\":true,\"awd\":true}," +
+            "\"luxury\":{\"heated_seats\":true,\"big_rims\":false,\"awd\":false}," +
+            "\"base\":{\"heated_seats\":false,\"big_rims\":false,\"awd\":false}}}," +
+            "\"floor_mats\":false}}",eval("car.toJSON()"));
   }
 }

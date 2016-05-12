@@ -129,32 +129,45 @@ function generateCreate(schema){
             returnString+=indent+indent+indent+indent+" for(var index in this){\n"+
             indent+indent+indent+indent+"if(Object.prototype.toString.call(this[index]).slice(8, -1) === 'Object' && index !=='jschema'){\n";
           }
-          returnString+=generatedSetters +
-            indent+indent+indent+indent+"if (strict){\n"+
-            indent+indent+indent+indent+indent+"for(var key in this){\n"+
-            indent+indent+indent+indent+indent+indent+"if(!this.jschema[key] && Object.prototype.toString.call(this[key]).slice(8, -1) !== \'Function\' && key!=\"jschema\"){\n"+
-            indent+indent+indent+indent+indent+indent+indent+"msg += \"Key not defined in JSchema. Strict flag only allows keys defined in JSchema.\";\n"+
+          returnString+=generatedSetters;
+          if(isArray){
+            returnString+=indent+indent+indent+indent+"if (strict){\n"+
+            indent+indent+indent+indent+indent+"for(var key in this[index]){\n"+
+            indent+indent+indent+indent+indent+indent+"if(!this.jschema[key] && Object.prototype.toString.call(this[index][key]).slice(8, -1) !== \'Function\' && key!=\"jschema\"){\n"+
+            indent+indent+indent+indent+indent+indent+indent+"msg += \"Key \"+key+\" not defined in JSchema. Strict flag only allows keys defined in JSchema.\";\n"+
             indent+indent+indent+indent+indent+indent+"}\n"+
             indent+indent+indent+indent+indent+"}\n"+
             indent+indent+indent+indent+"}\n"+
-            indent+indent+indent+indent+"for(var key in validators){\n" +
-            indent+indent+indent+indent+indent+"if(strict){\n";
-          if(isArray){
-            returnString+=indent+indent+indent+indent+indent+indent+"if(this.jschema[key]){\n" +
-            indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[index][key]);\n"+
-            indent+indent+indent+indent+indent+indent+"}\n" +
-            indent+indent+indent+indent+indent+"}else{\n"+
-            indent+indent+indent+indent+indent+indent+"if(this[index][key]){\n" +
-            indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[index][key]);\n" +
-            indent+indent+indent+indent+indent+indent+"}\n";
+            indent+indent+indent+indent+"for(var key in validators){\n" ;
+           // indent+indent+indent+indent+indent+"if(strict){\n";
           }else{
-          returnString+=indent+indent+indent+indent+indent+indent+"if(this.jschema[key]){\n" +
-                      indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n"+
-                      indent+indent+indent+indent+indent+indent+"}\n" +
-                      indent+indent+indent+indent+indent+"}else{\n"+
-                      indent+indent+indent+indent+indent+indent+"if(this[key]){\n" +
-                      indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n" +
-                      indent+indent+indent+indent+indent+indent+"}\n";
+            returnString+=indent+indent+indent+indent+"if (strict){\n"+
+            indent+indent+indent+indent+indent+"for(var key in this){\n"+
+            indent+indent+indent+indent+indent+indent+"if(!this.jschema[key] && Object.prototype.toString.call(this[key]).slice(8, -1) !== \'Function\' && key!=\"jschema\"){\n"+
+            indent+indent+indent+indent+indent+indent+indent+"msg += \"Key \"+key+\" not defined in JSchema. Strict flag only allows keys defined in JSchema.\";\n"+
+            indent+indent+indent+indent+indent+indent+"}\n"+
+            indent+indent+indent+indent+indent+"}\n"+
+            indent+indent+indent+indent+"}\n"+
+            indent+indent+indent+indent+"for(var key in validators){\n" ;
+            //indent+indent+indent+indent+indent+"if(strict){\n";
+
+          }
+          if(isArray){
+            returnString+=indent+indent+indent+indent+indent+indent+"if(this.jschema[key] && this[index][key]){\n" +
+            indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[index][key]);\n";
+            //indent+indent+indent+indent+indent+indent+"}\n" +
+           // indent+indent+indent+indent+indent+"}else{\n"+
+            //indent+indent+indent+indent+indent+indent+"if(this[index][key]){\n" +
+           // indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[index][key]);\n" +
+           // indent+indent+indent+indent+indent+indent+"}\n";
+          }else{
+          returnString+=indent+indent+indent+indent+indent+indent+"if(this.jschema[key] && this[key]){\n" +
+                      indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n";
+                     // indent+indent+indent+indent+indent+indent+"}\n" +
+                      //indent+indent+indent+indent+indent+"}else{\n"+
+                    //  indent+indent+indent+indent+indent+indent+"if(this[key]){\n" +
+                     // indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n" +
+                      //indent+indent+indent+indent+indent+indent+"}\n";
           }
           returnString+=indent+indent+indent+indent+indent+"}\n"+
           indent+indent+indent+indent+"}\n" ;
