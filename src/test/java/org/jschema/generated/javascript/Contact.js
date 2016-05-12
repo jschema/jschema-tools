@@ -147,6 +147,13 @@ var Contact = {
           }
           return msg;
         };
+        if (strict){
+          for(var key in this){
+            if(!this.jschema[key] && Object.prototype.toString.call(this[key]).slice(8, -1) !== 'Function' && key!="jschema"){
+              msg += "Key not defined in JSchema. Strict flag only allows keys defined in JSchema.";
+            }
+          }
+        }
         for(var key in validators){
           if(strict){
             if(this.jschema[key]){

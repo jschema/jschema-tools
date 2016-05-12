@@ -178,14 +178,6 @@ public class EndToEndJavascriptTests
             "\"to_address\":{\"address\":\"test\",\"zip\":\"12345\",\"state\":\"ca\"," +
             "\"country\":\"USA\"},\"line_items\":[{\"sku\":\"test\",\"description\":\"nothing\"," +
             "\"count\":10,\"price\":5,\"subtotal\":100}]}",eval("inv2.toJSON()"));
-
-
-
-
-
-
-
-
   }
 
   private String jsonString( String s )
@@ -214,8 +206,6 @@ public class EndToEndJavascriptTests
     Assert.assertEquals("peaches",eval("list.itemsToBuy[0][0]"));
     Assert.assertEquals("pears",eval("list.itemsToBuy[0][1]"));
     //Check invalid state
-//    eval("list.itemsToBuy[0]=\"pears\"");
-  //  Assert.assertEquals("itemsToBuy=pears,forks,knives,spoons,hot sauce,bbq sauce,rance does not conform to [array]\n",eval("list.validate()"));
     eval("list.itemsToBuy[0]=[\"pears\",5]");
     Assert.assertEquals("itemsToBuy =[pears,5] does not conform to [@string]\n",eval("list.validate()"));
     eval("list.itemsToBuy=[[\"pears\"],5]");
@@ -224,37 +214,70 @@ public class EndToEndJavascriptTests
     eval("list.itemsToBuy=[[\"pears\"]]");
     Assert.assertEquals("Valid",eval("list.validate()"));
   }
-  //@Test
-  /*public void nestedObjectTest(){
+  @Test
+  public void nestedObjectTest() throws IOException{
+    String person = jsonString( loadFile("/samples/person.json") );
     load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Person.js" );
-    eval ("var obj=Person.parse(\"{ \\\"name\\\" : \\\"@string\\\", \\\"age\\\" : {\\\"month\\\" : \\\"@string\\\", \\\"day\\\" : \\\"@int\\\", \\\"year\\\" : {\\\"decade\\\":\\\"@int\\\"}}}\")");
-    Assert.assertEquals("{\"name\":\"@string\",\"age\":{\"month\":\"@string\",\"day\":\"@int\",\"year\":{\"decade\":\"@int\"}}}",eval("obj.toJSON()"));
+    eval("var p=Person.parse(\"" + person  + "\");");
     //Check Valid String
-    Assert.assertEquals("@string",eval("obj.age.month"));
+    Assert.assertEquals("jane",eval("p.first_name"));
     //Check field is set
-    eval("obj.age.month=\"April\"");
-    Assert.assertEquals("April",eval("obj.age.month"));
-    //Check JSON is updated
-    Assert.assertEquals("{\"name\":\"@string\",\"age\":{\"month\":\"April\",\"day\":\"@int\",\"year\":{\"decade\":\"@int\"}}}",eval("obj.toJSON()"));
+    eval("p.age=21");
+    Assert.assertEquals(21,eval("p.age"));
     //Check Invalid String
-    eval("obj.age.day=7");
-    eval("obj.age.year.decade=2015");
-    eval("obj.name=4");
-    Assert.assertEquals(4,eval("obj.name"));
-    Assert.assertEquals("name=4 does not conform to @string\n",eval("obj.validate()"));
+    eval("p.hobbies.sports=5");
+    Assert.assertEquals("hobbies =[object Object],[object Object] does not conform to [[object Object]]\n",eval("p.validate()"));
     //Check Valid Name
-    eval("obj.name=\"jane\"");
-    Assert.assertEquals("Valid",eval("obj.validate()"));
-    //Check Invalid Decade
-    eval("obj.age.year.decade=\"bad\"");
-    Assert.assertEquals("decade=bad does not conform to @int\n",eval("obj.validate()"));
-    //Check Invalid Month
-    eval("obj.age.month=5");
-    Assert.assertEquals("month=5 does not conform to @string\ndecade=bad does not conform to @int\n",eval("obj.validate()"));
-    //Check Valid Month and Decade
-    eval("obj.age.month=\"June\"");
-    eval("obj.age.year.decade=2015");
-    Assert.assertEquals("Valid",eval("obj.validate()"));
-  }*/
+    eval("p.hobbies=[{\"sports\":[\"basketball\"],\"crafts\":\"painting\"}]");
+    Assert.assertEquals("Valid",eval("p.validate()"));
+    Assert.assertEquals("jane@test.com",eval("p.info.email[0]"));
+    //append bad value to array
+    eval("p.info.email[1]=5");
+    Assert.assertEquals("email =[jane@test.com,5] does not conform to [@string]\n",eval("p.validate()"));
+    //append to array
+    eval("p.info.email[1]=\"jane2@test.com\"");
+    Assert.assertEquals("jane2@test.com",eval("p.info.email[1]"));
+    //append object to array
+    eval("p.info.addresses[1]={\"address\":\"12345 Santa Cruz, CA\"}");
+    Assert.assertEquals("123 test street, ca",eval("p.info.addresses[0].address"));
+    Assert.assertEquals("12345 Santa Cruz, CA",eval("p.info.addresses[1].address"));
+    //append bad val
+    eval("p.info.addresses[1]={\"address\":5}");
+    Assert.assertEquals("address=5 does not conform to @string\n",eval("p.validate()"));
+    eval("p.info.addresses[1]=\"12345 Santa Cruz, CA\"");
+    Assert.assertEquals("addresses =[object Object],12345 Santa Cruz, CA does not conform to [[object Object]]\n",eval("p.validate()"));
+    eval("p.info.addresses[1]={\"address\":\"12345 Santa Cruz, CA\"}");
+    Assert.assertEquals("Valid",eval("p.validate()"));
+    //check strict validation
+    eval("p.favorite_food=\"pizza\"");
+    Assert.assertEquals("Valid",eval("p.validate(true)"));
+  }
 
+  @Test
+  public void testMultipleNest() throws IOException{
+
+    String cars = jsonString( loadFile("/samples/cars.json") );
+    load( RunGenerators.JAVASCRIPT_GENERATED_DIR + "/Cars.js" );
+    eval("var car=Cars.parse(\"" + cars  + "\");");
+    //Check Valid String
+    Assert.assertEquals("Tesla",eval("car[0].make"));
+    //Check Valid Nesting
+    Assert.assertEquals(false,eval("car[0].interior.packages.base.heated_seats"));
+    Assert.assertEquals(true,eval("car[0].interior.packages.luxury.heated_seats"));
+    //check Invalid Value
+    eval("car[0].interior.packages.base.heated_seats=5");
+    Assert.assertEquals("heated_seats=5 does not conform to @boolean\n",eval("car.validate()"));
+    eval("car[0].interior.packages.base.heated_seats=true");
+    Assert.assertEquals("Valid",eval("car.validate()"));
+    //check [*]
+    Assert.assertEquals("blind_spot_assist",eval("car[1].accessories[0]"));
+    //check invalid for *
+    eval("car[1].accessories[0]=true");
+    Assert.assertEquals("accessories =[true,aux,radio,bluetooth,navigation] does not conform to [*]\n",eval("car.validate()"));
+    eval("car[1].accessories[0]=\"dvd_player\"");
+    //check strict flag
+    eval("car[1].sunroof=true");
+    Assert.assertEquals("Valid",eval("car.validate()"));
+    Assert.assertEquals("",eval("car.validate(true)"));
+  }
 }

@@ -74,13 +74,15 @@ public class RunGenerators
     for(File doc : jsonDocs){
       try{
         String name = doc.getName();
-        // why does java suck so badly?
-        String fixedName =name.substring( 0, name.length() - JSON_SUFFIX.length() );
-        String json = new String( Files.readAllBytes( doc.toPath() ) );
-        Object schemaCode = JSONToJSchemaRunner.generateAll( json, true );
-        PrintWriter writer = new PrintWriter(SCHEMAS_DIR + "/" + fixedName + ".jschema", "UTF-8");
-        writer.print(schemaCode);
-        writer.close();
+        if(!name.equals("cars.json")) {
+          // why does java suck so badly?
+          String fixedName = name.substring(0, name.length() - JSON_SUFFIX.length());
+          String json = new String(Files.readAllBytes(doc.toPath()));
+          Object schemaCode = JSONToJSchemaRunner.generateAll(json, true);
+          PrintWriter writer = new PrintWriter(SCHEMAS_DIR + "/" + fixedName + ".jschema", "UTF-8");
+          writer.print(schemaCode);
+          writer.close();
+        }
       }catch( Exception e )
       {
         throw new RuntimeException( e );

@@ -53,7 +53,7 @@ function generateCreate(schema){
          if(Object.prototype.toString.call(schema[key]).slice(8, -1) === 'Array'){
             /*edge case->empty arrays*/
             //check if enum or regular array
-            if(String(schema[key][0]).charAt(0) !== '@' && Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'String'){
+            if(String(schema[key][0]).charAt(0) !== '@' && schema[key][0] !=='*' && Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'String'){
                 generatedSetters += generateEnum(key, schema[key]);
 
                 if(!first)generatedSchema += ",";
@@ -130,6 +130,13 @@ function generateCreate(schema){
             indent+indent+indent+indent+"if(Object.prototype.toString.call(this[index]).slice(8, -1) === 'Object' && index !=='jschema'){\n";
           }
           returnString+=generatedSetters +
+            indent+indent+indent+indent+"if (strict){\n"+
+            indent+indent+indent+indent+indent+"for(var key in this){\n"+
+            indent+indent+indent+indent+indent+indent+"if(!this.jschema[key] && Object.prototype.toString.call(this[key]).slice(8, -1) !== \'Function\' && key!=\"jschema\"){\n"+
+            indent+indent+indent+indent+indent+indent+indent+"msg += \"Key not defined in JSchema. Strict flag only allows keys defined in JSchema.\";\n"+
+            indent+indent+indent+indent+indent+indent+"}\n"+
+            indent+indent+indent+indent+indent+"}\n"+
+            indent+indent+indent+indent+"}\n"+
             indent+indent+indent+indent+"for(var key in validators){\n" +
             indent+indent+indent+indent+indent+"if(strict){\n";
           if(isArray){
@@ -216,6 +223,8 @@ function generateArrayValidator(type){
       generatedSchema+="\""+type+"\"";
         //to support ecma 5 cannot use Number.isNan
       return "Object.prototype.toString.call(value[elem]).slice(8, -1) !== 'Number'";
+    case "*":
+       return "Wildcard"
     default: // wildcard
         //check if enumeration
        /* if(Object.prototype.toString.call(type).slice(8, -1) === 'String'){
@@ -268,7 +277,24 @@ function generateArray(key,type){
     if(type.length<1) return "ERROR: Invalid JSchema Format";
     var validation=generateArrayValidator(type[0]);
     var strArray;
-    if(validation!=="Array"){
+    if(validation ==="Wildcard"){
+      strArray=  currIndent+"validators[\"" + key + "\"] = function(value){\n" +
+                currIndent+indent+"if(Object.prototype.toString.call(value).slice(8, -1) === \'Array\'){\n" +
+                currIndent+indent+indent+"var type=Object.prototype.toString.call(value[0]).slice(8, -1);"+
+                currIndent+indent+indent+"for (var elem in value){\n" +
+                currIndent+indent+indent+indent+"if(Object.prototype.toString.call(value[elem]).slice(8, -1)!==type){\n" +
+                currIndent+indent+indent+indent+indent+"return \"" + key + " =[\" + value + \"] does not conform to [" + type + "]\\n\";\n" +
+                currIndent+indent+indent+indent+"}\n" +
+                currIndent+indent+indent+"}\n" +
+                currIndent+indent+indent+"this." + key + " = value;\n" +
+                currIndent+indent+indent+"return \"\";\n" +
+                currIndent+indent+"}else{\n"+
+                currIndent+indent+indent+"return \""+key+"=\" + value + \" does not conform to ["+ type+"]\\n\";\n"+
+                currIndent+indent+"}\n"+
+                currIndent+"};\n";
+                generatedSchema += "]";
+    }
+    else if(validation!=="Array"){
             strArray=  currIndent+"validators[\"" + key + "\"] = function(value){\n" +
             currIndent+indent+"if(Object.prototype.toString.call(value).slice(8, -1) === \'Array\'){\n" +
             currIndent+indent+indent+"for (var elem in value){\n" +
@@ -343,7 +369,7 @@ var first=1;
        if(Object.prototype.toString.call(type[key]).slice(8, -1) === 'Array'){
                 /*edge case->empty arrays*/
                  //check if enum or regular array
-          if(type[key][0] !== '@string' && Object.prototype.toString.call(type[key][0]).slice(8, -1) === 'String'){
+         if(type[key][0] !== '@string' && type[key][0] !=='*' && Object.prototype.toString.call(type[key][0]).slice(8, -1) === 'String'){
              generatedSetters += generateEnum(key, type[key]);
              if(!first)generatedSchema += ",";
              generatedSchema += "\n"+currIndent + key + ": [";
