@@ -15,6 +15,10 @@ public class Basic{
         Object obj = makeObject(newBasic, (String)pair.getKey(), (Map)pair.getValue());
         newBasic._fields.put((String) pair.getKey(), obj);
       }
+      else if(pair.getValue() instanceof List){
+        List list = makeList(newBasic, (String)pair.getKey(), (List)pair.getValue());
+        newBasic._fields.put((String) pair.getKey(), list);
+      }
       else{
         newBasic._fields.put((String) pair.getKey(), pair.getValue());
       }
@@ -23,7 +27,20 @@ public class Basic{
   }
   public static Object makeObject(Basic newBasic, String key, Map value){
     return null;
-}
+  }
+  public static List makeList(Basic newBasic, String key, List value){
+    List<Object> list = new ArrayList<>();
+    for(int i = 0; i < value.size(); i++) {
+      if(value.get(i) instanceof Map){
+        Object result = makeObject(newBasic, key, (Map) value.get(i));
+        list.add(result);
+      }
+      else{
+        list.add(value.get(i));
+      }
+    }
+    return list;
+  }
   public String toJSON(){return _fields.toString();}
 
   public String getName(){return (String) _fields.get("name");}

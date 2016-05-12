@@ -15,6 +15,10 @@ public class Invoice2{
         Object obj = makeObject(newInvoice2, (String)pair.getKey(), (Map)pair.getValue());
         newInvoice2._fields.put((String) pair.getKey(), obj);
       }
+      else if(pair.getValue() instanceof List){
+        List list = makeList(newInvoice2, (String)pair.getKey(), (List)pair.getValue());
+        newInvoice2._fields.put((String) pair.getKey(), list);
+      }
       else{
         newInvoice2._fields.put((String) pair.getKey(), pair.getValue());
       }
@@ -24,26 +28,84 @@ public class Invoice2{
   public static Object makeObject(Invoice2 newInvoice2, String key, Map value){
     if(key.equals("customer")){
       Invoice2.Customer c = newInvoice2.new Customer();
-      c._fields = value;
+      c = (Customer) makeCustomer(c, key, value);
       return c;
     }
     if(key.equals("to_address")){
       Invoice2.To_address t = newInvoice2.new To_address();
-      t._fields = value;
+      t = (To_address) makeTo_address(t, key, value);
       return t;
     }
     if(key.equals("line_items")){
       Invoice2.Line_items l = newInvoice2.new Line_items();
-      l._fields = value;
+      l = (Line_items) makeLine_items(l, key, value);
       return l;
     }
     if(key.equals("Nest")){
       Invoice2.Nest N = newInvoice2.new Nest();
-      N._fields = value;
+      N = (Nest) makeNest(N, key, value);
       return N;
     }
     return null;
-}
+  }
+  public static Object makeCustomer(Customer newCustomer, String key, Map value){
+    Iterator it = value.entrySet().iterator();
+    while(it.hasNext()){
+      Map.Entry pair = (Map.Entry) it.next();
+      newCustomer._fields.put((String) pair.getKey(), pair.getValue());
+    }
+    return newCustomer;
+  }
+  public static Object makeTo_address(To_address newTo_address, String key, Map value){
+    Iterator it = value.entrySet().iterator();
+    while(it.hasNext()){
+      Map.Entry pair = (Map.Entry) it.next();
+      newTo_address._fields.put((String) pair.getKey(), pair.getValue());
+    }
+    return newTo_address;
+  }
+  public static Object makeLine_items(Line_items newLine_items, String key, Map value){
+    Iterator it = value.entrySet().iterator();
+    while(it.hasNext()){
+      Map.Entry pair = (Map.Entry) it.next();
+      newLine_items._fields.put((String) pair.getKey(), pair.getValue());
+    }
+    return newLine_items;
+  }
+  public static Object makeNest(Nest newNest, String key, Map value){
+    Iterator it = value.entrySet().iterator();
+    while(it.hasNext()){
+      Map.Entry pair = (Map.Entry) it.next();
+      if(pair.getKey().toString().equals("Nested")){
+        Nest.Nested N = newNest.new Nested();
+        N = (Nest.Nested) makeNested(N, (String) pair.getKey(), (Map) pair.getValue());
+        newNest._fields.put((String) pair.getKey(), N);
+      }
+      else newNest._fields.put((String) pair.getKey(), pair.getValue());
+    }
+    return newNest;
+  }
+  public static Object makeNested(Nest.Nested newNested, String key, Map value){
+    Iterator it = value.entrySet().iterator();
+    while(it.hasNext()){
+      Map.Entry pair = (Map.Entry) it.next();
+      newNested._fields.put((String) pair.getKey(), pair.getValue());
+    }
+    return newNested;
+  }
+  public static List makeList(Invoice2 newInvoice2, String key, List value){
+    List<Object> list = new ArrayList<>();
+    for(int i = 0; i < value.size(); i++) {
+      if(value.get(i) instanceof Map){
+        Object result = makeObject(newInvoice2, key, (Map) value.get(i));
+        list.add(result);
+      }
+      else{
+        list.add(value.get(i));
+      }
+    }
+    return list;
+  }
   public String toJSON(){return _fields.toString();}
 
   public String getId(){return (String) _fields.get("id");}

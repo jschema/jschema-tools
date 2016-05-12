@@ -35,7 +35,7 @@ public class EndToEndJavaTests
     Assert.assertEquals("Bill", c.getFirst_name());
     Assert.assertEquals("Bill@2.com", c.getEmails().get(1));
     //System.out.print(c.toJSON());
-    Assert.assertEquals( "FRIEND" , c.getType().get(0));
+    Assert.assertEquals( "FRIEND" , c.getType());
     Assert.assertEquals("{name=NOTBill, age=31}", c.getCustomer().toJSON());
     Assert.assertEquals("NOTBill", c.getCustomer().getName());
 
@@ -43,12 +43,16 @@ public class EndToEndJavaTests
 
   @Test
   public void NestTest() throws IOException{
-    Nest n = Nest.parse(loadFile("/samples/Nest.json"));
+
+    Nest n = (Nest) Nest.parse(loadFile("/samples/Nest.json"));
     Assert.assertEquals("College Park High", n.getName());
     Assert.assertEquals("Pleasant Hill", n.getSchool().getCity());
     Assert.assertEquals("High School", n.getStudents().getType());
     Assert.assertEquals("Freshmen", n.getStudents().getStudent_Facts().getLevel());
+
   }
+
+
   @Test
   public void Invoice2Test() throws IOException
   {
@@ -73,4 +77,6 @@ public class EndToEndJavaTests
     File resource = new File("src/test/java" + path );
     return new String( Files.readAllBytes( Paths.get( resource.getPath() ) ) );
   }
+
+
 }

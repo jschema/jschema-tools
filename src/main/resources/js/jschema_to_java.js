@@ -20,6 +20,8 @@ function generateAll(classname, jschema){
   if(counter == 0){
     String += indent + generateParse(classname, 0);
     String += indent + generateInner(classname, parsed_schema);
+    String += generateInnerObjects(classname, parsed_schema);
+    String += generateInnerList(classname, parsed_schema);
   }
   String += indent + generateToJson() + "\n";
   for(var key in parsed_schema){
@@ -81,6 +83,14 @@ function generateParse(classname, static){
   String += indent + newName + "._fields.put((String) pair.getKey(), obj);\n";
   indent = indent.slice(0, indent.length() - 2);
   String += indent + "}\n";
+
+  String += indent + "else if(pair.getValue() instanceof List){\n";
+  indent += "  ";
+  String += indent + "List list = makeList(" + newName + ", (String)pair.getKey(), (List)pair.getValue());\n";
+  String += indent + newName + "._fields.put((String) pair.getKey(), list);\n";
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+
   String += indent + "else{\n";
   indent += "  ";
   String += indent + newName + "._fields.put((String) pair.getKey(), pair.getValue());\n";
@@ -97,18 +107,16 @@ function generateParse(classname, static){
 }
 
 
-
 function generateInner(classname, parsed_schema){
   var newName = "new" + capitalize(classname);
   var String = "public static Object makeObject(" + classname + " " + newName + ", String key, Map value){\n";
   indent += "  ";
-  for(key in parsed_schema){
-    if((!isArray(parsed_schema[key]) && isObject(parsed_schema[key])) ||
-        (isArray(parsed_schema[key]) && isObject(parsed_schema[key][0]))){
+  for(var key in parsed_schema){
+    if((!isArray(parsed_schema[key]) && isObject(parsed_schema[key])) || (isArray(parsed_schema[key]) && isObject(parsed_schema[key][0]))){
       String += indent + "if(key.equals(\"" + key + "\")){\n";
       indent += "  ";
-      String += indent + classname + "." + capitalize(key) + " " + key.charAt(0) + " = " + newName + ".new " +capitalize(key) + "();\n";
-      String += indent + key.charAt(0) + "._fields = value;\n";
+      String += indent + classname + "." + capitalize(key) + " " + key.charAt(0) + " = " + newName + ".new " + capitalize(key) + "();\n";
+      String += indent + key.charAt(0) + " = (" + capitalize(key) + ") " + "make" + capitalize(key) + "(" + key.charAt(0) + ", " + "key, value);\n";
       String += indent + "return " + key.charAt(0) + ";\n";
       indent = indent.slice(0, indent.length() - 2);
       String += indent + "}\n";
@@ -116,20 +124,98 @@ function generateInner(classname, parsed_schema){
   }
   String += indent + "return null;\n";
   indent = indent.slice(0, indent.length() - 2);
-  String += "}\n";
+  String += indent + "}\n";
   return String;
 }
 
-/*
+function generateInnerObjects(classname, parsed_schema){
+ var String = "";
+ var prefix = "";
+  for(var key in parsed_schema){
+    if((!isArray(parsed_schema[key]) && isObject(parsed_schema[key]))){
+      String += generateEachObject(key, parsed_schema[key], "");
+      for(var innerkey in parsed_schema[key]){
+        if((!isArray(parsed_schema[key][innerkey]) && isObject(parsed_schema[key][innerkey]))){
+          prefix += key + ".";
+          String += generateEachObject(innerkey, parsed_schema[key][innerkey], prefix);
+        }
+      }
+    }
+    else if(isArray(parsed_schema[key]) && isObject(parsed_schema[key][0])){
+      String += generateEachObject(key, parsed_schema[key][0], "");
+      for(var innerkey in parsed_schema[key][0]){
+        if((!isArray(parsed_schema[key][0][innerkey]) && isObject(parsed_schema[key][0][innerkey]))){
+          prefix += key + ".";
+          String += generateEachObject(innerkey, parsed_schema[key][0][innerkey], prefix);
+        }
+      }
+    }
+  }
+  return String;
+}
+
+function generateEachObject(classname, Map, prefix){
+  var simple = true;
+  var newName = "new" + capitalize(classname);
+  if(prefix != ""){
+    var String = indent + "public static Object make" + capitalize(classname) + "(" + prefix + capitalize(classname) + " " + newName + ", String key, Map value){\n";
+  }
+  else{
+    var String = indent + "public static Object make" + capitalize(classname) + "(" + capitalize(classname) + " " + newName + ", String key, Map value){\n";
+  }
+  indent += "  ";
+  String += indent + "Iterator it = value.entrySet().iterator();\n";
+  String += indent + "while(it.hasNext()){\n";
+  indent += "  ";
+  String += indent + "Map.Entry pair = (Map.Entry) it.next();\n";
+
+  for(var key in Map){
+    if((!isArray(Map[key]) && isObject(Map[key]))){
+      simple = false;
+      String += indent + "if(pair.getKey().toString().equals(\"" + key + "\")){\n";
+      indent += "  ";
+      String += indent + capitalize(classname) + "." + key +  " " + key.charAt(0) + " = " + newName + ".new " + key + "();\n";
+      String += indent + key.charAt(0) + " = (" + capitalize(classname) + "." + key + ") make" + key + "(" + key.charAt(0) + ", (String) pair.getKey(), (Map) pair.getValue());\n";
+      String += indent + newName + "._fields.put((String) pair.getKey(), " + key.charAt(0) + ");\n";
+      indent = indent.slice(0, indent.length() - 2);
+      String += indent + "}\n";
+    }
+  }
+
+  if(simple){
+    String += indent + newName + "._fields.put((String) pair.getKey(), pair.getValue());\n";
+  }
+  else{
+    String += indent + "else " + newName + "._fields.put((String) pair.getKey(), pair.getValue());\n";
+  }
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+
+  String += indent + "return " + newName + ";\n";
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+  return String;
+}
+
+
 function generateInnerList(classname, parsed_schema){
   var newName = "new" + capitalize(classname);
-  String = "public static List parseInnerList(" + classname + " " +  newName + ", Object key, List value){\n";
+  String = indent + "public static List makeList(" + classname + " " +  newName + ", String key, List value){\n";
   indent += "  ";
   String += indent + "List<Object> list = new ArrayList<>();\n";
   String += indent + "for(int i = 0; i < value.size(); i++) {\n";
   indent += "  ";
-  String += indent + "Object result = parseInnerMap(" + newName + ", key, (Map) value.get(i));\n";
+  String += indent + "if(value.get(i) instanceof Map){\n";
+  indent += "  ";
+  String += indent + "Object result = makeObject(" + newName + ", key, (Map) value.get(i));\n";
   String += indent + "list.add(result);\n";
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+  String += indent + "else{\n"
+  indent += "  ";
+  String += indent + "list.add(value.get(i));\n";
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
   indent = indent.slice(0, indent.length() - 2);
   String += indent + "}\n";
   String += indent + "return list;\n";
@@ -139,7 +225,7 @@ function generateInnerList(classname, parsed_schema){
 
 }
 
-*/
+
 function generateToJson(){
   var String = "public String toJSON(){return _fields.toString();}\n";
   return String;

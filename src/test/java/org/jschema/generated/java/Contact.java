@@ -15,6 +15,10 @@ public class Contact{
         Object obj = makeObject(newContact, (String)pair.getKey(), (Map)pair.getValue());
         newContact._fields.put((String) pair.getKey(), obj);
       }
+      else if(pair.getValue() instanceof List){
+        List list = makeList(newContact, (String)pair.getKey(), (List)pair.getValue());
+        newContact._fields.put((String) pair.getKey(), list);
+      }
       else{
         newContact._fields.put((String) pair.getKey(), pair.getValue());
       }
@@ -24,11 +28,32 @@ public class Contact{
   public static Object makeObject(Contact newContact, String key, Map value){
     if(key.equals("customer")){
       Contact.Customer c = newContact.new Customer();
-      c._fields = value;
+      c = (Customer) makeCustomer(c, key, value);
       return c;
     }
     return null;
-}
+  }
+  public static Object makeCustomer(Customer newCustomer, String key, Map value){
+    Iterator it = value.entrySet().iterator();
+    while(it.hasNext()){
+      Map.Entry pair = (Map.Entry) it.next();
+      newCustomer._fields.put((String) pair.getKey(), pair.getValue());
+    }
+    return newCustomer;
+  }
+  public static List makeList(Contact newContact, String key, List value){
+    List<Object> list = new ArrayList<>();
+    for(int i = 0; i < value.size(); i++) {
+      if(value.get(i) instanceof Map){
+        Object result = makeObject(newContact, key, (Map) value.get(i));
+        list.add(result);
+      }
+      else{
+        list.add(value.get(i));
+      }
+    }
+    return list;
+  }
   public String toJSON(){return _fields.toString();}
 
   public String getFirst_name(){return (String) _fields.get("first_name");}
