@@ -63,9 +63,22 @@ public class Nest{
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
-      newStudent_Facts._fields.put((String) pair.getKey(), pair.getValue());
+      if(pair.getKey().toString().equals("level")){
+        Students.Student_Facts.Level l = newStudent_Facts.new Level();
+        l = (Students.Student_Facts.Level) makeLevel(l, (String) pair.getKey(), (Map) pair.getValue());
+        newStudent_Facts._fields.put((String) pair.getKey(), l);
+      }
+      else newStudent_Facts._fields.put((String) pair.getKey(), pair.getValue());
     }
     return newStudent_Facts;
+  }
+  public static Object makeLevel(Students.Student_Facts.Level newLevel, String key, Map value){
+    Iterator it = value.entrySet().iterator();
+    while(it.hasNext()){
+      Map.Entry pair = (Map.Entry) it.next();
+      newLevel._fields.put((String) pair.getKey(), pair.getValue());
+    }
+    return newLevel;
   }
   public static List makeList(Nest newNest, String key, List value){
     List<Object> list = new ArrayList<>();
@@ -126,9 +139,28 @@ public class Nest{
       public int getNumber(){return (int) _fields.get("Number");}
       public void setNumber(int Number){_fields.put("Number", Number);}
 
-      public String getLevel(){return (String) _fields.get("level");}
-      public void setLevel(String level){_fields.put("level", level);}
+      public Level getLevel(){return (Level) _fields.get("level");}
+      public void setLevel(Level level){_fields.put("level", level);}
 
+      public class Level{
+        private Map<String, Object> _fields = new HashMap<String, Object>();
+
+        public String toJSON(){return _fields.toString();}
+
+        public int getFreshmen(){return (int) _fields.get("Freshmen");}
+        public void setFreshmen(int Freshmen){_fields.put("Freshmen", Freshmen);}
+
+        public int getSophomore(){return (int) _fields.get("Sophomore");}
+        public void setSophomore(int Sophomore){_fields.put("Sophomore", Sophomore);}
+
+        public int getJunior(){return (int) _fields.get("Junior");}
+        public void setJunior(int Junior){_fields.put("Junior", Junior);}
+
+        public int getSenior(){return (int) _fields.get("Senior");}
+        public void setSenior(int Senior){_fields.put("Senior", Senior);}
+
+
+      }
 
     }
 

@@ -20,7 +20,7 @@ function generateAll(classname, jschema){
   if(counter == 0){
     String += indent + generateParse(classname, 0);
     String += indent + generateInner(classname, parsed_schema);
-    String += generateInnerObjects(classname, parsed_schema);
+    String += generateInnerObjects(classname, parsed_schema, "");
     String += generateInnerList(classname, parsed_schema);
   }
   String += indent + generateToJson() + "\n";
@@ -128,28 +128,48 @@ function generateInner(classname, parsed_schema){
   return String;
 }
 
-function generateInnerObjects(classname, parsed_schema){
+function generateInnerObjects(classname, parsed_schema, prefix){
  var String = "";
- var prefix = "";
   for(var key in parsed_schema){
     if((!isArray(parsed_schema[key]) && isObject(parsed_schema[key]))){
-      String += generateEachObject(key, parsed_schema[key], "");
+    if(prefix == ""){
+      prefix += capitalize(key);
+    }
+    else{
+      prefix += "." + capitalize(key);
+    }
+      String += generateEachObject(key, parsed_schema[key], prefix);
       for(var innerkey in parsed_schema[key]){
         if((!isArray(parsed_schema[key][innerkey]) && isObject(parsed_schema[key][innerkey]))){
-          prefix += key + ".";
+          if(prefix == ""){
+            prefix = key + "." + capitalize(innerkey);
+          }
+          else{
+            prefix += "." + capitalize(innerkey);
+          }
           String += generateEachObject(innerkey, parsed_schema[key][innerkey], prefix);
+          String += generateInnerObjects(innerkey, parsed_schema[key][innerkey], prefix);
+        }
+        if(prefix.indexOf(".") !== -1 ){
+          prefix = prefix.substring(prefix.indexOf(".") + 1);
+        }
+        else{
+          prefix = "";
         }
       }
     }
     else if(isArray(parsed_schema[key]) && isObject(parsed_schema[key][0])){
-      String += generateEachObject(key, parsed_schema[key][0], "");
+      prefix += capitalize(key);
+      String += generateEachObject(key, parsed_schema[key][0], prefix);
       for(var innerkey in parsed_schema[key][0]){
         if((!isArray(parsed_schema[key][0][innerkey]) && isObject(parsed_schema[key][0][innerkey]))){
-          prefix += key + ".";
+          prefix += "." + capitalize(innerkey);
           String += generateEachObject(innerkey, parsed_schema[key][0][innerkey], prefix);
         }
+        prefix = "";
       }
     }
+
   }
   return String;
 }
@@ -157,12 +177,7 @@ function generateInnerObjects(classname, parsed_schema){
 function generateEachObject(classname, Map, prefix){
   var simple = true;
   var newName = "new" + capitalize(classname);
-  if(prefix != ""){
-    var String = indent + "public static Object make" + capitalize(classname) + "(" + prefix + capitalize(classname) + " " + newName + ", String key, Map value){\n";
-  }
-  else{
-    var String = indent + "public static Object make" + capitalize(classname) + "(" + capitalize(classname) + " " + newName + ", String key, Map value){\n";
-  }
+  var String = indent + "public static Object make" + capitalize(classname) + "(" + prefix + " " + newName + ", String key, Map value){\n";
   indent += "  ";
   String += indent + "Iterator it = value.entrySet().iterator();\n";
   String += indent + "while(it.hasNext()){\n";
@@ -174,8 +189,8 @@ function generateEachObject(classname, Map, prefix){
       simple = false;
       String += indent + "if(pair.getKey().toString().equals(\"" + key + "\")){\n";
       indent += "  ";
-      String += indent + capitalize(classname) + "." + key +  " " + key.charAt(0) + " = " + newName + ".new " + key + "();\n";
-      String += indent + key.charAt(0) + " = (" + capitalize(classname) + "." + key + ") make" + key + "(" + key.charAt(0) + ", (String) pair.getKey(), (Map) pair.getValue());\n";
+      String += indent + prefix + "." +capitalize(key) +  " " + key.charAt(0) + " = " + newName + ".new " + capitalize(key) + "();\n";
+      String += indent + key.charAt(0) + " = (" + prefix + "." + capitalize(key) + ") make" + capitalize(key) + "(" + key.charAt(0) + ", (String) pair.getKey(), (Map) pair.getValue());\n";
       String += indent + newName + "._fields.put((String) pair.getKey(), " + key.charAt(0) + ");\n";
       indent = indent.slice(0, indent.length() - 2);
       String += indent + "}\n";

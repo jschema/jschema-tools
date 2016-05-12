@@ -9,7 +9,12 @@
     "Type" : "High School",
     "Student_Facts" : {
       "Number" : 2154,
-      "level"  : "Freshmen"
+      "level"  : {
+        "Freshmen" : 1,
+        "Sophomore": 2,
+        "Junior" : 3,
+        "Senior" : 4
+      }
     }
   }
 }

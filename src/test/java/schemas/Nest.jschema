@@ -9,7 +9,12 @@
       "Type" : "@string",
       "Student_Facts" : {
         "Number" : "@int",
-        "level"  : "@string"
+        "level"  : {
+          "Freshmen" : "@int",
+          "Sophomore" : "@int",
+          "Junior" : "@int",
+          "Senior" : "@int"
+        }
       }
     }
 }
