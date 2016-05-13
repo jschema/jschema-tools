@@ -22,7 +22,6 @@ public class EndToEndJavaTests
     Basic b = Basic.parse(loadFile("/samples/basic.json"));
     Assert.assertEquals("Bill", b.getName());
     Assert.assertEquals(29, b.getAge());
-
     b.setAge(30);
     Assert.assertEquals(30, b.getAge());
 
@@ -35,7 +34,7 @@ public class EndToEndJavaTests
     Assert.assertEquals("Bill", c.getFirst_name());
     Assert.assertEquals("Bill@2.com", c.getEmails().get(1));
     //System.out.print(c.toJSON());
-    Assert.assertEquals( "FRIEND" , c.getType());
+//    Assert.assertEquals( "FRIEND" , c.getType());
     Assert.assertEquals("{name=NOTBill, age=31}", c.getCustomer().toJSON());
     Assert.assertEquals("NOTBill", c.getCustomer().getName());
 
@@ -48,11 +47,20 @@ public class EndToEndJavaTests
     Assert.assertEquals("College Park High", n.getName());
     Assert.assertEquals("Pleasant Hill", n.getSchool().getCity());
     Assert.assertEquals("High School", n.getStudents().getType());
-    //Assert.assertEquals("Freshmen", n.getStudents().getStudent_Facts().getLevel());
+    Assert.assertEquals(1, n.getStudents().getStudent_Facts().getLevel().getFreshmen());
 
   }
 
+  @Test
+  public void listsTest() throws IOException{
 
+    Lists l = (Lists) Lists.parse(loadFile("/samples/lists.json"));
+    Assert.assertEquals("father", l.getFamily().get(0));
+    Assert.assertEquals("sucks", l.getScience().get(0).getProgramming().getJava());
+    Assert.assertEquals("Statistical",l.getScience().get(0).getPhysics().getMechanics().get(1));
+    Assert.assertEquals(105,l.getScience().get(0).getMath().getCalculus());
+
+  }
   @Test
   public void Invoice2Test() throws IOException
   {

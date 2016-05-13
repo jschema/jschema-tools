@@ -31,7 +31,7 @@ public class Nest{
       S = (School) makeSchool(S, key, value);
       return S;
     }
-    if(key.equals("Students")){
+    else if(key.equals("Students")){
       Nest.Students S = newNest.new Students();
       S = (Students) makeStudents(S, key, value);
       return S;
@@ -95,8 +95,8 @@ public class Nest{
   }
   public String toJSON(){return _fields.toString();}
 
-  public String getName(){return (String) _fields.get("Name");}
-  public void setName(String Name){_fields.put("Name", Name);}
+  public java.lang.String getName(){return (java.lang.String) _fields.get("Name");}
+  public void setName(java.lang.String Name){_fields.put("Name", Name);}
 
   public int getAge(){return (int) _fields.get("age");}
   public void setAge(int age){_fields.put("age", age);}
@@ -109,11 +109,11 @@ public class Nest{
 
     public String toJSON(){return _fields.toString();}
 
-    public String getSchool_Name(){return (String) _fields.get("School_Name");}
-    public void setSchool_Name(String School_Name){_fields.put("School_Name", School_Name);}
+    public java.lang.String getSchool_Name(){return (java.lang.String) _fields.get("School_Name");}
+    public void setSchool_Name(java.lang.String School_Name){_fields.put("School_Name", School_Name);}
 
-    public String getCity(){return (String) _fields.get("City");}
-    public void setCity(String City){_fields.put("City", City);}
+    public java.lang.String getCity(){return (java.lang.String) _fields.get("City");}
+    public void setCity(java.lang.String City){_fields.put("City", City);}
 
 
   }
@@ -125,8 +125,8 @@ public class Nest{
 
     public String toJSON(){return _fields.toString();}
 
-    public String getType(){return (String) _fields.get("Type");}
-    public void setType(String Type){_fields.put("Type", Type);}
+    public java.lang.String getType(){return (java.lang.String) _fields.get("Type");}
+    public void setType(java.lang.String Type){_fields.put("Type", Type);}
 
     public Student_Facts getStudent_Facts(){return (Student_Facts) _fields.get("Student_Facts");}
     public void setStudent_Facts(Student_Facts Student_Facts){_fields.put("Student_Facts", Student_Facts);}

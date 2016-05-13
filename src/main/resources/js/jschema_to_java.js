@@ -40,7 +40,8 @@ function generateAll(classname, jschema){
       else if(isObject(parsed_schema[key][0])){
         counter++;
         String += generateAll(capitalize(key), parsed_schema[key][0]);
-      }
+       }
+
     }
     String += generateEnums(capitalize(key), parsed_schema[key]);              //generate Enums, if present
   }
@@ -108,12 +109,19 @@ function generateParse(classname, static){
 
 
 function generateInner(classname, parsed_schema){
+  var count = 0;
   var newName = "new" + capitalize(classname);
   var String = "public static Object makeObject(" + classname + " " + newName + ", String key, Map value){\n";
   indent += "  ";
   for(var key in parsed_schema){
     if((!isArray(parsed_schema[key]) && isObject(parsed_schema[key])) || (isArray(parsed_schema[key]) && isObject(parsed_schema[key][0]))){
-      String += indent + "if(key.equals(\"" + key + "\")){\n";
+      if(count === 0){
+        String += indent + "if(key.equals(\"" + key + "\")){\n";
+      }
+      else{
+        String += indent + "else if(key.equals(\"" + key + "\")){\n";
+      }
+      count++;
       indent += "  ";
       String += indent + classname + "." + capitalize(key) + " " + key.charAt(0) + " = " + newName + ".new " + capitalize(key) + "();\n";
       String += indent + key.charAt(0) + " = (" + capitalize(key) + ") " + "make" + capitalize(key) + "(" + key.charAt(0) + ", " + "key, value);\n";
@@ -159,11 +167,21 @@ function generateInnerObjects(classname, parsed_schema, prefix){
       }
     }
     else if(isArray(parsed_schema[key]) && isObject(parsed_schema[key][0])){
-      prefix += capitalize(key);
+      if(prefix == ""){
+        prefix = capitalize(key);
+      }
+      else{
+        prefix += "." + capitalize(key);
+      }
       String += generateEachObject(key, parsed_schema[key][0], prefix);
       for(var innerkey in parsed_schema[key][0]){
         if((!isArray(parsed_schema[key][0][innerkey]) && isObject(parsed_schema[key][0][innerkey]))){
-          prefix += "." + capitalize(innerkey);
+          if(prefix == ""){
+            prefix = key + "." + capitalize(innerkey);
+          }
+          else{
+            prefix += "." + capitalize(innerkey);
+          }
           String += generateEachObject(innerkey, parsed_schema[key][0][innerkey], prefix);
         }
         prefix = "";
@@ -175,6 +193,7 @@ function generateInnerObjects(classname, parsed_schema, prefix){
 }
 
 function generateEachObject(classname, Map, prefix){
+  var count = 0;
   var simple = true;
   var newName = "new" + capitalize(classname);
   var String = indent + "public static Object make" + capitalize(classname) + "(" + prefix + " " + newName + ", String key, Map value){\n";
@@ -187,7 +206,13 @@ function generateEachObject(classname, Map, prefix){
   for(var key in Map){
     if((!isArray(Map[key]) && isObject(Map[key]))){
       simple = false;
-      String += indent + "if(pair.getKey().toString().equals(\"" + key + "\")){\n";
+      if(count == 0){
+        String += indent + "if(pair.getKey().toString().equals(\"" + key + "\")){\n";
+      }
+      else {
+        String += indent + "else if(pair.getKey().toString().equals(\"" + key + "\")){\n";
+      }
+      count++;
       indent += "  ";
       String += indent + prefix + "." +capitalize(key) +  " " + key.charAt(0) + " = " + newName + ".new " + capitalize(key) + "();\n";
       String += indent + key.charAt(0) + " = (" + prefix + "." + capitalize(key) + ") make" + capitalize(key) + "(" + key.charAt(0) + ", (String) pair.getKey(), (Map) pair.getValue());\n";
@@ -304,7 +329,7 @@ function CheckArrays(key, value){
 
 function CheckString(value){
     switch(value){
-      case "@string" : return "String";
+      case "@string" : return "java.lang.String";
                        break;
       case "@boolean": return "boolean";
                        break;
