@@ -87,13 +87,16 @@ public class Lists{
         Object result = makeObject(newLists, key, (Map) value.get(i));
         list.add(result);
       }
+      else if(value.get(i) instanceof List){
+        List result = makeList(newLists, key, (List) value.get(i));
+        list.add(result);      }
       else{
         list.add(value.get(i));
       }
     }
     return list;
   }
-  public String toJSON(){return _fields.toString();}
+  public java.lang.String toJSON(){return _fields.toString();}
 
   public List<java.lang.String> getFamily(){return (List<java.lang.String>) _fields.get("Family");}
   public void setFamily(List<java.lang.String> Family){_fields.put("Family", Family);}
@@ -104,21 +107,17 @@ public class Lists{
   public class Science{
     private Map<String, Object> _fields = new HashMap<String, Object>();
 
-    public String toJSON(){return _fields.toString();}
-
     public Math getMath(){return (Math) _fields.get("Math");}
     public void setMath(Math Math){_fields.put("Math", Math);}
 
     public class Math{
       private Map<String, Object> _fields = new HashMap<String, Object>();
 
-      public String toJSON(){return _fields.toString();}
+      public java.lang.Integer getAlgebra(){return (java.lang.Integer) _fields.get("Algebra");}
+      public void setAlgebra(java.lang.Integer Algebra){_fields.put("Algebra", Algebra);}
 
-      public int getAlgebra(){return (int) _fields.get("Algebra");}
-      public void setAlgebra(int Algebra){_fields.put("Algebra", Algebra);}
-
-      public int getCalculus(){return (int) _fields.get("Calculus");}
-      public void setCalculus(int Calculus){_fields.put("Calculus", Calculus);}
+      public java.lang.Integer getCalculus(){return (java.lang.Integer) _fields.get("Calculus");}
+      public void setCalculus(java.lang.Integer Calculus){_fields.put("Calculus", Calculus);}
 
 
     }
@@ -127,8 +126,6 @@ public class Lists{
 
     public class Physics{
       private Map<String, Object> _fields = new HashMap<String, Object>();
-
-      public String toJSON(){return _fields.toString();}
 
       public List<java.lang.String> getMechanics(){return (List<java.lang.String>) _fields.get("Mechanics");}
       public void setMechanics(List<java.lang.String> Mechanics){_fields.put("Mechanics", Mechanics);}
@@ -143,8 +140,6 @@ public class Lists{
 
     public class Programming{
       private Map<String, Object> _fields = new HashMap<String, Object>();
-
-      public String toJSON(){return _fields.toString();}
 
       public java.lang.String getJava(){return (java.lang.String) _fields.get("Java");}
       public void setJava(java.lang.String Java){_fields.put("Java", Java);}

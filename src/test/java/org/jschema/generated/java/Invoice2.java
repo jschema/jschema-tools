@@ -100,34 +100,37 @@ public class Invoice2{
         Object result = makeObject(newInvoice2, key, (Map) value.get(i));
         list.add(result);
       }
+      else if(value.get(i) instanceof List){
+        List result = makeList(newInvoice2, key, (List) value.get(i));
+        list.add(result);      }
       else{
         list.add(value.get(i));
       }
     }
     return list;
   }
-  public String toJSON(){return _fields.toString();}
+  public java.lang.String toJSON(){return _fields.toString();}
 
   public java.lang.String getId(){return (java.lang.String) _fields.get("id");}
   public void setId(java.lang.String id){_fields.put("id", id);}
 
-  public Date getCreated_at(){return (Date) _fields.get("created_at");}
-  public void setCreated_at(Date created_at){_fields.put("created_at", created_at);}
+  public java.util.Date getCreated_at(){return (java.util.Date) _fields.get("created_at");}
+  public void setCreated_at(java.util.Date created_at){_fields.put("created_at", created_at);}
 
-  public Date getUpdated_at(){return (Date) _fields.get("updated_at");}
-  public void setUpdated_at(Date updated_at){_fields.put("updated_at", updated_at);}
+  public java.util.Date getUpdated_at(){return (java.util.Date) _fields.get("updated_at");}
+  public void setUpdated_at(java.util.Date updated_at){_fields.put("updated_at", updated_at);}
 
   public java.lang.String getEmail(){return (java.lang.String) _fields.get("email");}
   public void setEmail(java.lang.String email){_fields.put("email", email);}
 
-  public double getTotal(){return (double) _fields.get("total");}
-  public void setTotal(double total){_fields.put("total", total);}
+  public java.lang.Double getTotal(){return (java.lang.Double) _fields.get("total");}
+  public void setTotal(java.lang.Double total){_fields.put("total", total);}
 
-  public double getSubtotal(){return (double) _fields.get("subtotal");}
-  public void setSubtotal(double subtotal){_fields.put("subtotal", subtotal);}
+  public java.lang.Double getSubtotal(){return (java.lang.Double) _fields.get("subtotal");}
+  public void setSubtotal(java.lang.Double subtotal){_fields.put("subtotal", subtotal);}
 
-  public double getTax(){return (double) _fields.get("tax");}
-  public void setTax(double tax){_fields.put("tax", tax);}
+  public java.lang.Double getTax(){return (java.lang.Double) _fields.get("tax");}
+  public void setTax(java.lang.Double tax){_fields.put("tax", tax);}
 
   public java.lang.String getNotes(){return (java.lang.String) _fields.get("notes");}
   public void setNotes(java.lang.String notes){_fields.put("notes", notes);}
@@ -137,8 +140,6 @@ public class Invoice2{
 
   public class Customer{
     private Map<String, Object> _fields = new HashMap<String, Object>();
-
-    public String toJSON(){return _fields.toString();}
 
     public java.lang.String getEmail(){return (java.lang.String) _fields.get("email");}
     public void setEmail(java.lang.String email){_fields.put("email", email);}
@@ -156,8 +157,6 @@ public class Invoice2{
 
   public class To_address{
     private Map<String, Object> _fields = new HashMap<String, Object>();
-
-    public String toJSON(){return _fields.toString();}
 
     public java.lang.String getAddress1(){return (java.lang.String) _fields.get("address1");}
     public void setAddress1(java.lang.String address1){_fields.put("address1", address1);}
@@ -182,8 +181,6 @@ public class Invoice2{
   public class Line_items{
     private Map<String, Object> _fields = new HashMap<String, Object>();
 
-    public String toJSON(){return _fields.toString();}
-
     public java.lang.String getSku(){return (java.lang.String) _fields.get("sku");}
     public void setSku(java.lang.String sku){_fields.put("sku", sku);}
 
@@ -193,14 +190,14 @@ public class Invoice2{
     public java.lang.String getNotes(){return (java.lang.String) _fields.get("notes");}
     public void setNotes(java.lang.String notes){_fields.put("notes", notes);}
 
-    public int getCount(){return (int) _fields.get("count");}
-    public void setCount(int count){_fields.put("count", count);}
+    public java.lang.Integer getCount(){return (java.lang.Integer) _fields.get("count");}
+    public void setCount(java.lang.Integer count){_fields.put("count", count);}
 
-    public double getPrice(){return (double) _fields.get("price");}
-    public void setPrice(double price){_fields.put("price", price);}
+    public java.lang.Double getPrice(){return (java.lang.Double) _fields.get("price");}
+    public void setPrice(java.lang.Double price){_fields.put("price", price);}
 
-    public double getSubtotal(){return (double) _fields.get("subtotal");}
-    public void setSubtotal(double subtotal){_fields.put("subtotal", subtotal);}
+    public java.lang.Double getSubtotal(){return (java.lang.Double) _fields.get("subtotal");}
+    public void setSubtotal(java.lang.Double subtotal){_fields.put("subtotal", subtotal);}
 
 
   }
@@ -213,18 +210,14 @@ public class Invoice2{
   public class Nest{
     private Map<String, Object> _fields = new HashMap<String, Object>();
 
-    public String toJSON(){return _fields.toString();}
-
     public Nested getNested(){return (Nested) _fields.get("Nested");}
     public void setNested(Nested Nested){_fields.put("Nested", Nested);}
 
     public class Nested{
       private Map<String, Object> _fields = new HashMap<String, Object>();
 
-      public String toJSON(){return _fields.toString();}
-
-      public int getInnerVal(){return (int) _fields.get("InnerVal");}
-      public void setInnerVal(int InnerVal){_fields.put("InnerVal", InnerVal);}
+      public java.lang.Integer getInnerVal(){return (java.lang.Integer) _fields.get("InnerVal");}
+      public void setInnerVal(java.lang.Integer InnerVal){_fields.put("InnerVal", InnerVal);}
 
 
     }

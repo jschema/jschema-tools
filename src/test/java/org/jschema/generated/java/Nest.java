@@ -87,27 +87,28 @@ public class Nest{
         Object result = makeObject(newNest, key, (Map) value.get(i));
         list.add(result);
       }
+      else if(value.get(i) instanceof List){
+        List result = makeList(newNest, key, (List) value.get(i));
+        list.add(result);      }
       else{
         list.add(value.get(i));
       }
     }
     return list;
   }
-  public String toJSON(){return _fields.toString();}
+  public java.lang.String toJSON(){return _fields.toString();}
 
   public java.lang.String getName(){return (java.lang.String) _fields.get("Name");}
   public void setName(java.lang.String Name){_fields.put("Name", Name);}
 
-  public int getAge(){return (int) _fields.get("age");}
-  public void setAge(int age){_fields.put("age", age);}
+  public java.lang.Integer getAge(){return (java.lang.Integer) _fields.get("age");}
+  public void setAge(java.lang.Integer age){_fields.put("age", age);}
 
   public School getSchool(){return (School) _fields.get("School");}
   public void setSchool(School School){_fields.put("School", School);}
 
   public class School{
     private Map<String, Object> _fields = new HashMap<String, Object>();
-
-    public String toJSON(){return _fields.toString();}
 
     public java.lang.String getSchool_Name(){return (java.lang.String) _fields.get("School_Name");}
     public void setSchool_Name(java.lang.String School_Name){_fields.put("School_Name", School_Name);}
@@ -123,8 +124,6 @@ public class Nest{
   public class Students{
     private Map<String, Object> _fields = new HashMap<String, Object>();
 
-    public String toJSON(){return _fields.toString();}
-
     public java.lang.String getType(){return (java.lang.String) _fields.get("Type");}
     public void setType(java.lang.String Type){_fields.put("Type", Type);}
 
@@ -134,10 +133,8 @@ public class Nest{
     public class Student_Facts{
       private Map<String, Object> _fields = new HashMap<String, Object>();
 
-      public String toJSON(){return _fields.toString();}
-
-      public int getNumber(){return (int) _fields.get("Number");}
-      public void setNumber(int Number){_fields.put("Number", Number);}
+      public java.lang.Integer getNumber(){return (java.lang.Integer) _fields.get("Number");}
+      public void setNumber(java.lang.Integer Number){_fields.put("Number", Number);}
 
       public Level getLevel(){return (Level) _fields.get("level");}
       public void setLevel(Level level){_fields.put("level", level);}
@@ -145,19 +142,17 @@ public class Nest{
       public class Level{
         private Map<String, Object> _fields = new HashMap<String, Object>();
 
-        public String toJSON(){return _fields.toString();}
+        public java.lang.Integer getFreshmen(){return (java.lang.Integer) _fields.get("Freshmen");}
+        public void setFreshmen(java.lang.Integer Freshmen){_fields.put("Freshmen", Freshmen);}
 
-        public int getFreshmen(){return (int) _fields.get("Freshmen");}
-        public void setFreshmen(int Freshmen){_fields.put("Freshmen", Freshmen);}
+        public java.lang.Integer getSophomore(){return (java.lang.Integer) _fields.get("Sophomore");}
+        public void setSophomore(java.lang.Integer Sophomore){_fields.put("Sophomore", Sophomore);}
 
-        public int getSophomore(){return (int) _fields.get("Sophomore");}
-        public void setSophomore(int Sophomore){_fields.put("Sophomore", Sophomore);}
+        public java.lang.Integer getJunior(){return (java.lang.Integer) _fields.get("Junior");}
+        public void setJunior(java.lang.Integer Junior){_fields.put("Junior", Junior);}
 
-        public int getJunior(){return (int) _fields.get("Junior");}
-        public void setJunior(int Junior){_fields.put("Junior", Junior);}
-
-        public int getSenior(){return (int) _fields.get("Senior");}
-        public void setSenior(int Senior){_fields.put("Senior", Senior);}
+        public java.lang.Integer getSenior(){return (java.lang.Integer) _fields.get("Senior");}
+        public void setSenior(java.lang.Integer Senior){_fields.put("Senior", Senior);}
 
 
       }

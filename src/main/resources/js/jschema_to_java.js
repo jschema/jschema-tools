@@ -16,17 +16,59 @@ function generateAll(classname, jschema){
   }
   String += indent + generateClass(classname);
   indent += "  ";
-  String += indent + generateField() + "\n";
-  if(counter == 0){
-    String += indent + generateParse(classname, 0);
-    String += indent + generateInner(classname, parsed_schema);
-    String += generateInnerObjects(classname, parsed_schema, "");
-    String += generateInnerList(classname, parsed_schema);
+  if(isArray(parsed_schema)){
+    String += indent + generateListField() + "\n";
   }
-  String += indent + generateToJson() + "\n";
+  else{
+    String += indent + generateField() + "\n";
+  }
+  if(counter == 0){
+
+    if(isArray(parsed_schema)){
+      String += indent + generateParse(classname, 0, true);
+      String += indent + generateInner(classname, parsed_schema[0]);
+      String += generateInnerObjects(classname, parsed_schema[0], "");
+      String += generateInnerList(classname, parsed_schema[0]);
+      String += indent + generateToJson(true) + "\n";
+    }
+    else{
+      String += indent + generateParse(classname,0,  false);
+      String += indent + generateInner(classname, parsed_schema);
+      String += generateInnerObjects(classname, parsed_schema, "");
+      String += generateInnerList(classname, parsed_schema);
+      String += indent + generateToJson(false) + "\n";
+      }
+  }
+
+  if(isArray(parsed_schema)){
+    for(var key in parsed_schema[0]){
+        String += indent + generateGet(key, parsed_schema[0][key], true);
+        String += indent + generateSet(key, parsed_schema[0][key], true) + "\n";
+
+        if(isObject(parsed_schema[0][key]) && !isArray(parsed_schema[0][key])){      //if value is an object
+          counter++;
+          String += generateAll(capitalize(key), parsed_schema[0][key]);
+        }
+        if(isArray(parsed_schema[0][key])){                                       //if value is an array
+          if(isArray(parsed_schema[0][key][0])){
+            counter++;
+            String += generateAll(capitalize(key), parsed_schema[0][key][0]);
+          }
+          else if(isObject(parsed_schema[0][key][0])){
+            counter++;
+            String += generateAll(capitalize(key), parsed_schema[0][key][0]);
+           }
+
+        }
+        String += generateEnums(capitalize(key), parsed_schema[0][key]);              //generate Enums, if present
+      }
+      indent = indent.slice(0, indent.length() - 2);
+      String += "\n" + indent + "}\n";
+    }
+  else{
   for(var key in parsed_schema){
-    String += indent + generateGet(key, parsed_schema[key]);
-    String += indent + generateSet(key, parsed_schema[key]) + "\n";
+    String += indent + generateGet(key, parsed_schema[key], false);
+    String += indent + generateSet(key, parsed_schema[key], false) + "\n";
 
     if(isObject(parsed_schema[key]) && !isArray(parsed_schema[key])){      //if value is an object
       counter++;
@@ -47,6 +89,7 @@ function generateAll(classname, jschema){
   }
   indent = indent.slice(0, indent.length() - 2);
   String += "\n" + indent + "}\n";
+  }
   return String;
 }
 
@@ -60,15 +103,67 @@ function generateField(){
   return String;
 }
 
-function generateParse(classname, static){
+function generateListField(){
+  var String = "private List<Map> _list = new ArrayList();\n";
+  return String;
+}
+
+function generateParse(classname, static, List_Form){
   var newName = "new" + capitalize(classname);
-  if(static == 0){
-    var String = "public static " + classname +  " parse(String jsonString){\n";
-  }
-  else{
-    var String = "public " + classname +  " parse(String jsonString){\n";
-  }
+  var String = "public static " + classname +  " parse(String jsonString){\n";
   indent += "  ";
+
+  if(List_Form === true){
+  String += indent + classname + " " + newName + " = new " + classname + "();\n";
+  String += indent + "List<Object> jsonList = (List) new Parser(jsonString).parse();\n";
+  String += indent + "for(int i = 0; i < jsonList.size(); i++) {\n"
+  indent += "  ";
+
+  String += indent + "if(jsonList.get(i) instanceof Map){\n"
+  indent += "  ";
+  String += indent + "Map<String, Object> innermap = new HashMap<>();\n";
+  String += indent + "Iterator it = ((Map) jsonList.get(i)).entrySet().iterator();\n"
+  String += indent + "while (it.hasNext()){\n";
+  indent += "  "
+  String += indent + "Map.Entry pair = (Map.Entry) it.next();\n";
+  String += indent + "if(pair.getValue() instanceof Map){\n";
+  indent += "  ";
+  String += indent + "Object obj = makeObject(" + newName + ", (String)pair.getKey(), (Map)pair.getValue());\n";
+  String += indent + "innermap.put((String) pair.getKey(), obj);\n";
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+
+  String += indent + "else if(pair.getValue() instanceof List){\n";
+  indent += "  ";
+  String += indent + "List list = makeList(" + newName + ", (String)pair.getKey(), (List)pair.getValue());\n";
+  String += indent + "innermap.put((String) pair.getKey(), list);\n";
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+
+  String += indent + "else{\n";
+  indent += "  ";
+  String += indent + "innermap.put((String) pair.getKey(), pair.getValue());\n";
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + newName + "._list.add(innermap);\n";
+
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+
+  String += indent + "return " + newName + ";\n";
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+
+  }
+  if(List_Form === false){
   String += indent + classname + " " + newName + " = new " + classname + "();\n";
   String += indent + "Map<String, Object> jsonObject = (Map) new Parser(jsonString).parse();\n";
 
@@ -104,6 +199,7 @@ function generateParse(classname, static){
   String += indent + "return " + newName + ";\n";
   indent = indent.slice(0, indent.length() - 2);
   String += indent + "}\n";
+  }
   return String;
 }
 
@@ -251,6 +347,14 @@ function generateInnerList(classname, parsed_schema){
   String += indent + "list.add(result);\n";
   indent = indent.slice(0, indent.length() - 2);
   String += indent + "}\n";
+
+  String += indent + "else if(value.get(i) instanceof List){\n";
+  indent += "  ";
+  String += indent + "List result = makeList(" + newName + ", key, (List) value.get(i));\n";
+  String += indent + "list.add(result);";
+  indent = indent.slice(0, indent.length() - 2);
+  String += indent + "}\n";
+
   String += indent + "else{\n"
   indent += "  ";
   String += indent + "list.add(value.get(i));\n";
@@ -266,23 +370,38 @@ function generateInnerList(classname, parsed_schema){
 }
 
 
-function generateToJson(){
-  var String = "public String toJSON(){return _fields.toString();}\n";
+function generateToJson(List_Form){
+  if(List_Form === false){
+    var String = "public java.lang.String toJSON(){return _fields.toString();}\n";
+  }
+  else{
+    var String = "public java.lang.String toJSON(){return _list.toString();}\n";
+  }
   return String;
 }
 
-function generateGet(key, value){
+function generateGet(key, value, List_Form){
     var String = "";
-    var indent = "  ";
     String += "public ";
     String += CheckValue(key, value);
-    String += " get" + capitalize(key) + "(){return (" + CheckValue(key, value)  + ") _fields.get(\"" + key + "\");}\n";
+    if(List_Form === false){
+      String += " get" + capitalize(key) + "(){return (" + CheckValue(key, value)  + ") _fields.get(\"" + key + "\");}\n";
+    }
+    else{
+      String += " get" + capitalize(key) + "(int index){return (" + CheckValue(key, value)  + ") _list.get(index).get(\"" + key + "\");}\n";
+    }
+
     return String;
 }
 
-function generateSet(key, value){
+function generateSet(key, value, List_Form){
     var String = "";
-    String += "public void set" + capitalize(key) + "(" + CheckValue(key, value) + " " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
+    if(List_Form === false){
+      String += "public void set" + capitalize(key) + "(" + CheckValue(key, value) + " " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
+    }
+    else{
+      String += "public void set" + capitalize(key) + "(int index, " + CheckValue(key, value) + " " + key + "){_list.get(index).put(\"" + key + "\", " + key +  ");}\n";
+    }
     return String;
 }
 
@@ -331,17 +450,17 @@ function CheckString(value){
     switch(value){
       case "@string" : return "java.lang.String";
                        break;
-      case "@boolean": return "boolean";
+      case "@boolean": return "java.lang.Boolean";
                        break;
-      case "@date"   : return "Date";
+      case "@date"   : return "java.util.Date";
                        break;
-      case "@uri"    : return "uri";
+      case "@uri"    : return "java.net.URI";
                        break;
-      case "@int"    : return "int";
+      case "@int"    : return "java.lang.Integer";
                        break;
-      case "@number" : return "double";
+      case "@number" : return "java.lang.Double";
                        break;
-      default        : return "BAD";
+      default        : return "*";
     }
 }
 
@@ -349,7 +468,7 @@ function getListType(key, value){
   var type = "";
   if(isArray(value)){
     type = CheckString(value[0]);
-    if(type === "BAD"){             //for enum-like arrays
+    if(type === "*"){             //for enum-like arrays
       return key;
     }
     return type;

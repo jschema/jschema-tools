@@ -21,10 +21,28 @@ public class EndToEndJavaTests
 
     Basic b = Basic.parse(loadFile("/samples/basic.json"));
     Assert.assertEquals("Bill", b.getName());
-    Assert.assertEquals(29, b.getAge());
+    Assert.assertEquals(29, (int) b.getAge());
     b.setAge(30);
-    Assert.assertEquals(30, b.getAge());
+    Assert.assertEquals(30,  (int)b.getAge());
 
+  }
+
+  @Test
+  public void BasicArrayTest() throws IOException{
+    BasicArray b = BasicArray.parse(loadFile("/samples/basicArray.json"));
+    Assert.assertEquals("Bill", b.getName(0));
+    b.setName(1, "NOT Charlie");
+    Assert.assertEquals("NOT Charlie", b.getName(1));
+  }
+
+  @Test
+  public void NestedArrayTest() throws IOException{
+    NestedArray n = NestedArray.parse(loadFile("/samples/NestedArray.json"));
+    Assert.assertEquals("Michael", n.getName(0));
+    Assert.assertEquals(214, (int) n.getAddress(0).getNumber());
+    Assert.assertEquals("Peach St.", n.getAddress(1).getStreet());
+    n.getAddress(1).setNumber(8000);
+    Assert.assertEquals(8000, (int) n.getAddress(1).getNumber());
   }
 
   @Test
@@ -33,9 +51,6 @@ public class EndToEndJavaTests
     Contact c = Contact.parse(loadFile("/samples/Contact.json"));
     Assert.assertEquals("Bill", c.getFirst_name());
     Assert.assertEquals("Bill@2.com", c.getEmails().get(1));
-    //System.out.print(c.toJSON());
-//    Assert.assertEquals( "FRIEND" , c.getType());
-    Assert.assertEquals("{name=NOTBill, age=31}", c.getCustomer().toJSON());
     Assert.assertEquals("NOTBill", c.getCustomer().getName());
 
   }
@@ -47,7 +62,7 @@ public class EndToEndJavaTests
     Assert.assertEquals("College Park High", n.getName());
     Assert.assertEquals("Pleasant Hill", n.getSchool().getCity());
     Assert.assertEquals("High School", n.getStudents().getType());
-    Assert.assertEquals(1, n.getStudents().getStudent_Facts().getLevel().getFreshmen());
+    Assert.assertEquals(1, (int) n.getStudents().getStudent_Facts().getLevel().getFreshmen());
 
   }
 
@@ -58,7 +73,7 @@ public class EndToEndJavaTests
     Assert.assertEquals("father", l.getFamily().get(0));
     Assert.assertEquals("sucks", l.getScience().get(0).getProgramming().getJava());
     Assert.assertEquals("Statistical",l.getScience().get(0).getPhysics().getMechanics().get(1));
-    Assert.assertEquals(105,l.getScience().get(0).getMath().getCalculus());
+    Assert.assertEquals(105, (int) l.getScience().get(0).getMath().getCalculus());
 
   }
   @Test
@@ -70,13 +85,10 @@ public class EndToEndJavaTests
     Assert.assertEquals("joe@test.com", i.getEmail());
     Assert.assertEquals(105.00, i.getTotal());
     Assert.assertEquals("joe@test.com", i.getCustomer().getEmail());
-    Assert.assertEquals("{last_name=Blow, first_name=Joe, email=joe@test.com}", i.getCustomer().toJSON());
-    Assert.assertEquals("{zip=12345, country=USA, address1=123 Main Street, state=MS}", i.getTo_address().toJSON());
-    Assert.assertEquals("{price=5.00, subtotal=50, count=10, description=The Best Darn Widgets Around, sku=S12T-Wid-GG}",i.getLine_items().get( 0 ).toJSON());
     Assert.assertEquals("S12T-Wid-GG", i.getLine_items().get( 0 ).getSku());
     Assert.assertEquals("fred", i.getList().get(0));
     Assert.assertEquals("PLEASE", i.getNest().getNonNested());
-    Assert.assertEquals(16, i.getNest().getNested().getInnerVal());
+    Assert.assertEquals(16, (int) i.getNest().getNested().getInnerVal());
 
   }
 

@@ -35,19 +35,22 @@ public class Basic{
         Object result = makeObject(newBasic, key, (Map) value.get(i));
         list.add(result);
       }
+      else if(value.get(i) instanceof List){
+        List result = makeList(newBasic, key, (List) value.get(i));
+        list.add(result);      }
       else{
         list.add(value.get(i));
       }
     }
     return list;
   }
-  public String toJSON(){return _fields.toString();}
+  public java.lang.String toJSON(){return _fields.toString();}
 
   public java.lang.String getName(){return (java.lang.String) _fields.get("name");}
   public void setName(java.lang.String name){_fields.put("name", name);}
 
-  public int getAge(){return (int) _fields.get("age");}
-  public void setAge(int age){_fields.put("age", age);}
+  public java.lang.Integer getAge(){return (java.lang.Integer) _fields.get("age");}
+  public void setAge(java.lang.Integer age){_fields.put("age", age);}
 
 
 }

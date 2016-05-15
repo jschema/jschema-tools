@@ -48,13 +48,16 @@ public class Contact{
         Object result = makeObject(newContact, key, (Map) value.get(i));
         list.add(result);
       }
+      else if(value.get(i) instanceof List){
+        List result = makeList(newContact, key, (List) value.get(i));
+        list.add(result);      }
       else{
         list.add(value.get(i));
       }
     }
     return list;
   }
-  public String toJSON(){return _fields.toString();}
+  public java.lang.String toJSON(){return _fields.toString();}
 
   public java.lang.String getFirst_name(){return (java.lang.String) _fields.get("first_name");}
   public void setFirst_name(java.lang.String first_name){_fields.put("first_name", first_name);}
@@ -62,8 +65,8 @@ public class Contact{
   public java.lang.String getLast_name(){return (java.lang.String) _fields.get("last_name");}
   public void setLast_name(java.lang.String last_name){_fields.put("last_name", last_name);}
 
-  public int getAge(){return (int) _fields.get("age");}
-  public void setAge(int age){_fields.put("age", age);}
+  public java.lang.Integer getAge(){return (java.lang.Integer) _fields.get("age");}
+  public void setAge(java.lang.Integer age){_fields.put("age", age);}
 
   public List<Type> getType(){return (List<Type>) _fields.get("type");}
   public void setType(List<Type> type){_fields.put("type", type);}
@@ -83,13 +86,11 @@ public class Contact{
   public class Customer{
     private Map<String, Object> _fields = new HashMap<String, Object>();
 
-    public String toJSON(){return _fields.toString();}
-
     public java.lang.String getName(){return (java.lang.String) _fields.get("name");}
     public void setName(java.lang.String name){_fields.put("name", name);}
 
-    public int getAge(){return (int) _fields.get("age");}
-    public void setAge(int age){_fields.put("age", age);}
+    public java.lang.Integer getAge(){return (java.lang.Integer) _fields.get("age");}
+    public void setAge(java.lang.Integer age){_fields.put("age", age);}
 
 
   }
