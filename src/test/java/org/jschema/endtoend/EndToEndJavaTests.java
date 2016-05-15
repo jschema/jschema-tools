@@ -50,6 +50,7 @@ public class EndToEndJavaTests
 
     Contact c = Contact.parse(loadFile("/samples/Contact.json"));
     Assert.assertEquals("Bill", c.getFirst_name());
+    Assert.assertEquals("[friend, customer, supplier]", c.getType());
     Assert.assertEquals("Bill@2.com", c.getEmails().get(1));
     Assert.assertEquals("NOTBill", c.getCustomer().getName());
 
@@ -58,7 +59,7 @@ public class EndToEndJavaTests
   @Test
   public void NestTest() throws IOException{
 
-    Nest n = (Nest) Nest.parse(loadFile("/samples/Nest.json"));
+    Nest n = Nest.parse(loadFile("/samples/Nest.json"));
     Assert.assertEquals("College Park High", n.getName());
     Assert.assertEquals("Pleasant Hill", n.getSchool().getCity());
     Assert.assertEquals("High School", n.getStudents().getType());

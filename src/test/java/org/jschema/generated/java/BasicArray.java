@@ -26,37 +26,37 @@ public class BasicArray{
             innermap.put((String) pair.getKey(), pair.getValue());
           }
         }
-      newBasicArray._list.add(innermap);
+        newBasicArray._list.add(innermap);
+      }
     }
+    return newBasicArray;
   }
-  return newBasicArray;
-}
-public static Object makeObject(BasicArray newBasicArray, String key, Map value){
-  return null;
-}
-public static List makeList(BasicArray newBasicArray, String key, List value){
-  List<Object> list = new ArrayList<>();
-  for(int i = 0; i < value.size(); i++) {
-    if(value.get(i) instanceof Map){
-      Object result = makeObject(newBasicArray, key, (Map) value.get(i));
-      list.add(result);
-    }
-    else if(value.get(i) instanceof List){
-      List result = makeList(newBasicArray, key, (List) value.get(i));
-      list.add(result);    }
-    else{
-      list.add(value.get(i));
-    }
+  public static Object makeObject(BasicArray newBasicArray, String key, Map value){
+    return null;
   }
-  return list;
-}
-public java.lang.String toJSON(){return _list.toString();}
+  public static List makeList(BasicArray newBasicArray, String key, List value){
+    List<Object> list = new ArrayList<>();
+    for(int i = 0; i < value.size(); i++) {
+      if(value.get(i) instanceof Map){
+        Object result = makeObject(newBasicArray, key, (Map) value.get(i));
+        list.add(result);
+      }
+      else if(value.get(i) instanceof List){
+        List result = makeList(newBasicArray, key, (List) value.get(i));
+        list.add(result);      }
+      else{
+        list.add(value.get(i));
+      }
+    }
+    return list;
+  }
+  public java.lang.String toJSON(){return _list.toString();}
 
-public java.lang.String getName(int index){return (java.lang.String) _list.get(index).get("name");}
-public void setName(int index, java.lang.String name){_list.get(index).put("name", name);}
+  public java.lang.String getName(int index){return (java.lang.String) _list.get(index).get("name");}
+  public void setName(int index, java.lang.String name){_list.get(index).put("name", name);}
 
-public java.lang.Integer getAge(int index){return (java.lang.Integer) _list.get(index).get("age");}
-public void setAge(int index, java.lang.Integer age){_list.get(index).put("age", age);}
+  public java.lang.Integer getAge(int index){return (java.lang.Integer) _list.get(index).get("age");}
+  public void setAge(int index, java.lang.Integer age){_list.get(index).put("age", age);}
 
 
 }

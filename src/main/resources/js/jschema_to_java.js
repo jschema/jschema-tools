@@ -149,7 +149,6 @@ function generateParse(classname, static, List_Form){
   indent = indent.slice(0, indent.length() - 2);
   String += indent + "}\n";
 
-  indent = indent.slice(0, indent.length() - 2);
   String += indent + newName + "._list.add(innermap);\n";
 
   indent = indent.slice(0, indent.length() - 2);
