@@ -31,7 +31,7 @@ public class NestedArray{
     }
     return newNestedArray;
   }
-  public static Object makeObject(NestedArray newNestedArray, String key, Map value){
+  private static Object makeObject(NestedArray newNestedArray, String key, Map value){
     if(key.equals("Address")){
       NestedArray.Address A = newNestedArray.new Address();
       A = (Address) makeAddress(A, key, value);
@@ -39,7 +39,7 @@ public class NestedArray{
     }
     return null;
   }
-  public static Object makeAddress(Address newAddress, String key, Map value){
+  private static Object makeAddress(Address newAddress, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -47,7 +47,7 @@ public class NestedArray{
     }
     return newAddress;
   }
-  public static List makeList(NestedArray newNestedArray, String key, List value){
+  private static List makeList(NestedArray newNestedArray, String key, List value){
     List<Object> list = new ArrayList<>();
     for(int i = 0; i < value.size(); i++) {
       if(value.get(i) instanceof Map){

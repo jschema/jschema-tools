@@ -25,7 +25,7 @@ public class Nest{
     }
     return newNest;
   }
-  public static Object makeObject(Nest newNest, String key, Map value){
+  private static Object makeObject(Nest newNest, String key, Map value){
     if(key.equals("School")){
       Nest.School S = newNest.new School();
       S = (School) makeSchool(S, key, value);
@@ -38,7 +38,7 @@ public class Nest{
     }
     return null;
   }
-  public static Object makeSchool(School newSchool, String key, Map value){
+  private static Object makeSchool(School newSchool, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -46,7 +46,7 @@ public class Nest{
     }
     return newSchool;
   }
-  public static Object makeStudents(Students newStudents, String key, Map value){
+  private static Object makeStudents(Students newStudents, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -59,7 +59,7 @@ public class Nest{
     }
     return newStudents;
   }
-  public static Object makeStudent_Facts(Students.Student_Facts newStudent_Facts, String key, Map value){
+  private static Object makeStudent_Facts(Students.Student_Facts newStudent_Facts, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -72,7 +72,7 @@ public class Nest{
     }
     return newStudent_Facts;
   }
-  public static Object makeLevel(Students.Student_Facts.Level newLevel, String key, Map value){
+  private static Object makeLevel(Students.Student_Facts.Level newLevel, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -80,7 +80,7 @@ public class Nest{
     }
     return newLevel;
   }
-  public static List makeList(Nest newNest, String key, List value){
+  private static List makeList(Nest newNest, String key, List value){
     List<Object> list = new ArrayList<>();
     for(int i = 0; i < value.size(); i++) {
       if(value.get(i) instanceof Map){

@@ -31,10 +31,10 @@ public class BasicArray{
     }
     return newBasicArray;
   }
-  public static Object makeObject(BasicArray newBasicArray, String key, Map value){
+  private static Object makeObject(BasicArray newBasicArray, String key, Map value){
     return null;
   }
-  public static List makeList(BasicArray newBasicArray, String key, List value){
+  private static List makeList(BasicArray newBasicArray, String key, List value){
     List<Object> list = new ArrayList<>();
     for(int i = 0; i < value.size(); i++) {
       if(value.get(i) instanceof Map){

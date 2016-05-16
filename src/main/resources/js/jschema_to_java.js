@@ -206,7 +206,7 @@ function generateParse(classname, static, List_Form){
 function generateInner(classname, parsed_schema){
   var count = 0;
   var newName = "new" + capitalize(classname);
-  var String = "public static Object makeObject(" + classname + " " + newName + ", String key, Map value){\n";
+  var String = "private static Object makeObject(" + classname + " " + newName + ", String key, Map value){\n";
   indent += "  ";
   for(var key in parsed_schema){
     if((!isArray(parsed_schema[key]) && isObject(parsed_schema[key])) || (isArray(parsed_schema[key]) && isObject(parsed_schema[key][0]))){
@@ -291,7 +291,7 @@ function generateEachObject(classname, Map, prefix){
   var count = 0;
   var simple = true;
   var newName = "new" + capitalize(classname);
-  var String = indent + "public static Object make" + capitalize(classname) + "(" + prefix + " " + newName + ", String key, Map value){\n";
+  var String = indent + "private static Object make" + capitalize(classname) + "(" + prefix + " " + newName + ", String key, Map value){\n";
   indent += "  ";
   String += indent + "Iterator it = value.entrySet().iterator();\n";
   String += indent + "while(it.hasNext()){\n";
@@ -335,7 +335,7 @@ function generateEachObject(classname, Map, prefix){
 
 function generateInnerList(classname, parsed_schema){
   var newName = "new" + capitalize(classname);
-  String = indent + "public static List makeList(" + classname + " " +  newName + ", String key, List value){\n";
+  String = indent + "private static List makeList(" + classname + " " +  newName + ", String key, List value){\n";
   indent += "  ";
   String += indent + "List<Object> list = new ArrayList<>();\n";
   String += indent + "for(int i = 0; i < value.size(); i++) {\n";

@@ -25,7 +25,7 @@ public class Invoice2{
     }
     return newInvoice2;
   }
-  public static Object makeObject(Invoice2 newInvoice2, String key, Map value){
+  private static Object makeObject(Invoice2 newInvoice2, String key, Map value){
     if(key.equals("customer")){
       Invoice2.Customer c = newInvoice2.new Customer();
       c = (Customer) makeCustomer(c, key, value);
@@ -48,7 +48,7 @@ public class Invoice2{
     }
     return null;
   }
-  public static Object makeCustomer(Customer newCustomer, String key, Map value){
+  private static Object makeCustomer(Customer newCustomer, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -56,7 +56,7 @@ public class Invoice2{
     }
     return newCustomer;
   }
-  public static Object makeTo_address(To_address newTo_address, String key, Map value){
+  private static Object makeTo_address(To_address newTo_address, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -64,7 +64,7 @@ public class Invoice2{
     }
     return newTo_address;
   }
-  public static Object makeLine_items(Line_items newLine_items, String key, Map value){
+  private static Object makeLine_items(Line_items newLine_items, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -72,7 +72,7 @@ public class Invoice2{
     }
     return newLine_items;
   }
-  public static Object makeNest(Nest newNest, String key, Map value){
+  private static Object makeNest(Nest newNest, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -85,7 +85,7 @@ public class Invoice2{
     }
     return newNest;
   }
-  public static Object makeNested(Nest.Nested newNested, String key, Map value){
+  private static Object makeNested(Nest.Nested newNested, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -93,7 +93,7 @@ public class Invoice2{
     }
     return newNested;
   }
-  public static List makeList(Invoice2 newInvoice2, String key, List value){
+  private static List makeList(Invoice2 newInvoice2, String key, List value){
     List<Object> list = new ArrayList<>();
     for(int i = 0; i < value.size(); i++) {
       if(value.get(i) instanceof Map){

@@ -25,7 +25,7 @@ public class Lists{
     }
     return newLists;
   }
-  public static Object makeObject(Lists newLists, String key, Map value){
+  private static Object makeObject(Lists newLists, String key, Map value){
     if(key.equals("Science")){
       Lists.Science S = newLists.new Science();
       S = (Science) makeScience(S, key, value);
@@ -33,7 +33,7 @@ public class Lists{
     }
     return null;
   }
-  public static Object makeScience(Science newScience, String key, Map value){
+  private static Object makeScience(Science newScience, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -56,7 +56,7 @@ public class Lists{
     }
     return newScience;
   }
-  public static Object makeMath(Science.Math newMath, String key, Map value){
+  private static Object makeMath(Science.Math newMath, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -64,7 +64,7 @@ public class Lists{
     }
     return newMath;
   }
-  public static Object makePhysics(Science.Physics newPhysics, String key, Map value){
+  private static Object makePhysics(Science.Physics newPhysics, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -72,7 +72,7 @@ public class Lists{
     }
     return newPhysics;
   }
-  public static Object makeProgramming(Science.Programming newProgramming, String key, Map value){
+  private static Object makeProgramming(Science.Programming newProgramming, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -80,7 +80,7 @@ public class Lists{
     }
     return newProgramming;
   }
-  public static List makeList(Lists newLists, String key, List value){
+  private static List makeList(Lists newLists, String key, List value){
     List<Object> list = new ArrayList<>();
     for(int i = 0; i < value.size(); i++) {
       if(value.get(i) instanceof Map){

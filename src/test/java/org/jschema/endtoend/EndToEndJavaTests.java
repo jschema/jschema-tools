@@ -18,13 +18,11 @@ public class EndToEndJavaTests
 
   @Test
   public void BasicTest() throws IOException{
-
     Basic b = Basic.parse(loadFile("/samples/basic.json"));
     Assert.assertEquals("Bill", b.getName());
     Assert.assertEquals(29, (int) b.getAge());
     b.setAge(30);
     Assert.assertEquals(30,  (int)b.getAge());
-
   }
 
   @Test

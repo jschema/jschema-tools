@@ -25,10 +25,10 @@ public class Basic{
     }
     return newBasic;
   }
-  public static Object makeObject(Basic newBasic, String key, Map value){
+  private static Object makeObject(Basic newBasic, String key, Map value){
     return null;
   }
-  public static List makeList(Basic newBasic, String key, List value){
+  private static List makeList(Basic newBasic, String key, List value){
     List<Object> list = new ArrayList<>();
     for(int i = 0; i < value.size(); i++) {
       if(value.get(i) instanceof Map){

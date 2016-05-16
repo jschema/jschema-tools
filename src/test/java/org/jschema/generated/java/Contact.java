@@ -25,7 +25,7 @@ public class Contact{
     }
     return newContact;
   }
-  public static Object makeObject(Contact newContact, String key, Map value){
+  private static Object makeObject(Contact newContact, String key, Map value){
     if(key.equals("customer")){
       Contact.Customer c = newContact.new Customer();
       c = (Customer) makeCustomer(c, key, value);
@@ -33,7 +33,7 @@ public class Contact{
     }
     return null;
   }
-  public static Object makeCustomer(Customer newCustomer, String key, Map value){
+  private static Object makeCustomer(Customer newCustomer, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
@@ -41,7 +41,7 @@ public class Contact{
     }
     return newCustomer;
   }
-  public static List makeList(Contact newContact, String key, List value){
+  private static List makeList(Contact newContact, String key, List value){
     List<Object> list = new ArrayList<>();
     for(int i = 0; i < value.size(); i++) {
       if(value.get(i) instanceof Map){
