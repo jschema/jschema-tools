@@ -52,11 +52,11 @@ public class BasicArray{
   }
   public java.lang.String toJSON(){return _list.toString();}
 
-  public java.lang.String getName(int index){return (java.lang.String) _list.get(index).get("name");}
-  public void setName(int index, java.lang.String name){_list.get(index).put("name", name);}
+  public java.lang.String getname(int index){return (java.lang.String) _list.get(index).get("name");}
+  public void setname(int index, java.lang.String name){_list.get(index).put("name", name);}
 
-  public java.lang.Integer getAge(int index){return (java.lang.Integer) _list.get(index).get("age");}
-  public void setAge(int index, java.lang.Integer age){_list.get(index).put("age", age);}
+  public java.lang.Integer getage(int index){return (java.lang.Integer) _list.get(index).get("age");}
+  public void setage(int index, java.lang.Integer age){_list.get(index).put("age", age);}
 
 
 }

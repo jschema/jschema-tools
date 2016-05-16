@@ -59,17 +59,17 @@ public class Contact{
   }
   public java.lang.String toJSON(){return _fields.toString();}
 
-  public java.lang.String getFirst_name(){return (java.lang.String) _fields.get("first_name");}
-  public void setFirst_name(java.lang.String first_name){_fields.put("first_name", first_name);}
+  public java.lang.String getfirst_name(){return (java.lang.String) _fields.get("first_name");}
+  public void setfirst_name(java.lang.String first_name){_fields.put("first_name", first_name);}
 
-  public java.lang.String getLast_name(){return (java.lang.String) _fields.get("last_name");}
-  public void setLast_name(java.lang.String last_name){_fields.put("last_name", last_name);}
+  public java.lang.String getlast_name(){return (java.lang.String) _fields.get("last_name");}
+  public void setlast_name(java.lang.String last_name){_fields.put("last_name", last_name);}
 
-  public java.lang.Integer getAge(){return (java.lang.Integer) _fields.get("age");}
-  public void setAge(java.lang.Integer age){_fields.put("age", age);}
+  public java.lang.Integer getage(){return (java.lang.Integer) _fields.get("age");}
+  public void setage(java.lang.Integer age){_fields.put("age", age);}
 
-  public List<java.lang.Object> getType(){return (List<java.lang.Object>) _fields.get("type");}
-  public void setType(List<java.lang.Object> type){_fields.put("type", type);}
+  public List<Type> gettype(){return (List<Type>) _fields.get("type");}
+  public void settype(List<Type> type){_fields.put("type", type);}
 
   public enum Type{
     FRIEND,
@@ -77,20 +77,20 @@ public class Contact{
     SUPPLIER
   }
 
-  public List<java.lang.String> getEmails(){return (List<java.lang.String>) _fields.get("emails");}
-  public void setEmails(List<java.lang.String> emails){_fields.put("emails", emails);}
+  public List<java.lang.String> getemails(){return (List<java.lang.String>) _fields.get("emails");}
+  public void setemails(List<java.lang.String> emails){_fields.put("emails", emails);}
 
-  public Customer getCustomer(){return (Customer) _fields.get("customer");}
-  public void setCustomer(Customer customer){_fields.put("customer", customer);}
+  public Customer getcustomer(){return (Customer) _fields.get("customer");}
+  public void setcustomer(Customer customer){_fields.put("customer", customer);}
 
   public class Customer{
     private Map<String, Object> _fields = new HashMap<String, Object>();
 
-    public java.lang.String getName(){return (java.lang.String) _fields.get("name");}
-    public void setName(java.lang.String name){_fields.put("name", name);}
+    public java.lang.String getname(){return (java.lang.String) _fields.get("name");}
+    public void setname(java.lang.String name){_fields.put("name", name);}
 
-    public java.lang.Integer getAge(){return (java.lang.Integer) _fields.get("age");}
-    public void setAge(java.lang.Integer age){_fields.put("age", age);}
+    public java.lang.Integer getage(){return (java.lang.Integer) _fields.get("age");}
+    public void setage(java.lang.Integer age){_fields.put("age", age);}
 
 
   }

@@ -250,8 +250,8 @@ function generateInnerObjects(classname, parsed_schema, prefix){
           else{
             prefix += "." + capitalize(innerkey);
           }
-          String += generateInnerObjects(innerkey, parsed_schema[key][innerkey], prefix);
           String += generateEachObject(innerkey, parsed_schema[key][innerkey], prefix);
+          String += generateInnerObjects(innerkey, parsed_schema[key][innerkey], prefix);
         }
         if(prefix.indexOf(".") !== -1 ){
           prefix = prefix.substring(prefix.indexOf(".") + 1);
@@ -383,14 +383,11 @@ function generateGet(key, value, List_Form){
     var String = "";
     String += "public ";
     String += CheckValue(key, value);
-          if(key[0].toUpperCase() == key[0]){
-            key = key.toUpperCase();
-          }
     if(List_Form === false){
-      String += " get" + capitalize(key) + "(){return (" + CheckValue(key, value)  + ") _fields.get(\"" + key + "\");}\n";
+      String += " get" + key + "(){return (" + CheckValue(key, value)  + ") _fields.get(\"" + key + "\");}\n";
     }
     else{
-      String += " get" + capitalize(key) + "(int index){return (" + CheckValue(key, value)  + ") _list.get(index).get(\"" + key + "\");}\n";
+      String += " get" + key + "(int index){return (" + CheckValue(key, value)  + ") _list.get(index).get(\"" + key + "\");}\n";
     }
 
     return String;
@@ -398,14 +395,11 @@ function generateGet(key, value, List_Form){
 
 function generateSet(key, value, List_Form){
     var String = "";
-          if(key[0].toUpperCase() == key[0]){
-            key = key.toUpperCase();
-          }
     if(List_Form === false){
-      String += "public void set" + capitalize(key) + "(" + CheckValue(key, value) + " " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
+      String += "public void set" + key + "(" + CheckValue(key, value) + " " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
     }
     else{
-      String += "public void set" + capitalize(key) + "(int index, " + CheckValue(key, value) + " " + key + "){_list.get(index).put(\"" + key + "\", " + key +  ");}\n";
+      String += "public void set" + key + "(int index, " + CheckValue(key, value) + " " + key + "){_list.get(index).put(\"" + key + "\", " + key +  ");}\n";
     }
     return String;
 }
@@ -473,7 +467,7 @@ function getListType(key, value){
   var type = "";
   if(isArray(value)){
     type = CheckString(value[0]);
-    if(type === "*"){             //for enum-like arrays
+    if(type == "java.lang.Object"){             //for enum-like arrays
       return key;
     }
     return type;

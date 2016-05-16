@@ -46,11 +46,11 @@ public class Basic{
   }
   public java.lang.String toJSON(){return _fields.toString();}
 
-  public java.lang.String getName(){return (java.lang.String) _fields.get("name");}
-  public void setName(java.lang.String name){_fields.put("name", name);}
+  public java.lang.String getname(){return (java.lang.String) _fields.get("name");}
+  public void setname(java.lang.String name){_fields.put("name", name);}
 
-  public java.lang.Integer getAge(){return (java.lang.Integer) _fields.get("age");}
-  public void setAge(java.lang.Integer age){_fields.put("age", age);}
+  public java.lang.Integer getage(){return (java.lang.Integer) _fields.get("age");}
+  public void setage(java.lang.Integer age){_fields.put("age", age);}
 
 
 }

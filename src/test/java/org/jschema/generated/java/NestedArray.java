@@ -78,29 +78,29 @@ public class NestedArray{
   }
   public java.lang.String toJSON(){return _list.toString();}
 
-  public java.lang.String getName(int index){return (java.lang.String) _list.get(index).get("name");}
-  public void setName(int index, java.lang.String name){_list.get(index).put("name", name);}
+  public java.lang.String getname(int index){return (java.lang.String) _list.get(index).get("name");}
+  public void setname(int index, java.lang.String name){_list.get(index).put("name", name);}
 
-  public Address getADDRESS(int index){return (ADDRESS) _list.get(index).get("ADDRESS");}
-  public void setADDRESS(int index, ADDRESS ADDRESS){_list.get(index).put("ADDRESS", ADDRESS);}
+  public Address getAddress(int index){return (Address) _list.get(index).get("Address");}
+  public void setAddress(int index, Address Address){_list.get(index).put("Address", Address);}
 
   public class Address{
     private Map<String, Object> _fields = new HashMap<String, Object>();
 
-    public java.lang.Integer getNumber(){return (java.lang.Integer) _fields.get("number");}
-    public void setNumber(java.lang.Integer number){_fields.put("number", number);}
+    public java.lang.Integer getnumber(){return (java.lang.Integer) _fields.get("number");}
+    public void setnumber(java.lang.Integer number){_fields.put("number", number);}
 
-    public java.lang.String getSTREET(){return (java.lang.String) _fields.get("STREET");}
-    public void setSTREET(java.lang.String STREET){_fields.put("STREET", STREET);}
+    public java.lang.String getStreet(){return (java.lang.String) _fields.get("Street");}
+    public void setStreet(java.lang.String Street){_fields.put("Street", Street);}
 
-    public Town getTOWN(){return (TOWN) _fields.get("TOWN");}
-    public void setTOWN(TOWN TOWN){_fields.put("TOWN", TOWN);}
+    public Town getTown(){return (Town) _fields.get("Town");}
+    public void setTown(Town Town){_fields.put("Town", Town);}
 
     public class Town{
       private Map<String, Object> _fields = new HashMap<String, Object>();
 
-      public java.lang.String getTOWN_NAME(){return (java.lang.String) _fields.get("TOWN_NAME");}
-      public void setTOWN_NAME(java.lang.String TOWN_NAME){_fields.put("TOWN_NAME", TOWN_NAME);}
+      public java.lang.String getTown_Name(){return (java.lang.String) _fields.get("Town_Name");}
+      public void setTown_Name(java.lang.String Town_Name){_fields.put("Town_Name", Town_Name);}
 
 
     }
