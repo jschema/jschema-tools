@@ -59,6 +59,14 @@ public class Nest{
     }
     return newStudents;
   }
+  private static Object makeLevel(Students.Student_Facts.Level newLevel, String key, Map value){
+    Iterator it = value.entrySet().iterator();
+    while(it.hasNext()){
+      Map.Entry pair = (Map.Entry) it.next();
+      newLevel._fields.put((String) pair.getKey(), pair.getValue());
+    }
+    return newLevel;
+  }
   private static Object makeStudent_Facts(Students.Student_Facts newStudent_Facts, String key, Map value){
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
@@ -71,14 +79,6 @@ public class Nest{
       else newStudent_Facts._fields.put((String) pair.getKey(), pair.getValue());
     }
     return newStudent_Facts;
-  }
-  private static Object makeLevel(Students.Student_Facts.Level newLevel, String key, Map value){
-    Iterator it = value.entrySet().iterator();
-    while(it.hasNext()){
-      Map.Entry pair = (Map.Entry) it.next();
-      newLevel._fields.put((String) pair.getKey(), pair.getValue());
-    }
-    return newLevel;
   }
   private static List makeList(Nest newNest, String key, List value){
     List<Object> list = new ArrayList<>();
@@ -98,43 +98,43 @@ public class Nest{
   }
   public java.lang.String toJSON(){return _fields.toString();}
 
-  public java.lang.String getName(){return (java.lang.String) _fields.get("Name");}
-  public void setName(java.lang.String Name){_fields.put("Name", Name);}
+  public java.lang.String getNAME(){return (java.lang.String) _fields.get("NAME");}
+  public void setNAME(java.lang.String NAME){_fields.put("NAME", NAME);}
 
   public java.lang.Integer getAge(){return (java.lang.Integer) _fields.get("age");}
   public void setAge(java.lang.Integer age){_fields.put("age", age);}
 
-  public School getSchool(){return (School) _fields.get("School");}
-  public void setSchool(School School){_fields.put("School", School);}
+  public School getSCHOOL(){return (SCHOOL) _fields.get("SCHOOL");}
+  public void setSCHOOL(SCHOOL SCHOOL){_fields.put("SCHOOL", SCHOOL);}
 
   public class School{
     private Map<String, Object> _fields = new HashMap<String, Object>();
 
-    public java.lang.String getSchool_Name(){return (java.lang.String) _fields.get("School_Name");}
-    public void setSchool_Name(java.lang.String School_Name){_fields.put("School_Name", School_Name);}
+    public java.lang.String getSCHOOL_NAME(){return (java.lang.String) _fields.get("SCHOOL_NAME");}
+    public void setSCHOOL_NAME(java.lang.String SCHOOL_NAME){_fields.put("SCHOOL_NAME", SCHOOL_NAME);}
 
-    public java.lang.String getCity(){return (java.lang.String) _fields.get("City");}
-    public void setCity(java.lang.String City){_fields.put("City", City);}
+    public java.lang.String getCITY(){return (java.lang.String) _fields.get("CITY");}
+    public void setCITY(java.lang.String CITY){_fields.put("CITY", CITY);}
 
 
   }
-  public Students getStudents(){return (Students) _fields.get("Students");}
-  public void setStudents(Students Students){_fields.put("Students", Students);}
+  public Students getSTUDENTS(){return (STUDENTS) _fields.get("STUDENTS");}
+  public void setSTUDENTS(STUDENTS STUDENTS){_fields.put("STUDENTS", STUDENTS);}
 
   public class Students{
     private Map<String, Object> _fields = new HashMap<String, Object>();
 
-    public java.lang.String getType(){return (java.lang.String) _fields.get("Type");}
-    public void setType(java.lang.String Type){_fields.put("Type", Type);}
+    public java.lang.String getTYPE(){return (java.lang.String) _fields.get("TYPE");}
+    public void setTYPE(java.lang.String TYPE){_fields.put("TYPE", TYPE);}
 
-    public Student_Facts getStudent_Facts(){return (Student_Facts) _fields.get("Student_Facts");}
-    public void setStudent_Facts(Student_Facts Student_Facts){_fields.put("Student_Facts", Student_Facts);}
+    public Student_Facts getSTUDENT_FACTS(){return (STUDENT_FACTS) _fields.get("STUDENT_FACTS");}
+    public void setSTUDENT_FACTS(STUDENT_FACTS STUDENT_FACTS){_fields.put("STUDENT_FACTS", STUDENT_FACTS);}
 
     public class Student_Facts{
       private Map<String, Object> _fields = new HashMap<String, Object>();
 
-      public java.lang.Integer getNumber(){return (java.lang.Integer) _fields.get("Number");}
-      public void setNumber(java.lang.Integer Number){_fields.put("Number", Number);}
+      public java.lang.Integer getNUMBER(){return (java.lang.Integer) _fields.get("NUMBER");}
+      public void setNUMBER(java.lang.Integer NUMBER){_fields.put("NUMBER", NUMBER);}
 
       public Level getLevel(){return (Level) _fields.get("level");}
       public void setLevel(Level level){_fields.put("level", level);}
@@ -142,17 +142,17 @@ public class Nest{
       public class Level{
         private Map<String, Object> _fields = new HashMap<String, Object>();
 
-        public java.lang.Integer getFreshmen(){return (java.lang.Integer) _fields.get("Freshmen");}
-        public void setFreshmen(java.lang.Integer Freshmen){_fields.put("Freshmen", Freshmen);}
+        public java.lang.Integer getFRESHMEN(){return (java.lang.Integer) _fields.get("FRESHMEN");}
+        public void setFRESHMEN(java.lang.Integer FRESHMEN){_fields.put("FRESHMEN", FRESHMEN);}
 
-        public java.lang.Integer getSophomore(){return (java.lang.Integer) _fields.get("Sophomore");}
-        public void setSophomore(java.lang.Integer Sophomore){_fields.put("Sophomore", Sophomore);}
+        public java.lang.Integer getSOPHOMORE(){return (java.lang.Integer) _fields.get("SOPHOMORE");}
+        public void setSOPHOMORE(java.lang.Integer SOPHOMORE){_fields.put("SOPHOMORE", SOPHOMORE);}
 
-        public java.lang.Integer getJunior(){return (java.lang.Integer) _fields.get("Junior");}
-        public void setJunior(java.lang.Integer Junior){_fields.put("Junior", Junior);}
+        public java.lang.Integer getJUNIOR(){return (java.lang.Integer) _fields.get("JUNIOR");}
+        public void setJUNIOR(java.lang.Integer JUNIOR){_fields.put("JUNIOR", JUNIOR);}
 
-        public java.lang.Integer getSenior(){return (java.lang.Integer) _fields.get("Senior");}
-        public void setSenior(java.lang.Integer Senior){_fields.put("Senior", Senior);}
+        public java.lang.Integer getSENIOR(){return (java.lang.Integer) _fields.get("SENIOR");}
+        public void setSENIOR(java.lang.Integer SENIOR){_fields.put("SENIOR", SENIOR);}
 
 
       }

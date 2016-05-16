@@ -55,7 +55,7 @@ public class RunGenerators
   {
     for( File file : root.listFiles() )
     {
-      if( file.getName().endsWith( ".jschema" ) && !file.getName().equals("invoice.jschema") )
+      if( file.getName().endsWith( ".jschema" ) && !file.getName().equals("Invoice.jschema") )
       {
         files.add(file);        
       }

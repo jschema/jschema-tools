@@ -175,8 +175,8 @@ public class Invoice2{
 
 
   }
-  public List<Line_items> getLine_items(){return (List<Line_items>) _fields.get("line_items");}
-  public void setLine_items(List<Line_items> line_items){_fields.put("line_items", line_items);}
+  public List<java.lang.Object> getLine_items(){return (List<java.lang.Object>) _fields.get("line_items");}
+  public void setLine_items(List<java.lang.Object> line_items){_fields.put("line_items", line_items);}
 
   public class Line_items{
     private Map<String, Object> _fields = new HashMap<String, Object>();
@@ -204,25 +204,25 @@ public class Invoice2{
   public List<java.lang.String> getList(){return (List<java.lang.String>) _fields.get("list");}
   public void setList(List<java.lang.String> list){_fields.put("list", list);}
 
-  public Nest getNest(){return (Nest) _fields.get("Nest");}
-  public void setNest(Nest Nest){_fields.put("Nest", Nest);}
+  public Nest getNEST(){return (NEST) _fields.get("NEST");}
+  public void setNEST(NEST NEST){_fields.put("NEST", NEST);}
 
   public class Nest{
     private Map<String, Object> _fields = new HashMap<String, Object>();
 
-    public Nested getNested(){return (Nested) _fields.get("Nested");}
-    public void setNested(Nested Nested){_fields.put("Nested", Nested);}
+    public Nested getNESTED(){return (NESTED) _fields.get("NESTED");}
+    public void setNESTED(NESTED NESTED){_fields.put("NESTED", NESTED);}
 
     public class Nested{
       private Map<String, Object> _fields = new HashMap<String, Object>();
 
-      public java.lang.Integer getInnerVal(){return (java.lang.Integer) _fields.get("InnerVal");}
-      public void setInnerVal(java.lang.Integer InnerVal){_fields.put("InnerVal", InnerVal);}
+      public java.lang.Integer getINNERVAL(){return (java.lang.Integer) _fields.get("INNERVAL");}
+      public void setINNERVAL(java.lang.Integer INNERVAL){_fields.put("INNERVAL", INNERVAL);}
 
 
     }
-    public java.lang.String getNonNested(){return (java.lang.String) _fields.get("NonNested");}
-    public void setNonNested(java.lang.String NonNested){_fields.put("NonNested", NonNested);}
+    public java.lang.String getNONNESTED(){return (java.lang.String) _fields.get("NONNESTED");}
+    public void setNONNESTED(java.lang.String NONNESTED){_fields.put("NONNESTED", NONNESTED);}
 
 
   }

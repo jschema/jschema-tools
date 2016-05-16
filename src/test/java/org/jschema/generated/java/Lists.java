@@ -98,51 +98,51 @@ public class Lists{
   }
   public java.lang.String toJSON(){return _fields.toString();}
 
-  public List<java.lang.String> getFamily(){return (List<java.lang.String>) _fields.get("Family");}
-  public void setFamily(List<java.lang.String> Family){_fields.put("Family", Family);}
+  public List<java.lang.String> getFAMILY(){return (List<java.lang.String>) _fields.get("FAMILY");}
+  public void setFAMILY(List<java.lang.String> FAMILY){_fields.put("FAMILY", FAMILY);}
 
-  public List<Science> getScience(){return (List<Science>) _fields.get("Science");}
-  public void setScience(List<Science> Science){_fields.put("Science", Science);}
+  public List<java.lang.Object> getSCIENCE(){return (List<java.lang.Object>) _fields.get("SCIENCE");}
+  public void setSCIENCE(List<java.lang.Object> SCIENCE){_fields.put("SCIENCE", SCIENCE);}
 
   public class Science{
     private Map<String, Object> _fields = new HashMap<String, Object>();
 
-    public Math getMath(){return (Math) _fields.get("Math");}
-    public void setMath(Math Math){_fields.put("Math", Math);}
+    public Math getMATH(){return (MATH) _fields.get("MATH");}
+    public void setMATH(MATH MATH){_fields.put("MATH", MATH);}
 
     public class Math{
       private Map<String, Object> _fields = new HashMap<String, Object>();
 
-      public java.lang.Integer getAlgebra(){return (java.lang.Integer) _fields.get("Algebra");}
-      public void setAlgebra(java.lang.Integer Algebra){_fields.put("Algebra", Algebra);}
+      public java.lang.Integer getALGEBRA(){return (java.lang.Integer) _fields.get("ALGEBRA");}
+      public void setALGEBRA(java.lang.Integer ALGEBRA){_fields.put("ALGEBRA", ALGEBRA);}
 
-      public java.lang.Integer getCalculus(){return (java.lang.Integer) _fields.get("Calculus");}
-      public void setCalculus(java.lang.Integer Calculus){_fields.put("Calculus", Calculus);}
+      public java.lang.Integer getCALCULUS(){return (java.lang.Integer) _fields.get("CALCULUS");}
+      public void setCALCULUS(java.lang.Integer CALCULUS){_fields.put("CALCULUS", CALCULUS);}
 
 
     }
-    public Physics getPhysics(){return (Physics) _fields.get("Physics");}
-    public void setPhysics(Physics Physics){_fields.put("Physics", Physics);}
+    public Physics getPHYSICS(){return (PHYSICS) _fields.get("PHYSICS");}
+    public void setPHYSICS(PHYSICS PHYSICS){_fields.put("PHYSICS", PHYSICS);}
 
     public class Physics{
       private Map<String, Object> _fields = new HashMap<String, Object>();
 
-      public List<java.lang.String> getMechanics(){return (List<java.lang.String>) _fields.get("Mechanics");}
-      public void setMechanics(List<java.lang.String> Mechanics){_fields.put("Mechanics", Mechanics);}
+      public List<java.lang.String> getMECHANICS(){return (List<java.lang.String>) _fields.get("MECHANICS");}
+      public void setMECHANICS(List<java.lang.String> MECHANICS){_fields.put("MECHANICS", MECHANICS);}
 
-      public java.lang.String getOther(){return (java.lang.String) _fields.get("Other");}
-      public void setOther(java.lang.String Other){_fields.put("Other", Other);}
+      public java.lang.String getOTHER(){return (java.lang.String) _fields.get("OTHER");}
+      public void setOTHER(java.lang.String OTHER){_fields.put("OTHER", OTHER);}
 
 
     }
-    public Programming getProgramming(){return (Programming) _fields.get("Programming");}
-    public void setProgramming(Programming Programming){_fields.put("Programming", Programming);}
+    public Programming getPROGRAMMING(){return (PROGRAMMING) _fields.get("PROGRAMMING");}
+    public void setPROGRAMMING(PROGRAMMING PROGRAMMING){_fields.put("PROGRAMMING", PROGRAMMING);}
 
     public class Programming{
       private Map<String, Object> _fields = new HashMap<String, Object>();
 
-      public java.lang.String getJava(){return (java.lang.String) _fields.get("Java");}
-      public void setJava(java.lang.String Java){_fields.put("Java", Java);}
+      public java.lang.String getJAVA(){return (java.lang.String) _fields.get("JAVA");}
+      public void setJAVA(java.lang.String JAVA){_fields.put("JAVA", JAVA);}
 
       public java.lang.String getC(){return (java.lang.String) _fields.get("C");}
       public void setC(java.lang.String C){_fields.put("C", C);}

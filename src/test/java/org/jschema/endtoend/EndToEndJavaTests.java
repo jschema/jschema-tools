@@ -15,7 +15,7 @@ import java.util.Date;
 
 public class EndToEndJavaTests
 {
-
+/*
   @Test
   public void BasicTest() throws IOException{
     Basic b = Basic.parse(loadFile("/samples/basic.json"));
@@ -90,7 +90,7 @@ public class EndToEndJavaTests
     Assert.assertEquals(16, (int) i.getNest().getNested().getInnerVal());
 
   }
-
+*/
   private String loadFile( String path ) throws IOException
   {
     File resource = new File("src/test/java" + path );

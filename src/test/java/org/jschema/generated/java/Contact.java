@@ -68,8 +68,8 @@ public class Contact{
   public java.lang.Integer getAge(){return (java.lang.Integer) _fields.get("age");}
   public void setAge(java.lang.Integer age){_fields.put("age", age);}
 
-  public List<Type> getType(){return (List<Type>) _fields.get("type");}
-  public void setType(List<Type> type){_fields.put("type", type);}
+  public List<java.lang.Object> getType(){return (List<java.lang.Object>) _fields.get("type");}
+  public void setType(List<java.lang.Object> type){_fields.put("type", type);}
 
   public enum Type{
     FRIEND,

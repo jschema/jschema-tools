@@ -235,23 +235,23 @@ function generateInnerObjects(classname, parsed_schema, prefix){
  var String = "";
   for(var key in parsed_schema){
     if((!isArray(parsed_schema[key]) && isObject(parsed_schema[key]))){
-    if(prefix == ""){
-      prefix += capitalize(key);
-    }
-    else{
-      prefix += "." + capitalize(key);
-    }
+      if(prefix === ""){
+        prefix += capitalize(key);
+      }
+      else{
+        prefix += "." + capitalize(key);
+      }
       String += generateEachObject(key, parsed_schema[key], prefix);
       for(var innerkey in parsed_schema[key]){
         if((!isArray(parsed_schema[key][innerkey]) && isObject(parsed_schema[key][innerkey]))){
-          if(prefix == ""){
-            prefix = key + "." + capitalize(innerkey);
+          if(prefix === ""){
+            prefix += capitalize(key) + "." + capitalize(innerkey);
           }
           else{
             prefix += "." + capitalize(innerkey);
           }
-          String += generateEachObject(innerkey, parsed_schema[key][innerkey], prefix);
           String += generateInnerObjects(innerkey, parsed_schema[key][innerkey], prefix);
+          String += generateEachObject(innerkey, parsed_schema[key][innerkey], prefix);
         }
         if(prefix.indexOf(".") !== -1 ){
           prefix = prefix.substring(prefix.indexOf(".") + 1);
@@ -272,7 +272,7 @@ function generateInnerObjects(classname, parsed_schema, prefix){
       for(var innerkey in parsed_schema[key][0]){
         if((!isArray(parsed_schema[key][0][innerkey]) && isObject(parsed_schema[key][0][innerkey]))){
           if(prefix == ""){
-            prefix = key + "." + capitalize(innerkey);
+            prefix = capitalize(key) + "." + capitalize(innerkey);
           }
           else{
             prefix += "." + capitalize(innerkey);
@@ -383,6 +383,9 @@ function generateGet(key, value, List_Form){
     var String = "";
     String += "public ";
     String += CheckValue(key, value);
+          if(key[0].toUpperCase() == key[0]){
+            key = key.toUpperCase();
+          }
     if(List_Form === false){
       String += " get" + capitalize(key) + "(){return (" + CheckValue(key, value)  + ") _fields.get(\"" + key + "\");}\n";
     }
@@ -395,6 +398,9 @@ function generateGet(key, value, List_Form){
 
 function generateSet(key, value, List_Form){
     var String = "";
+          if(key[0].toUpperCase() == key[0]){
+            key = key.toUpperCase();
+          }
     if(List_Form === false){
       String += "public void set" + capitalize(key) + "(" + CheckValue(key, value) + " " + key + "){_fields.put(\"" + key + "\", " + key +  ");}\n";
     }
@@ -459,7 +465,7 @@ function CheckString(value){
                        break;
       case "@number" : return "java.lang.Double";
                        break;
-      default        : return "*";
+      default        : return "java.lang.Object";
     }
 }
 

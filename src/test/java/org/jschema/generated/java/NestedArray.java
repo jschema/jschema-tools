@@ -43,9 +43,22 @@ public class NestedArray{
     Iterator it = value.entrySet().iterator();
     while(it.hasNext()){
       Map.Entry pair = (Map.Entry) it.next();
-      newAddress._fields.put((String) pair.getKey(), pair.getValue());
+      if(pair.getKey().toString().equals("Town")){
+        Address.Town T = newAddress.new Town();
+        T = (Address.Town) makeTown(T, (String) pair.getKey(), (Map) pair.getValue());
+        newAddress._fields.put((String) pair.getKey(), T);
+      }
+      else newAddress._fields.put((String) pair.getKey(), pair.getValue());
     }
     return newAddress;
+  }
+  private static Object makeTown(Address.Town newTown, String key, Map value){
+    Iterator it = value.entrySet().iterator();
+    while(it.hasNext()){
+      Map.Entry pair = (Map.Entry) it.next();
+      newTown._fields.put((String) pair.getKey(), pair.getValue());
+    }
+    return newTown;
   }
   private static List makeList(NestedArray newNestedArray, String key, List value){
     List<Object> list = new ArrayList<>();
@@ -68,8 +81,8 @@ public class NestedArray{
   public java.lang.String getName(int index){return (java.lang.String) _list.get(index).get("name");}
   public void setName(int index, java.lang.String name){_list.get(index).put("name", name);}
 
-  public Address getAddress(int index){return (Address) _list.get(index).get("Address");}
-  public void setAddress(int index, Address Address){_list.get(index).put("Address", Address);}
+  public Address getADDRESS(int index){return (ADDRESS) _list.get(index).get("ADDRESS");}
+  public void setADDRESS(int index, ADDRESS ADDRESS){_list.get(index).put("ADDRESS", ADDRESS);}
 
   public class Address{
     private Map<String, Object> _fields = new HashMap<String, Object>();
@@ -77,9 +90,20 @@ public class NestedArray{
     public java.lang.Integer getNumber(){return (java.lang.Integer) _fields.get("number");}
     public void setNumber(java.lang.Integer number){_fields.put("number", number);}
 
-    public java.lang.String getStreet(){return (java.lang.String) _fields.get("Street");}
-    public void setStreet(java.lang.String Street){_fields.put("Street", Street);}
+    public java.lang.String getSTREET(){return (java.lang.String) _fields.get("STREET");}
+    public void setSTREET(java.lang.String STREET){_fields.put("STREET", STREET);}
 
+    public Town getTOWN(){return (TOWN) _fields.get("TOWN");}
+    public void setTOWN(TOWN TOWN){_fields.put("TOWN", TOWN);}
+
+    public class Town{
+      private Map<String, Object> _fields = new HashMap<String, Object>();
+
+      public java.lang.String getTOWN_NAME(){return (java.lang.String) _fields.get("TOWN_NAME");}
+      public void setTOWN_NAME(java.lang.String TOWN_NAME){_fields.put("TOWN_NAME", TOWN_NAME);}
+
+
+    }
 
   }
 
