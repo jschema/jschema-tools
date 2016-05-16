@@ -90,6 +90,14 @@ public class EndToEndJavaTests
     Assert.assertEquals(16, (int) i.getNest().getNested().getInnerVal());
 
   }
+  @Test
+  public void YahooTest() throws IOException{
+    Sachin s = Sachin.parse(loadFile("/samples/Sachin.json"));
+    Assert.assertEquals(1, (int)s.getquery().getcount());
+    Assert.assertEquals("en-US", s.getquery().getlang());
+    Assert.assertEquals("93.45", s.getquery().getresults().getquote().getDaysHigh());
+
+  }
 
   private String loadFile( String path ) throws IOException
   {
