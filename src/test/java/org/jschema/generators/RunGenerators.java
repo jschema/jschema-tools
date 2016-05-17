@@ -33,6 +33,8 @@ public class RunGenerators
         String jSchema = new String( Files.readAllBytes( schema.toPath() ) );
         Object javaCode = JSchemaToJavaRunner.generateAll( fixedName, jSchema );
         PrintWriter writer = new PrintWriter(JAVA_GENERATED_DIR + "/" + fixedName + ".java", "UTF-8");
+        writer.print(javaCode);
+        writer.close();
       }
       catch( Exception e )
       {
