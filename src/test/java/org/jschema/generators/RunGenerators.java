@@ -33,6 +33,26 @@ public class RunGenerators
         String jSchema = new String( Files.readAllBytes( schema.toPath() ) );
         Object javaCode = JSchemaToJavaRunner.generateAll( fixedName, jSchema );
         PrintWriter writer = new PrintWriter(JAVA_GENERATED_DIR + "/" + fixedName + ".java", "UTF-8");
+      }
+      catch( Exception e )
+      {
+        throw new RuntimeException( e );
+      }
+    }
+  }
+
+  private static void generateJavascript( List<File> schemas )
+  {
+    for( File schema : schemas )
+    {
+      try
+      {
+        String name = schema.getName();
+        // why does java suck so badly?
+        String fixedName = Character.toUpperCase( name.charAt( 0 ) ) + name.substring( 1, name.length() - JSCHEMA_SUFFIX.length() );
+        String jSchema = new String( Files.readAllBytes( schema.toPath() ) );
+        Object javaCode = JSchemaToJavascriptRunner.generateAll( fixedName, jSchema );
+        PrintWriter writer = new PrintWriter(JAVASCRIPT_GENERATED_DIR + "/" + fixedName + ".js", "UTF-8");
         writer.print(javaCode);
         writer.close();
       }
@@ -55,7 +75,7 @@ public class RunGenerators
   {
     for( File file : root.listFiles() )
     {
-      if( file.getName().endsWith( ".jschema" ) && !file.getName().equals("Invoice.jschema") )
+      if( file.getName().endsWith( ".jschema" ) )
       {
         files.add(file);        
       }
