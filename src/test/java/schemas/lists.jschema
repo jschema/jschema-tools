@@ -1,0 +1,19 @@
+{
+  "Family" : ["@string"],
+  "Science" : [
+    {
+      "Math" : {
+        "Algebra": "@int",
+        "Calculus": "@int"
+      },
+       "Physics" : {
+        "Mechanics" : ["@string"],
+        "Other" : "@string"
+      },
+      "Programming" : {
+        "Java" : "@string",
+        "C" : "@string"
+      }
+    }
+  ]
+}

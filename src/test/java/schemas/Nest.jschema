@@ -1,0 +1,20 @@
+{
+  "Name" : "@string",
+  "age" : "@int",
+  "School" : {
+      "School_Name" : "@string",
+      "City" : "@string"
+    },
+  "Students" : {
+      "Type" : "@string",
+      "Student_Facts" : {
+        "Number" : "@int",
+        "level"  : {
+          "Freshmen" : "@int",
+          "Sophomore" : "@int",
+          "Junior" : "@int",
+          "Senior" : "@int"
+        }
+      }
+    }
+}

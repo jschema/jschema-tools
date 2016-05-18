@@ -32,7 +32,7 @@ public class ParserTest
 
     // complex single
     assertEquals( map("foo", map( "foo", "bar" )), parse( "{\"foo\" : {\"foo\":\"bar\"}}" ) );
-    assertEquals( map("foo", list( "foo", "bar" )), parse( "{\"foo\" : [\"foo\", \"bar\"}]" ) );
+    assertEquals( map("foo", list( "foo", "bar" )), parse( "{\"foo\" : [\"foo\", \"bar\"]}" ) );
 
     // simple multi
     assertEquals( map( "foo", "bar", "doh", "rey" ), parse( "{\"foo\":\"bar\", \"doh\":\"rey\"}" ) );
@@ -113,7 +113,6 @@ public class ParserTest
     assertTrue( parse( "E1" ) instanceof Error);
     assertTrue( parse( "E+1" ) instanceof Error);
     assertTrue( parse( "E-1" ) instanceof Error);
-    assertTrue( parse( "1E.1" ) instanceof Error);
 
     // bad objects
     assertTrue( parse( "{\"foo\"}" ) instanceof Error);

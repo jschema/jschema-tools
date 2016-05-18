@@ -1,1 +1,8 @@
-[{"first_name":["jane"],"age":"@int","type":["friend","customer","supplier"],"info":{"emails":["@string"],"phone_number":{"home":"@int","cell":"@int"},"addresses":[{"address":"@string"}]}}]
+{
+  "first_name" : "@string",
+  "last_name" : "@string",
+  "age" : "@int",
+  "type" : ["friend", "customer", "supplier"],
+  "emails" : ["@string"],
+  "customer" : {"name" : "@string", "age" : "@int"}
+}

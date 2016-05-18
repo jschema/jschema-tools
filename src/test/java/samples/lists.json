@@ -1,0 +1,23 @@
+{
+  "Family" : ["father", "mother", "sister", "brother"],
+  "Science" : [
+    {
+      "Math" : {
+        "Algebra": 101,
+        "Calculus": 105
+      },
+      "Physics" : {
+        "Mechanics": [
+          "Classical",
+          "Statistical",
+          "Quantum"
+        ],
+        "Other": "Relativity"
+      },
+      "Programming" : {
+        "Java" : "sucks",
+        "C" : "hurts"
+      }
+    }
+  ]
+}

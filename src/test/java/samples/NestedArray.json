@@ -1,0 +1,16 @@
+[
+  {
+    "name" : "Michael",
+    "Address" : {
+      "number" : 214, "Street" : "Castillion",
+      "Town" : {"Town_Name" : "Martinez"}
+    }
+  },
+  {
+    "name" : "George",
+    "Address" : {
+      "number" : 1001, "Street" : "Peach St.",
+      "Town" : {"Town_Name" : "Pleasant Hill"}
+    }
+  }
+]

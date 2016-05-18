@@ -22,8 +22,7 @@ public class RunGenerators
     List<File> jsonDocs=findJSON(JSON_DIR);
     generateSchema((jsonDocs));
     List<File> schemas = findSchemas( SCHEMAS_DIR );
-    //generateJava(schemas);
-    generateJavascript( schemas );
+    generateJava(schemas);
   }
 
   private static void generateJava( List<File> schemas )
@@ -36,10 +35,10 @@ public class RunGenerators
         // why does java suck so badly?
         String fixedName = Character.toUpperCase( name.charAt( 0 ) ) + name.substring( 1, name.length() - JSCHEMA_SUFFIX.length() );
         String jSchema = new String( Files.readAllBytes( schema.toPath() ) );
-//        Object javaCode = JSchemaToJavaRunner.generateAll( fixedName, jSchema );
-//        PrintWriter writer = new PrintWriter(JAVA_GENERATED_DIR + "/" + fixedName + ".java", "UTF-8");
-//        writer.print(javaCode);
-//        writer.close();
+        Object javaCode = JSchemaToJavaRunner.generateAll( fixedName, jSchema );
+        PrintWriter writer = new PrintWriter(JAVA_GENERATED_DIR + "/" + fixedName + ".java", "UTF-8");
+        writer.print(javaCode);
+        writer.close();
       }
       catch( Exception e )
       {
