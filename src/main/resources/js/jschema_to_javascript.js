@@ -53,7 +53,7 @@ function generateCreate(schema){
          if(Object.prototype.toString.call(schema[key]).slice(8, -1) === 'Array'){
             /*edge case->empty arrays*/
             //check if enum or regular array
-            if(String(schema[key][0]).charAt(0) !== '@' && schema[key][0] !=='*' && Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'String'){
+            if((schema[key][0]).charAt(0) !== '@' && schema[key][0] !=='*' && Object.prototype.toString.call(schema[key][0]).slice(8, -1) === 'String'){
                 generatedSetters += generateEnum(key, schema[key]);
 
                 if(!first)generatedSchema += ",";
