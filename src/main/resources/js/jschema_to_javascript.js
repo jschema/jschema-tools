@@ -2,6 +2,7 @@
  This javascript file provides functionality for generating java source code for working with
  JSON documents that satisfy a given jSchema
  */
+ 
 var indent="  ";
 var currIndent="        ";
 function generateJavascriptForJSchema(jSchema, className) {
@@ -219,7 +220,7 @@ function generateArrayValidator(type){
     case "*":
        return "Wildcard"
     default: // wildcard
-        
+
   }
   //Special case array of arrays
   if(Object.prototype.toString.call(type).slice(8,-1)==='Array'){
