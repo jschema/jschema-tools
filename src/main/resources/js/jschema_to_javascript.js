@@ -39,12 +39,7 @@ function generateCreate(schema){
     var isArray=0;
     if(Object.prototype.toString.call(schema).slice(8, -1) === 'Array'){
         isArray=1;
-      //  generatedSchema += "\n"+currIndent + "[";
         schema=schema[0];
-        /*if(Object.prototype.toString.call(schema).slice(8, -1)==='Object'){
-            generatedSchema += "{";
-            isArray=2;
-        }*/
     }
   for(var key in schema){
     if (schema.hasOwnProperty(key)){
@@ -94,14 +89,10 @@ function generateCreate(schema){
                 if(!first)generatedSchema += ",";
                  generatedSchema += "\n"+currIndent + key + ":";
                   generatedSetters += generateArray(key, schema[key]);
-
-                // generatedSchema += ",";
-                 //normal array of core types
             }else{
                     if(!first)generatedSchema += ",";
                     generatedSchema += "\n"+currIndent + key + ":[";
                     generatedSetters += generateArray(key, schema[key]);
-                    //generatedSchema += "\n"+currIndent + key + ": [\"" + schema[key] + "\"],";
             }
          }else if (Object.prototype.toString.call(schema[key]).slice(8, -1) === 'Object'){
             if(!first)generatedSchema += ",";
@@ -138,7 +129,6 @@ function generateCreate(schema){
             indent+indent+indent+indent+indent+"}\n"+
             indent+indent+indent+indent+"}\n"+
             indent+indent+indent+indent+"for(var key in validators){\n" ;
-           // indent+indent+indent+indent+indent+"if(strict){\n";
           }else{
             returnString+=indent+indent+indent+indent+"if (strict){\n"+
             indent+indent+indent+indent+indent+"for(var key in this){\n"+
@@ -148,25 +138,16 @@ function generateCreate(schema){
             indent+indent+indent+indent+indent+"}\n"+
             indent+indent+indent+indent+"}\n"+
             indent+indent+indent+indent+"for(var key in validators){\n" ;
-            //indent+indent+indent+indent+indent+"if(strict){\n";
 
           }
           if(isArray){
             returnString+=indent+indent+indent+indent+indent+indent+"if(this.jschema[key] && this[index][key]){\n" +
             indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[index][key]);\n";
-            //indent+indent+indent+indent+indent+indent+"}\n" +
-           // indent+indent+indent+indent+indent+"}else{\n"+
-            //indent+indent+indent+indent+indent+indent+"if(this[index][key]){\n" +
-           // indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[index][key]);\n" +
-           // indent+indent+indent+indent+indent+indent+"}\n";
+
           }else{
           returnString+=indent+indent+indent+indent+indent+indent+"if(this.jschema[key] && this[key]){\n" +
                       indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n";
-                     // indent+indent+indent+indent+indent+indent+"}\n" +
-                      //indent+indent+indent+indent+indent+"}else{\n"+
-                    //  indent+indent+indent+indent+indent+indent+"if(this[key]){\n" +
-                     // indent+indent+indent+indent+indent+indent+indent+"msg += validators[key](this[key]);\n" +
-                      //indent+indent+indent+indent+indent+indent+"}\n";
+
           }
           returnString+=indent+indent+indent+indent+indent+"}\n"+
           indent+indent+indent+indent+"}\n" ;
@@ -238,11 +219,7 @@ function generateArrayValidator(type){
     case "*":
        return "Wildcard"
     default: // wildcard
-        //check if enumeration
-       /* if(Object.prototype.toString.call(type).slice(8, -1) === 'String'){
-            return "enum";
-        }
-        return "True";*/
+        
   }
   //Special case array of arrays
   if(Object.prototype.toString.call(type).slice(8,-1)==='Array'){
