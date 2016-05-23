@@ -35,6 +35,9 @@ public class JSONToJSchemaRunner
                     "{ \"name\" : \"Mack\", \"age\" : 55, \"eye_color\" : \"blue\" } ]",
             "[ { \"name\" : [\"Joe\", \"Paul\", \"Mack\"], \"age\" : \"@int\", \"eye_color\" : [\"brown\", \"blue\"] } ]", true);
 
+    // Null values
+    test("{\"test\": null}", "{\"test\": \"*\"}", false);
+
     // Larger JSON file tests
 
     // Twitter API results

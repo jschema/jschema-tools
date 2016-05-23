@@ -32,6 +32,7 @@ public class Token
   private int _offset;
   private double _num;
   static final Map<String, TokenType> constants = initializeConstants();
+  private Map test;
 
   public Token( TokenType tokenType, String value, int lineNumber, int column, int offset, double num )
   {

@@ -56,6 +56,8 @@ function parse(original, preferEnums) {
         // Check if object is an array or standard object
         if (isArray(value)) {
             return parseArray(value, preferEnums);
+        } else if (value == null) {
+            return "*";
         } else {
             return parseMember(value);
         }
