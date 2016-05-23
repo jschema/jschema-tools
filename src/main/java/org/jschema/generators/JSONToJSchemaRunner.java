@@ -5,6 +5,8 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 public class JSONToJSchemaRunner
@@ -18,6 +20,8 @@ public class JSONToJSchemaRunner
     // Arrays
     test("[\"red\", \"orange\", \"yellow\"]", "[\"@string\"]", false);
     test("[\"red\", 5]", "[\"*\"]", false);
+    test("[[\"apples\",\"oranges\",\"bananas\"], [\"forks\",\"knives\",\"spoons\"],[\"hot sauce\",\"bbq sauce\",\"rance\"]]","[[\"@string\"]]",false);
+    test("{ \"storeName\" : \"Costco\",\"itemsToBuy\" : [[\"apples\",\"oranges\",\"bananas\"], [\"forks\",\"knives\",\"spoons\"],[\"hot sauce\",\"bbq sauce\",\"ranch\"]]}", "{\"storeName\": \"@string\", \"itemsToBuy\":[[\"@string\"]]}", false);
 
     // Arrays of objects
     test("[{\"a\": \"hello\"}, {\"b\": 5}]", "[{\"a\": \"@string\", \"b\": \"@int\"}]", false);
@@ -30,6 +34,9 @@ public class JSONToJSchemaRunner
                     "{ \"name\" : \"Paul\", \"age\" : 28, \"eye_color\" : \"brown\" }, " +
                     "{ \"name\" : \"Mack\", \"age\" : 55, \"eye_color\" : \"blue\" } ]",
             "[ { \"name\" : [\"Joe\", \"Paul\", \"Mack\"], \"age\" : \"@int\", \"eye_color\" : [\"brown\", \"blue\"] } ]", true);
+
+    // Null values
+    test("{\"test\": null}", "{\"test\": \"*\"}", false);
 
     // Larger JSON file tests
 
@@ -63,5 +70,12 @@ public class JSONToJSchemaRunner
     String formattedJSON = (String)invocable.invokeFunction("formatJSONString", json);
     String result = (String)invocable.invokeFunction("jsonToJSchemaString", json, preferEnums);
     System.out.println("JSON input: " + formattedJSON + "\nJSchema result: " + result + "\n");
+  }
+  public static Object generateAll( String json, Boolean preferEnums ) throws ScriptException, NoSuchMethodException, FileNotFoundException
+  {
+    ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+    engine.eval( new FileReader( "src/main/resources/js/json_to_jschema.js" ) );
+    Invocable invocable = (Invocable) engine;
+    return invocable.invokeFunction("jsonToJSchemaString", json, preferEnums);
   }
 }

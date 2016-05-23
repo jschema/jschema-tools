@@ -10,6 +10,8 @@ public class RunGenerators
 {
 
   public static final String JSCHEMA_SUFFIX = ".jschema";
+  public static final String JSON_SUFFIX = ".json";
+  public static final String JSON_DIR = "src/test/java/samples";
   public static final String SCHEMAS_DIR = "src/test/java/schemas";
   public static final String GENERATED_DIR = "src/test/java/org/jschema/generated";
   public static final String JAVA_GENERATED_DIR = GENERATED_DIR + "/java";
@@ -17,6 +19,8 @@ public class RunGenerators
 
   public static void main( String[] args )
   {
+    List<File> jsonDocs=findJSON(JSON_DIR);
+    generateSchema((jsonDocs));
     List<File> schemas = findSchemas( SCHEMAS_DIR );
     generateJava(schemas);
   }
@@ -65,6 +69,26 @@ public class RunGenerators
     }
   }
 
+  private static void generateSchema(List<File> jsonDocs){
+    for(File doc : jsonDocs){
+      try{
+        String name = doc.getName();
+        if(!name.equals("cars.json")) {
+          // why does java suck so badly?
+          String fixedName = name.substring(0, name.length() - JSON_SUFFIX.length());
+          String json = new String(Files.readAllBytes(doc.toPath()));
+          Object schemaCode = JSONToJSchemaRunner.generateAll(json, true);
+          PrintWriter writer = new PrintWriter(SCHEMAS_DIR + "/" + fixedName + ".jschema", "UTF-8");
+          writer.print(schemaCode);
+          writer.close();
+        }
+      }catch( Exception e )
+      {
+        throw new RuntimeException( e );
+      }
+    }
+
+  }
   private static List<File> findSchemas(String relativePath) {
     File root = new File( relativePath );
     List<File> schemas = findSchemas( root, new ArrayList() );
@@ -84,6 +108,29 @@ public class RunGenerators
       else if(file.isDirectory())
       {
         findSchemas( file, files );
+      }
+    }
+    return files;
+  }
+  private static List<File> findJSON(String relativePath) {
+    File root = new File( relativePath );
+    List<File> jsonDocs = findJSON( root, new ArrayList() );
+    System.out.println("Root Dir: " + root.getAbsolutePath()  +"\n");
+    System.out.println("Found : " + jsonDocs );
+    return jsonDocs;
+  }
+
+  private static List<File> findJSON( File root, List<File> files )
+  {
+    for( File file : root.listFiles() )
+    {
+      if( file.getName().endsWith( ".json" ) )
+      {
+        files.add(file);
+      }
+      else if(file.isDirectory())
+      {
+        findJSON( file, files );
       }
     }
     return files;

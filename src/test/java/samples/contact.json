@@ -1,0 +1,8 @@
+{
+  "first_name" : "Bill",
+  "last_name" : "Weasley",
+  "age" : 29,
+  "type" : ["friend", "customer", "supplier"],
+  "emails" : ["Bill@1.com", "Bill@2.com", "Bill@3.com"],
+  "customer" : {"name" : "NOTBill", "age" : 31}
+}

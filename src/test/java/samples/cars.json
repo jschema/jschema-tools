@@ -1,0 +1,92 @@
+[
+  {
+    "make": "Tesla",
+    "model": "3",
+    "year": 2016,
+    "miles": 5,
+    "accessories": ["good_mpg","eco_friendly","navigation","extra_cargo"],
+    "interior": {
+      "seats": 4,
+      "parking_sensors": false,
+      "colors": "red",
+      "packages": {
+        "sport": {
+          "heated_seats": true,
+          "big_rims": false,
+          "awd": false
+        },
+        "luxury": {
+          "heated_seats": true,
+          "big_rims": false,
+          "awd": false
+        },
+        "base": {
+          "heated_seats": false,
+          "big_rims": false,
+          "awd": false
+        }
+      }
+
+    }
+  },
+  {
+    "make": "Mercedes",
+    "model": "GLK",
+    "year": 2012,
+    "miles": 20000,
+    "accessories": ["blind_spot_assist","aux","radio","bluetooth","navigation"],
+    "interior": {
+      "seats": 5,
+      "parking_sensors": true,
+      "colors": "silver",
+      "packages": {
+        "sport": {
+          "heated_seats": true,
+          "big_rims": true,
+          "awd": true
+        },
+        "luxury": {
+          "heated_seats": true,
+          "big_rims": false,
+          "awd": false
+        },
+        "base": {
+          "heated_seats": false,
+          "big_rims": false,
+          "awd": false
+        }
+      }
+
+    }
+  },
+
+  {
+  "make": "Lexus",
+  "model": "NX",
+  "year": 2016,
+  "miles": 10000,
+  "accessories": ["radio","bluetooth","navigation"],
+  "interior": {
+    "seats": 4,
+    "parking_sensors": true,
+    "colors": "white",
+    "packages": {
+      "sport": {
+        "heated_seats": true,
+        "big_rims": true,
+        "awd": true
+      },
+      "luxury": {
+        "heated_seats": true,
+        "big_rims": false,
+        "awd": false
+      },
+      "base": {
+        "heated_seats": false,
+        "big_rims": false,
+        "awd": false
+      }
+    }
+
+  }
+}]

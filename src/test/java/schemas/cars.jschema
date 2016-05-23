@@ -1,0 +1,31 @@
+[{
+	"make": "@string",
+	"model": "@string",
+	"year": "@int",
+	"miles": "@int",
+	"accessories": ["*"],
+	"interior": {
+		"seats": "@int",
+		"parking_sensors": "@boolean",
+		"colors": ["red", "blue", "green", "white", "silver"],
+		"packages": {
+			"sport": {
+				"heated_seats": "@boolean",
+				"big_rims": "@boolean",
+				"awd": "@boolean"
+			},
+			"luxury": {
+				"heated_seats": "@boolean",
+				"big_rims": "@boolean",
+				"awd": "@boolean"
+			},
+			"base": {
+				"heated_seats": "@boolean",
+				"big_rims": "@boolean",
+				"awd": "@boolean"
+			}
+		}
+
+	}
+
+}]

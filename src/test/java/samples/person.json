@@ -1,0 +1,13 @@
+{
+  "first_name" : "jane",
+  "last_name" :"doe",
+  "age" : 20,
+  "hobbies" : [{"sports":["basketball","soccer","softball"]},{"crafts":"painting"}],
+  "info" : {
+    "email" : ["jane@test.com"],
+    "phone_number" : {"home" : 1234567, "cell" : 1234567},
+    "addresses" : [{"address" : "123 test street, ca"}]
+  },
+  "dob":"1990-02-19",
+  "gender":["male","female"]
+}
